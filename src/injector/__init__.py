@@ -1,0 +1,277 @@
+"""
+woldvein Trainer v0.3 - 游戏进程检测与DLL注入模块
+
+功能说明：
+    检测游戏进程、注入DLL到游戏进程、验证DLL是否已注入、启动游戏。
+    使用Windows API实现进程操作和DLL注入。
+
+核心函数：
+    find_game_process()   查找游戏进程，返回(pid, process)元组
+    inject_dll(pid, dll_path)  注入DLL到指定进程
+    is_dll_injected(pid, dll_name)  检查DLL是否已注入
+    launch_game(app_id)   通过Steam启动游戏
+    get_process_modules(pid)  获取进程已加载的模块列表
+
+DLL注入原理：
+    1. OpenProcess打开目标进程，获取进程句柄
+    2. VirtualAllocEx在目标进程中分配内存
+    3. WriteProcessMemory写入DLL路径到目标进程内存
+    4. GetProcAddress获取LoadLibraryW函数地址
+    5. CreateRemoteThread在目标进程中创建远程线程，调用LoadLibraryW加载DLL
+    6. WaitForSingleObject等待线程结束
+    7. CloseHandle关闭句柄
+
+技术要点：
+    - 使用LoadLibraryW（Unicode），支持中文路径
+    - ctypes函数原型已设置argtypes/restype，避免64位句柄截断
+    - WriteProcessMemory使用create_string_buffer包装bytes
+    - 游戏必须通过steam://run/2656540启动，直启EXE报XGSDK code=1000黑屏
+"""
+import os
+import ctypes
+from ctypes import wintypes
+
+from ..logger import log, log_success, log_error, log_warning
+
+# Windows API
+kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+psapi = ctypes.WinDLL("psapi", use_last_error=True)
+
+# === 显式设置 ctypes 函数原型（64位下防止句柄/指针被截断为c_int）===
+kernel32.OpenProcess.argtypes = [wintypes.DWORD, wintypes.BOOL, wintypes.DWORD]
+kernel32.OpenProcess.restype = wintypes.HANDLE
+
+kernel32.VirtualAllocEx.argtypes = [wintypes.HANDLE, wintypes.LPVOID, ctypes.c_size_t, wintypes.DWORD, wintypes.DWORD]
+kernel32.VirtualAllocEx.restype = wintypes.LPVOID
+
+kernel32.VirtualFreeEx.argtypes = [wintypes.HANDLE, wintypes.LPVOID, ctypes.c_size_t, wintypes.DWORD]
+kernel32.VirtualFreeEx.restype = wintypes.BOOL
+
+kernel32.WriteProcessMemory.argtypes = [wintypes.HANDLE, wintypes.LPVOID, wintypes.LPCVOID, ctypes.c_size_t, ctypes.POINTER(ctypes.c_size_t)]
+kernel32.WriteProcessMemory.restype = wintypes.BOOL
+
+kernel32.CreateRemoteThread.argtypes = [wintypes.HANDLE, wintypes.LPVOID, ctypes.c_size_t, wintypes.LPVOID, wintypes.LPVOID, wintypes.DWORD, ctypes.POINTER(wintypes.DWORD)]
+kernel32.CreateRemoteThread.restype = wintypes.HANDLE
+
+kernel32.WaitForSingleObject.argtypes = [wintypes.HANDLE, wintypes.DWORD]
+kernel32.WaitForSingleObject.restype = wintypes.DWORD
+
+kernel32.GetExitCodeThread.argtypes = [wintypes.HANDLE, ctypes.POINTER(wintypes.DWORD)]
+kernel32.GetExitCodeThread.restype = wintypes.BOOL
+
+kernel32.CloseHandle.argtypes = [wintypes.HANDLE]
+kernel32.CloseHandle.restype = wintypes.BOOL
+
+kernel32.GetModuleHandleW.argtypes = [wintypes.LPCWSTR]
+kernel32.GetModuleHandleW.restype = wintypes.HMODULE
+
+kernel32.GetProcAddress.argtypes = [wintypes.HMODULE, wintypes.LPCSTR]
+kernel32.GetProcAddress.restype = wintypes.LPVOID
+
+kernel32.LoadLibraryW.argtypes = [wintypes.LPCWSTR]
+kernel32.LoadLibraryW.restype = wintypes.HMODULE
+
+# 常量
+PROCESS_ALL_ACCESS = 0x1F0FFF
+MEM_COMMIT = 0x1000
+MEM_RESERVE = 0x2000
+MEM_RELEASE = 0x8000
+PAGE_READWRITE = 0x04
+WAIT_OBJECT_0 = 0x00000000
+WAIT_TIMEOUT = 0x00000102
+WAIT_FAILED = 0xFFFFFFFF
+STILL_ACTIVE = 259
+
+GAME_PROCESS_NAME = "BalladsOfHongye.exe"
+
+
+def find_game_process():
+    """查找游戏进程，返回 (pid, process) 或 (None, None)"""
+    import psutil  # 懒加载：仅在查找进程时导入，加速启动
+    for proc in psutil.process_iter(["pid", "name", "exe"]):
+        try:
+            if proc.info["name"] and proc.info["name"].lower() == GAME_PROCESS_NAME.lower():
+                return proc.info["pid"], proc
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            continue
+    return None, None
+
+
+def get_process_modules(pid):
+    """
+    获取进程已加载的模块列表。
+    使用EnumProcessModulesEx+GetModuleFileNameExW（psapi.dll），
+    替代psutil.memory_maps()（Windows上权限要求高且不可靠）。
+    """
+    modules = []
+    try:
+        PROCESS_QUERY_INFORMATION = 0x0400
+        PROCESS_VM_READ = 0x0010
+        LIST_MODULES_ALL = 0x03
+        MAX_PATH = 260
+
+        # 设置psapi函数原型
+        psapi.EnumProcessModulesEx.argtypes = [
+            wintypes.HANDLE, ctypes.POINTER(wintypes.HMODULE),
+            wintypes.DWORD, ctypes.POINTER(wintypes.DWORD), wintypes.DWORD
+        ]
+        psapi.EnumProcessModulesEx.restype = wintypes.BOOL
+        psapi.GetModuleFileNameExW.argtypes = [
+            wintypes.HANDLE, wintypes.HMODULE, wintypes.LPWSTR, wintypes.DWORD
+        ]
+        psapi.GetModuleFileNameExW.restype = wintypes.DWORD
+
+        h = kernel32.OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, False, pid)
+        if not h:
+            return modules
+        try:
+            arr = (wintypes.HMODULE * 1024)()
+            needed = wintypes.DWORD(0)
+            if psapi.EnumProcessModulesEx(h, arr, ctypes.sizeof(arr), ctypes.byref(needed), LIST_MODULES_ALL):
+                count = needed.value // ctypes.sizeof(wintypes.HMODULE)
+                buf = ctypes.create_unicode_buffer(MAX_PATH)
+                for i in range(count):
+                    if psapi.GetModuleFileNameExW(h, arr[i], buf, MAX_PATH):
+                        modules.append(os.path.basename(buf.value))
+        finally:
+            kernel32.CloseHandle(h)
+    except Exception as e:
+        log_error(f"获取进程模块失败: {e}")
+    return modules
+
+
+def is_dll_injected(pid, dll_name):
+    """检查DLL是否已注入"""
+    modules = get_process_modules(pid)
+    return dll_name.lower() in [m.lower() for m in modules]
+
+
+def inject_dll(pid, dll_path):
+    """
+    注入DLL到目标进程
+    返回 (success, message)
+    """
+    dll_path = os.path.abspath(dll_path)
+    if not os.path.exists(dll_path):
+        return False, f"DLL文件不存在: {dll_path}"
+
+    dll_name = os.path.basename(dll_path)
+
+    # 检查是否已注入
+    if is_dll_injected(pid, dll_name):
+        return True, f"DLL已注入: {dll_name}"
+
+    log(f"开始注入DLL: {dll_path} -> PID={pid}")
+
+    try:
+        # 打开进程
+        h_process = kernel32.OpenProcess(PROCESS_ALL_ACCESS, False, pid)
+        if not h_process:
+            error = ctypes.get_last_error()
+            return False, f"OpenProcess失败，错误码: {error}"
+
+        # 在目标进程分配内存（使用UTF-16-LE编码，支持Unicode路径）
+        dll_path_bytes = dll_path.encode("utf-16-le") + b"\x00\x00"
+        path_size = len(dll_path_bytes)
+        remote_mem = kernel32.VirtualAllocEx(
+            h_process, None, path_size,
+            MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE
+        )
+        if not remote_mem:
+            error = ctypes.get_last_error()
+            kernel32.CloseHandle(h_process)
+            return False, f"VirtualAllocEx失败，错误码: {error}"
+
+        # 写入DLL路径（用 create_string_buffer 包装，避免 c_void_p 不接受 bytes）
+        dll_path_buf = ctypes.create_string_buffer(dll_path_bytes)
+        written = ctypes.c_size_t(0)
+        result = kernel32.WriteProcessMemory(
+            h_process, remote_mem, dll_path_buf,
+            path_size, ctypes.byref(written)
+        )
+        if not result or written.value != path_size:
+            error = ctypes.get_last_error()
+            kernel32.VirtualFreeEx(h_process, remote_mem, 0, MEM_RELEASE)
+            kernel32.CloseHandle(h_process)
+            return False, f"WriteProcessMemory失败，错误码: {error}"
+
+        # 获取LoadLibraryW地址（Unicode版本，支持中文路径）
+        # 用GetProcAddress从kernel32.dll获取，确保地址正确
+        h_kernel32 = kernel32.GetModuleHandleW("kernel32.dll")
+        load_lib_addr = kernel32.GetProcAddress(h_kernel32, b"LoadLibraryW")
+        if not load_lib_addr:
+            error = ctypes.get_last_error()
+            kernel32.VirtualFreeEx(h_process, remote_mem, 0, MEM_RELEASE)
+            kernel32.CloseHandle(h_process)
+            return False, f"获取LoadLibraryW地址失败，错误码: {error}"
+
+        # 创建远程线程执行LoadLibraryW
+        thread_id = ctypes.c_ulong(0)
+        h_thread = kernel32.CreateRemoteThread(
+            h_process, None, 0,
+            load_lib_addr,
+            remote_mem, 0, ctypes.byref(thread_id)
+        )
+        if not h_thread:
+            error = ctypes.get_last_error()
+            kernel32.VirtualFreeEx(h_process, remote_mem, 0, MEM_RELEASE)
+            kernel32.CloseHandle(h_process)
+            return False, f"CreateRemoteThread失败，错误码: {error}"
+
+        # 等待线程结束（最长5秒）
+        wait_ret = kernel32.WaitForSingleObject(h_thread, 5000)
+        if wait_ret == WAIT_TIMEOUT:
+            # 超时：DLL可能仍在加载中，不清理远程内存（否则DLL加载会崩溃）
+            # 注意：游戏进程中会泄漏 path_size 字节内存（约几百字节），可忽略
+            kernel32.CloseHandle(h_thread)
+            kernel32.CloseHandle(h_process)
+            return False, f"等待远程线程超时（5秒），DLL可能仍在加载中，请稍后重试（游戏进程泄漏约{path_size}字节，可忽略）"
+        elif wait_ret == WAIT_FAILED:
+            error = ctypes.get_last_error()
+            kernel32.CloseHandle(h_thread)
+            kernel32.VirtualFreeEx(h_process, remote_mem, 0, MEM_RELEASE)
+            kernel32.CloseHandle(h_process)
+            return False, f"WaitForSingleObject失败，错误码: {error}"
+
+        # 检查退出码
+        exit_code = ctypes.c_ulong(0)
+        if not kernel32.GetExitCodeThread(h_thread, ctypes.byref(exit_code)):
+            error = ctypes.get_last_error()
+            kernel32.CloseHandle(h_thread)
+            kernel32.VirtualFreeEx(h_process, remote_mem, 0, MEM_RELEASE)
+            kernel32.CloseHandle(h_process)
+            return False, f"GetExitCodeThread失败，错误码: {error}"
+
+        # 清理
+        kernel32.CloseHandle(h_thread)
+        kernel32.VirtualFreeEx(h_process, remote_mem, 0, MEM_RELEASE)
+        kernel32.CloseHandle(h_process)
+
+        if exit_code.value == 0:
+            return False, "LoadLibraryW返回0，DLL加载失败（可能DLL依赖缺失或版本不匹配）"
+        if exit_code.value == STILL_ACTIVE:
+            return False, "远程线程仍在运行中，DLL加载未完成"
+
+        # 验证DLL是否加载
+        if is_dll_injected(pid, dll_name):
+            log_success(f"DLL注入成功: {dll_name}")
+            return True, f"DLL注入成功: {dll_name}"
+        else:
+            return False, "DLL注入后未在进程模块列表中找到"
+
+    except Exception as e:
+        log_error(f"DLL注入异常: {e}")
+        return False, f"DLL注入异常: {e}"
+
+
+def launch_game(steam_app_id="2656540"):
+    """通过Steam协议启动游戏"""
+    import subprocess
+    try:
+        subprocess.Popen(f"start steam://run/{steam_app_id}", shell=True)
+        log(f"已请求启动游戏 (steam://run/{steam_app_id})")
+        return True
+    except Exception as e:
+        log_error(f"启动游戏失败: {e}")
+        return False
+

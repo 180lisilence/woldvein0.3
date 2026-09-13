@@ -1,0 +1,33 @@
+# ============ 构建产物 ============
+build/
+dist/
+
+# ============ Python 缓存 ============
+__pycache__/
+*.py[cod]
+
+# ============ 运行日志 ============
+logs/
+*.log
+
+# ============ 临时 / 中间文件 ============
+_tmp_*
+_tmp_clone/
+build_out.txt
+build_err.txt
+out.txt
+err.txt
+probe_report.txt
+gc.log
+*.tmp
+
+# ============ 备份目录 ============
+_backup_*/
+
+# ============ 历史遗留旧版副本（不上传） ============
+dancenyuan0.3/
+yuan/
+woldvein_trainer0.2/
+
+# ============ 本地个人配置（含本机游戏路径） ============
+config.json
