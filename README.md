@@ -1,5 +1,7 @@
 ﻿# 平野孤鸿 全能修改器 woldvein Trainer v0.3
 
+> 📌 **版本沿革**：本版本承接自 **[woldvein Trainer v0.2](https://github.com/180lisilence/woldvein0.2)**（已归档，仅供查阅历史）
+
 > 专为西山居城建经营游戏《平野孤鸿》(BalladsOfHongye, Steam AppID 2656540) 开发的游戏修改工具。
 >
 > 纯内存操作 · DLL 注入 · Lua 执行引擎 · 左侧导航 + 6 个页面 · 12 个全局热键 · 深/浅主题 GUI
