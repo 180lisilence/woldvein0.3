@@ -2,6 +2,37 @@
 
 ## 2026-09-14
 
+### 修复：多开修改器把命令通道踩坏（注入/升级「假失败」）+ 任务「直接改数据」解锁/完成
+
+**现象**：面板注入失败；品阶升级等操作也失效。日志里「注入面板」的返回值是**状态轮询的 JSON**（别人的结果）。
+
+**根因（实机确证）**
+- 用户同时开了**两个修改器实例**（PID 9212 @21:18、PID 15048 @21:26）。两个进程各自都有后台状态轮询线程，
+  都在写同一份 `%LOCALAPPDATA%\woldvein_trainer\lua_cmd.txt`、读同一份 `lua_result.txt`；
+- `open(CMD_FILE,"w")` 是「先截断再分片写入」（Python 文本层默认 8KB 缓冲），两进程交叉写 →
+  DLL 可能读到「A 的 REQ_ID + B 的代码」这种拼接内容 → 结果串号 → App 判定为失败；
+- 请求ID 竞态防护只在「读到不匹配 ID」时跳过，但拼接内容恰好让 ID 匹配，
+  于是把别人的 JSON 当成了自己的结果（日志：`[ERROR] {"prosperity_level":...}`）。
+
+**修复**
+- `src/lua_engine.py`
+  - 命令文件**原子写入**：先写 `.tmp` 再 `os.replace`（同分卷原子），DLL 只会看到完整的旧内容或完整的新内容
+  - **跨进程通道锁**（`lua_channel.lock` + msvcrt 文件锁）：`execute_lua` 全程持锁；
+    原函数体改名为 `_execute_lua_inner`，`_lock` 由 `Lock` 改 `RLock` 以支持外层包装
+  - 新增 `execute_lua_retry(code, timeout, attempts, tag, expect)`：拿不到有效结果、或结果前缀不符（疑似串号）就重发，每次全新请求ID
+- `main.py`：**单实例保护**（命名互斥体 `woldvein_trainer_mutex_v03`），已有实例时弹提示并退出
+- 关键操作改用重试版本：面板注入/移除（3 次）、品阶逐级晋升（2 次）、激活全部任务（2 次）
+
+**新功能：任务「直接改数据」解锁 / 完成**（按用户要求：不绕游戏内部流程，直接把数据改成满足条件的样子）
+- 源码依据（`task.lua:254`）：`LTask:CheckPreConditions()` 第一句就是
+  `if self.unlockPre then retBool = true; break; end` —— 这就是游戏自带的 GM 短路分支，
+  把 `unlockPre` 写成 true，游戏自己就会判定「前置触发条件已满足」
+- **解锁**：`unlockPre=true` + `status=ACTIVATED(2)` + `timeLog` + 分桶 `tbUnStartTasks → tbCurTasks`
+- **完成**：`status=FINISHED(4)` + `isNextTaskFinished=true` + 分桶 `→ tbFinishedTasks` + `RecieveReward()` 按配置发奖；
+  `CheckPreviousTask()` 读的是「前置任务的 status」，因此置为 FINISHED 后后续任务的前置链判定自然通过
+- 高级工具页「任务」区块新增「🔧 改数据解锁」「🔧 改数据完成」；游戏内面板新增「任务」区块
+- 新增静态体检脚本 `_tmp_luacheck.py`：剥离注释/字符串后核对全部 Lua 片段的块配对（14 段全部 OK）
+
 ### 修复：游戏内面板中文乱码 / 折叠展不开 / 面板一直闪
 
 **用户反馈**：游戏内面板「字体乱、一直刷新、展不开、看不懂」。

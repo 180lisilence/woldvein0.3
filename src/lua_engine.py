@@ -56,11 +56,13 @@ def _get_comm_dir():
 COMM_DIR = _get_comm_dir()
 CMD_FILE = os.path.join(COMM_DIR, "lua_cmd.txt")
 RESULT_FILE = os.path.join(COMM_DIR, "lua_result.txt")
+# 跨进程通道锁文件（见 _ipc_lock_acquire）：防止多个修改器实例同时写同一份命令文件
+LOCK_FILE = os.path.join(COMM_DIR, "lua_channel.lock")
 
-_lock = threading.Lock()
+_lock = threading.RLock()
 
 
-def execute_lua(code, timeout=LUA_TIMEOUT):
+def _execute_lua_inner(code, timeout=LUA_TIMEOUT):
     """
     执行Lua代码，通过命令文件机制与DLL通信。
 
@@ -108,9 +110,11 @@ def execute_lua(code, timeout=LUA_TIMEOUT):
                 pass  # 清理失败不影响执行，静默容错
 
         # 写入命令文件（格式：REQ_ID:xxxxxxxx\n + Lua代码）
+        # 原子写入（.tmp + os.replace）：open("w") 会先截断再分片写入，
+        # 若同时有第二个实例在写同一份文件，DLL 可能读到「A的请求ID + B的代码」的拼接内容，
+        # 表现就是「命令返回了别的命令的结果」（实机事故 2026-09-14：面板注入/品阶升级假失败）。
         try:
-            with open(CMD_FILE, "w", encoding="utf-8") as f:
-                f.write(req_prefix + code)
+            _write_cmd_atomic(req_prefix + code)
         except Exception as e:
             log_error(f"写入命令文件失败: {e}")
             return False, -1
@@ -193,6 +197,114 @@ def execute_lua(code, timeout=LUA_TIMEOUT):
                 pass  # 超时清理失败不影响返回结果
         return False, -1
 
+
+def _write_cmd_atomic(payload):
+    """原子写入命令文件：先写 .tmp 再 os.replace（同分卷原子）。
+
+    为什么必须原子：直接 open(CMD_FILE,"w") 会先截断再分片写入（Python 文本层默认 8KB 缓冲），
+    如果同时存在第二个修改器实例在写同一份文件，DLL 可能读到「A 的请求ID + B 的代码」这种
+    拼接内容，于是「某个命令返回了另一个命令的结果」→ 面板注入 / 品阶升级全部假失败。
+    """
+    tmp = CMD_FILE + ".tmp"
+    with open(tmp, "w", encoding="utf-8", newline="") as f:
+        f.write(payload)
+        f.flush()
+        try:
+            os.fsync(f.fileno())
+        except Exception:
+            pass
+    os.replace(tmp, CMD_FILE)
+
+
+_ipc_handle = None
+
+
+def _ipc_lock_acquire(timeout=20.0):
+    """获取跨进程通道锁（Windows: msvcrt 文件锁）。失败返回 False（仍会继续，仅告警）。
+
+    进程内的 _lock 管不住另一个修改器进程，必须用系统级文件锁，
+    否则两个实例的后台状态轮询会互相覆盖 lua_cmd.txt。
+    """
+    global _ipc_handle
+    try:
+        import msvcrt
+    except ImportError:
+        return True  # 非 Windows：退化为仅进程内锁
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        try:
+            h = open(LOCK_FILE, "a+b")
+        except Exception:
+            return True
+        try:
+            msvcrt.locking(h.fileno(), msvcrt.LK_NBLCK, 1)
+        except OSError:
+            try:
+                h.close()
+            except Exception:
+                pass
+            time.sleep(0.02)
+            continue
+        _ipc_handle = h
+        return True
+    return False
+
+
+def _ipc_lock_release():
+    """释放跨进程通道锁"""
+    global _ipc_handle
+    h = _ipc_handle
+    _ipc_handle = None
+    if h is None:
+        return
+    try:
+        import msvcrt
+        h.seek(0)
+        msvcrt.locking(h.fileno(), msvcrt.LK_UNLCK, 1)
+    except Exception:
+        pass
+    try:
+        h.close()
+    except Exception:
+        pass
+
+
+def execute_lua(code, timeout=LUA_TIMEOUT):
+    """执行Lua代码（进程内锁 + 跨进程通道锁）。
+
+    具体协议、返回值约定见 _execute_lua_inner 的文档字符串。
+    """
+    with _lock:
+        got = _ipc_lock_acquire()
+        try:
+            return _execute_lua_inner(code, timeout)
+        finally:
+            if got:
+                _ipc_lock_release()
+
+
+def execute_lua_retry(code, timeout=LUA_TIMEOUT, attempts=3, tag="", expect=None):
+    """关键操作重试包装：拿不到有效结果时自动重发（每次都是全新请求ID）。
+
+    expect: 期望的结果前缀元组；若结果是字符串但不以这些前缀开头，
+            说明拿到的可能是别的命令的残留结果（串号），同样重试。
+    """
+    if expect is None:
+        expect = ("[成功]", "[失败]", "[错误]", "[提示]", "[警告]")
+    expect = tuple(expect)
+    last = (False, -1)
+    for i in range(1, max(1, int(attempts)) + 1):
+        success, result = execute_lua_safe(code, timeout)
+        last = (success, result)
+        ok = bool(success)
+        if ok and isinstance(result, str):
+            ok = result.strip().startswith(expect)
+        if ok:
+            return success, result
+        if i < attempts:
+            log_warning(f"[重试] {tag or '关键操作'} 第 {i} 次未拿到有效结果，重发请求 ...")
+            time.sleep(0.3)
+    return last
 
 def execute_lua_safe(code, timeout=LUA_TIMEOUT):
     """

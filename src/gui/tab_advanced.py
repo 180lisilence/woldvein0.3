@@ -159,7 +159,14 @@ class AdvancedTabMixin:
         self._task_finish_btn = ttk.Button(task_row, text="✅ 完成全部任务", style="Success.TButton",
                    command=lambda: self._adv_with_cooldown(self._task_finish_btn, advanced_tools.finish_all_tasks, "完成全部任务"))
         self._task_finish_btn.pack(side=tk.LEFT, padx=4)
-        ttk.Label(task_row, text="任务与品阶无自动绑定：激活=未开始→可接；完成=置为已完成并领奖",
+        # 直接改数据（unlockPre + status + 分桶），不依赖 UnlockPrecondition/FinishAllTask 的内部流程
+        self._task_dunlock_btn = ttk.Button(task_row, text="🔧 改数据解锁", style="Success.TButton",
+                   command=lambda: self._adv_with_cooldown(self._task_dunlock_btn, advanced_tools.task_data_unlock, "改数据解锁"))
+        self._task_dunlock_btn.pack(side=tk.LEFT, padx=4)
+        self._task_dfinish_btn = ttk.Button(task_row, text="🔧 改数据完成", style="Success.TButton",
+                   command=lambda: self._adv_with_cooldown(self._task_dfinish_btn, advanced_tools.task_data_finish, "改数据完成"))
+        self._task_dfinish_btn.pack(side=tk.LEFT, padx=4)
+        ttk.Label(task_row, text="品阶与任务无自动绑定；「改数据」= 直接把任务数据写成已满足（unlockPre/status/分桶），不依赖游戏内部流程",
                   style="Card.TLabel", foreground=T("fg_muted"), font=FONT_TINY).pack(side=tk.LEFT, padx=8)
 
         # === 游戏内面板（ImGui，引擎渲染，不卡）===

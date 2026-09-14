@@ -31,7 +31,7 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
-from src.lua_engine import execute_lua_safe
+from src.lua_engine import execute_lua_safe, execute_lua_retry
 from src.logger import log, log_success, log_error, log_warning
 
 from src.constants import (
@@ -2273,7 +2273,7 @@ def boom_upgrade_step(target=0):
     """
     log("正在逐级晋升城市品阶（含解锁流程）...")
     code = _boom_lua(LUA_BOOM_UPGRADE_STEP).replace("__TARGET__", str(int(target)))
-    success, result = execute_lua_safe(code, timeout=30.0)
+    success, result = execute_lua_retry(code, timeout=30.0, attempts=2, tag="品阶晋升")
     return _log_result(success, result, "品阶晋升失败")
 
 
@@ -2375,6 +2375,139 @@ return err
 """
 
 
+LUA_TASK_DATA_UNLOCK = r"""
+-- 【直接改数据解锁任务】不依赖 LTaskManager:UnlockPrecondition 的内部流程（它依赖 GetTaskByGDPL、
+-- NPC 建筑 KMSC 等一堆前置）——直接把任务对象的数据改成「条件已满足」的样子：
+--   依据源码 task.lua:254 LTask:CheckPreConditions：
+--       第一句就是 `if self.unlockPre then retBool = true; break; end`  ← 游戏自己的 GM 短路分支
+--   所以把 unlockPre 写成 true，游戏自己就会认定「前置触发条件已满足」。
+--   status：1=未激活 2=激活中 3=待确认 4=已完成（task_define.lua LTaskDefine.STATUS）
+--   分桶：tbUnStartTasks / tbCurTasks / tbReceivedTasks / tbFinishedTasks（键 = GDPL 字符串）
+local function _unlock()
+    local tm = g_LTaskManager
+    if not tm then return "[失败] g_LTaskManager 不存在（请先进入游戏场景）" end
+    local TD  = _G.TaskDefine or _G.g_LTaskDefine
+    local ACT = (TD and TD.STATUS and TD.STATUS.ACTIVATED) or 2
+    local FIN = (TD and TD.STATUS and TD.STATUS.FINISHED) or 4
+    local passedDay = nil
+    if g_camp and g_camp.GetPassedDay then
+        local okD, d = pcall(function() return g_camp:GetPassedDay() end)
+        if okD then passedDay = d end
+    end
+    tm.tbUnStartTasks  = tm.tbUnStartTasks  or {}
+    tm.tbCurTasks      = tm.tbCurTasks      or {}
+    tm.tbReceivedTasks = tm.tbReceivedTasks or {}
+    tm.tbFinishedTasks = tm.tbFinishedTasks or {}
+    tm.m_tTaskConfig   = tm.m_tTaskConfig   or {}
+
+    local all = tm:GetAllTasks() or {}
+    local n, done = 0, 0
+    for key, task in pairs(all) do
+        local okS, st = pcall(function() return task:GetTaskStatus() end)
+        st = (okS and st) or 1
+        if st == FIN or tm.tbFinishedTasks[key] then
+            done = done + 1                     -- 已完成的保持不动
+        else
+            task.unlockPre = true               -- ★ 直接改数据：判定前置已满足
+            pcall(function() task:SetTaskUnlockPre(true) end)
+            task.status = ACT                   -- ★ 直接改数据：激活中
+            pcall(function() task:SetTaskStatus(ACT) end)
+            if passedDay ~= nil and task.timeLog == nil then task.timeLog = passedDay end
+            tm.tbUnStartTasks[key]  = nil
+            tm.tbReceivedTasks[key] = nil
+            tm.tbCurTasks[key]      = task
+            tm.m_tTaskConfig[key]   = task
+            pcall(function() task:SetOtherBuildingState(1) end)
+            n = n + 1
+        end
+    end
+    pcall(function() tm:_syncUI() end)
+    local function cnt(x)
+        local c = 0
+        if type(x) == "table" then for _ in pairs(x) do c = c + 1 end end
+        return c
+    end
+    return string.format(
+        "[成功] 已直接改数据解锁 %d 个任务（原本已完成 %d 个）；现在 未开始=%d 进行中=%d 已接=%d 已完成=%d",
+        n, done, cnt(tm.tbUnStartTasks), cnt(tm.tbCurTasks),
+        cnt(tm.tbReceivedTasks), cnt(tm.tbFinishedTasks))
+end
+_G.g_trainer_task_unlock = _unlock
+local ok, ret = pcall(_unlock)
+if not ok then return "[错误] " .. tostring(ret) end
+return ret
+"""
+
+LUA_TASK_DATA_FINISH = r"""
+-- 【直接改数据完成任务】status=4(FINISHED) + isNextTaskFinished=true + 移入 tbFinishedTasks，
+-- 并按任务配置发放奖励（建筑卡/谋士卡/资源/天赋点）。
+-- 依据源码：task.lua:480 LTask:CheckPreviousTask 读的是「前置任务的 status」，
+-- 所以把任务真实置为 FINISHED 后，后续任务的前置链判定自然通过（= 解锁后续）。
+local function _finish()
+    local tm = g_LTaskManager
+    if not tm then return "[失败] g_LTaskManager 不存在（请先进入游戏场景）" end
+    local TD  = _G.TaskDefine or _G.g_LTaskDefine
+    local FIN = (TD and TD.STATUS and TD.STATUS.FINISHED) or 4
+    tm.tbUnStartTasks  = tm.tbUnStartTasks  or {}
+    tm.tbCurTasks      = tm.tbCurTasks      or {}
+    tm.tbReceivedTasks = tm.tbReceivedTasks or {}
+    tm.tbFinishedTasks = tm.tbFinishedTasks or {}
+
+    local all = tm:GetAllTasks() or {}
+    local n, skip, rw, rwFail = 0, 0, 0, 0
+    for key, task in pairs(all) do
+        local okS, st = pcall(function() return task:GetTaskStatus() end)
+        st = (okS and st) or 1
+        if st == FIN then
+            skip = skip + 1
+        else
+            task.unlockPre = true
+            task.isNextTaskFinished = true      -- ★ 让后续任务的前置链判定通过
+            task.status = FIN                   -- ★ 直接改数据：已完成
+            pcall(function() task:SetTaskStatus(FIN) end)
+            if task.converseCount == nil then task.converseCount = 0 end
+            tm.tbUnStartTasks[key]  = nil
+            tm.tbCurTasks[key]      = nil
+            tm.tbFinishedTasks[key] = task
+            local okR = pcall(function() task:RecieveReward() end)   -- 按配置发奖
+            if okR then rw = rw + 1 else rwFail = rwFail + 1 end
+            pcall(function() task:OnFinished() end)
+            n = n + 1
+        end
+    end
+    pcall(function() tm:_syncUI() end)
+    local function cnt(x)
+        local c = 0
+        if type(x) == "table" then for _ in pairs(x) do c = c + 1 end end
+        return c
+    end
+    return string.format(
+        "[成功] 已直接改数据完成 %d 个任务（跳过已完成 %d；发奖成功 %d / 失败 %d）；现在 已完成=%d 进行中=%d 未开始=%d",
+        n, skip, rw, rwFail, cnt(tm.tbFinishedTasks), cnt(tm.tbCurTasks), cnt(tm.tbUnStartTasks))
+end
+_G.g_trainer_task_finish = _finish
+local ok, ret = pcall(_finish)
+if not ok then return "[错误] " .. tostring(ret) end
+return ret
+"""
+
+
+def task_data_unlock():
+    """任务：直接改数据解锁（unlockPre + status + 分桶；不经 UnlockPrecondition）"""
+    log("正在直接改数据解锁全部任务 ...")
+    success, result = execute_lua_retry(
+        LUA_TASK_DATA_UNLOCK, timeout=LUA_TIMEOUT_LONG, attempts=3, tag="任务解锁")
+    return _log_result(success, result, "任务解锁失败")
+
+
+def task_data_finish():
+    """任务：直接改数据完成（status=FINISHED + 发奖 + 打通前置链）"""
+    log("正在直接改数据完成全部任务 ...")
+    success, result = execute_lua_retry(
+        LUA_TASK_DATA_FINISH, timeout=30.0, attempts=3, tag="任务完成")
+    return _log_result(success, result, "任务完成失败")
+
+
 def probe_tasks():
     """任务状态探查"""
     return execute_lua_safe(LUA_TASK_PROBE, timeout=LUA_TIMEOUT)
@@ -2383,7 +2516,8 @@ def probe_tasks():
 def unlock_all_tasks():
     """激活全部未开始任务"""
     log("正在激活全部任务 ...")
-    success, result = execute_lua_safe(LUA_TASK_UNLOCK_ALL, timeout=LUA_TIMEOUT_LONG)
+    success, result = execute_lua_retry(
+        LUA_TASK_UNLOCK_ALL, timeout=LUA_TIMEOUT_LONG, attempts=2, tag="激活全部任务")
     return _log_result(success, result, "任务激活失败")
 
 
@@ -2562,6 +2696,24 @@ local ok, err = pcall(function()
         end
     end
 
+    function M.task_unlock()
+        if type(_G.g_trainer_task_unlock) == "function" then
+            local okT, ret = pcall(_G.g_trainer_task_unlock)
+            _G.g_wt_last_msg = okT and tostring(ret) or ("任务解锁异常: " .. tostring(ret))
+        else
+            _G.g_wt_last_msg = "请先在修改器「任务」块点一次『直接改数据解锁』注册"
+        end
+    end
+
+    function M.task_finish()
+        if type(_G.g_trainer_task_finish) == "function" then
+            local okT, ret = pcall(_G.g_trainer_task_finish)
+            _G.g_wt_last_msg = okT and tostring(ret) or ("任务完成异常: " .. tostring(ret))
+        else
+            _G.g_wt_last_msg = "请先在修改器「任务」块点一次『直接改数据完成』注册"
+        end
+    end
+
     local function DrawPanel()
         SetupWindow()
         -- 标题用 ASCII（避免字体风险），### 后的 ID 恒定，折叠/移动状态才稳定
@@ -2597,6 +2749,12 @@ local ok, err = pcall(function()
             if ImGui.Button(T("2x")) then M.set_speed(2) end
             ImGui.SameLine()
             if ImGui.Button(T("4x")) then M.set_speed(4) end
+        end
+
+        if Section(T("任务")) then
+            if ImGui.Button(T("任务全解锁（改数据）")) then M.task_unlock() end
+            ImGui.SameLine()
+            if ImGui.Button(T("任务全完成（改数据）")) then M.task_finish() end
         end
 
         if Section(T("诊断 / 字体测试")) then
@@ -2686,14 +2844,16 @@ def install_ingame_panel():
     """注入游戏内 ImGui 面板"""
     log("正在注入游戏内面板 ...")
     code = LUA_INGAME_PANEL_INSTALL.replace("__VER__", "v" + APP_VERSION)
-    success, result = execute_lua_safe(code, timeout=LUA_TIMEOUT_LONG)
+    success, result = execute_lua_retry(
+        code, timeout=LUA_TIMEOUT_LONG, attempts=3, tag="注入游戏内面板")
     return _log_result(success, result, "游戏内面板注入失败")
 
 
 def remove_ingame_panel():
     """移除游戏内面板（还原 GameDraw）"""
     log("正在移除游戏内面板 ...")
-    success, result = execute_lua_safe(LUA_INGAME_PANEL_REMOVE, timeout=LUA_TIMEOUT_LONG)
+    success, result = execute_lua_retry(
+        LUA_INGAME_PANEL_REMOVE, timeout=LUA_TIMEOUT_LONG, attempts=3, tag="移除游戏内面板")
     return _log_result(success, result, "游戏内面板移除失败")
 
 
