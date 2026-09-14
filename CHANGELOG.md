@@ -2,6 +2,59 @@
 
 ## 2026-09-14
 
+### 修复/新增：窗口默认尺寸、蓝图与 NPC 探查、游戏内 ImGui 面板
+
+**1. 窗口默认尺寸（用户反馈「必须最大化才能用全部」）**
+- 旧逻辑硬上限 `min(screen*0.8, 1280x800)` → 1080p 屏默认仅 1280x800，内容放不下
+- 改为 `min(screen*0.92, 1680x1000)`；已保存尺寸 `< 1400x860` 视为不可用并用默认；`minsize(1020,700)`
+
+**2. 蓝图探查（旧探针找错对象，恒为 0）**
+- 旧逻辑扫建筑上的 `IsBlueprint` 标记 → 永远 0
+- 真·蓝图系统 = **`g_LBlueprintManager`**（图纸合成）+ 谋士府图纸研发
+- 新探针输出：管理器可用方法、逐地块「合成中 / 有可用合成」、谋士府研发状态与成本
+- **实机结果**：`地块数=57 合成中总数=0 有可用合成的地块=0`；谋士府研发成本=4900
+
+**3. NPC 探查（旧版只有 id，没有名字）**
+- 实测破译：`g_LNPCManager.npcs` 是 133 个 LNPC 对象（键为 userdata）；
+  **姓名/性别/年龄在 `npc.tabMateData`（Name/Gender/Age）**；配置表 `NpcRes` 298 条（同为 tabMateData）
+- 新探针按 城市NPC管理器 → `g_LNPCManager` → 观光NPC管理器 多来源枚举，并输出 name/gender/age
+- **实机结果**：`id=1 name=张圣武 gender=男 age=59 …`
+
+**4. 新功能：游戏内折叠面板（ImGui）**
+- **关键发现**：游戏 UI 基于 **Dear ImGui**，Lua 侧直接暴露 `ImGui / KLImGui / ImVec2`；
+  `g_LUiPageManager:GameDraw(dt)` 是逐帧绘制入口 → 包装它即可在游戏画面内用 ImGui 画自己的窗口
+- 由引擎渲染、**不开外部覆盖窗口**，所以不像旧版「浅层破解」的外部悬浮窗那样卡
+- 面板含可折叠区块：状态 / 时间倍速(1x/2x/4x) / 快捷操作（品阶+1含解锁、自动纳税开关）；出错自动卸载
+- 高级工具页新增「游戏内面板（ImGui）」区块：注入 / 移除 / 状态
+- **实机验证**：GameDraw 逐帧 ≈64fps；`帧计数=15923 最近错误=无`
+
+### 修复：自动纳税失效（改为「钩类」，读档重建实例仍生效）
+
+**用户反馈**：点了「自动纳税」后照旧弹「纳税」窗口。
+
+**根因（实机确证）**
+- `tax_mgr.lua` 的 `__onload__` 每次都执行 `_G.g_TaxManager = LTaxManager:new()`——
+  **读档 / 切场景 / 重开都会重建实例**；旧实现只替换「实例方法」，换档即失效（新实例又变回原版 → 弹窗复发）
+- 该框架的类方法挂在 `getmetatable(g_TaxManager).__index`（类表）上，`_G.LTaxManager` 并非全局
+
+**修复**
+- 改为替换**类方法**：`idx.SendTaxPage`（自动缴税，不弹面板/对话）+ `idx.OnDay`
+  （保留「到期才缴」判定避免每日误扣；并在其中自愈 SendTaxPage），实例侧同步兜底
+- `probe_tax` 增加「类/实例是否已替换」、日期、税率、现值预计缴税
+
+**实机验证**
+- 挂钩返回：`自动纳税已挂钩 LTaxManager『类』（读档重建实例仍生效；不弹面板）`
+- 状态：类方法表已定位 / 类上 SendTaxPage 已替换 / 类上 OnDay 已替换 / 实例已替换 = 全 true
+- 模拟 `g_TaxManager:SendTaxPage()` → `ok=true ret=1，金钱 520000 → 520000`（未弹窗、未扣款、立即返回）
+
+**参考实现分析**（`daizuoproject\3\BalladsOfHongye_Trainer.exe` + `BalladsTrainer.dll`）
+- 路线：**DX11 Present 钩子注入自绘 ImGui 覆盖层** + **Lua 引擎钩子**注入 `Trainer.` 脚本
+  （DLL 内可见 `lua_pcall`/`lua_getglobal`/`lua_setglobal`/`Trainer.applyInfiniteResources`，
+  按名字扫描 Lua 全局、每 tick 重应用的「自适应」思路）
+- 功能：无限资源/秒建造/无灾害/繁荣度满/全部开启 + F10 面板；**无纳税功能**
+- 借鉴：**每 tick 重应用（自愈）** 已用于本次修复（OnDay 内自愈 SendTaxPage）
+- 差异：它用外部 DX11 覆盖层（旧版「浅层破解」卡顿来源）；本修改器改用游戏自带 ImGui（Lua 侧），引擎渲染
+
 ### 新功能：城市品阶「逐级晋升（含解锁）」+ 任务激活/完成
 
 **根因**：旧「品阶 +1」只调 `g_camp.boom:setBoom(level)`——**只改数字**，
