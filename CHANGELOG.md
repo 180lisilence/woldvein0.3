@@ -2,6 +2,31 @@
 
 ## 2026-09-14
 
+### v0.3.1 发布
+
+**版本**：`0.3.1`（新增唯一版本源 `APP_VERSION`，见 `src/constants.py`；
+窗口标题 / 版本标签 / 启动日志 / 「关于」与诊断均由它生成）
+
+**本版内容**
+- 新增：**自动纳税**（世界系统页「税收」卡片，跳过每年 1/1 的确认面板直接扣款）
+- 新增：**时间流速实测**（高级工具页「📏 实测倍率」，5 点线性回归，避开整数步进量化误差）
+- 修复：`m_nDayStamp` 累计语义（跳天/跳月/季节同步）、探查去 cjson 改纯文本、
+  `g_TimeDefine`、人口口径（`GetPopulation(tbPSource)` 无参返回 0）、NPC 列表多来源探测
+- 回档：撤销融合版三主题 / KPI 数据条 / 圆角 UI（用户反馈不好看），恢复深/浅双主题界面
+
+**产物**
+- `dist\woldvein_trainer_v0.3.1\woldvein_trainer_v0.3.1.exe`（PyInstaller onedir）
+- `woldvein_trainer_v0.3.1_setup.exe`（Inno Setup 安装包，含卸载 `unins000.exe`）
+
+**构建**
+```
+python -m PyInstaller --noconfirm woldvein_trainer_v0.3.1.spec
+"C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer_build\setup.iss
+```
+
+**验证**：源码 `compileall` / `verify.py` 全过；GUI 冒烟 `BUILD OK`（标题 `v0.3.1`）；
+PyInstaller 与 ISCC 均成功；打包产物含 `_internal\dist\woldvein_trainer.dll` 与 `docs\`。
+
 ### 回档：撤销融合版 UI（三主题 / KPI 数据条 / 圆角）
 
 **原因**：用户认为该 UI 不好看，要求回档。仅回退 UI，功能修复保留。

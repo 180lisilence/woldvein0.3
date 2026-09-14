@@ -13,6 +13,10 @@ woldvein Trainer v0.3 - 全局常量
 import os
 import sys
 
+# ---------------------------------------------------------------- 版本（唯一版本源）
+APP_NAME = "woldvein Trainer"
+APP_VERSION = "0.3.1"
+
 # ---------------------------------------------------------------- 游戏环境
 STEAM_APP_ID = "2656540"
 STEAM_RUN_URL = "steam://run/" + STEAM_APP_ID

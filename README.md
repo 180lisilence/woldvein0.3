@@ -1,4 +1,4 @@
-﻿# 平野孤鸿 全能修改器 woldvein Trainer v0.3
+﻿# 平野孤鸿 全能修改器 woldvein Trainer v0.3.1
 
 > 📌 **版本沿革**：本版本承接自 **[woldvein Trainer v0.2](https://github.com/180lisilence/woldvein0.2)**（已归档，仅供查阅历史）
 
@@ -283,9 +283,9 @@
 
 ### 方式一：EXE 版（推荐普通用户）
 
-1. **下载**：获取 `woldvein_trainer_v0.3.exe` 和 `woldvein_trainer.dll`，放在同一目录
+1. **下载**：获取 `woldvein_trainer_v0.3.1.exe` 和 `woldvein_trainer.dll`，放在同一目录
 2. **启动游戏**：通过 Steam 启动《平野孤鸿》
-3. **启动修改器**：右键 `woldvein_trainer_v0.3.exe` → 以管理员身份运行（热键需要）
+3. **启动修改器**：右键 `woldvein_trainer_v0.3.1.exe` → 以管理员身份运行（热键需要）
 4. **注入 DLL**：修改器检测到游戏进程后，点击「注入 DLL」按钮
 5. **进入游戏**：加载存档，进入游戏场景
 6. **开始使用**：切换各标签页使用功能
@@ -615,7 +615,7 @@ woldvein_trainer/
 │
 ├── dist/                    # 发布版目录
 │   ├── woldvein_trainer.dll         # 注入 DLL（编译好的二进制）
-│   └── woldvein_trainer_v0.3.exe    # 打包版主程序（PyInstaller onedir）
+│   └── woldvein_trainer_v0.3.1.exe    # 打包版主程序（PyInstaller onedir）
 │
 ├── dist_beta/               # BAT 测试版目录（源码 + BAT，用于快速测试）
 │   ├── woldvein_trainer.dll         # DLL（同 dist/）
@@ -764,7 +764,7 @@ D:\TOOL\mingw64\mingw64\bin\gcc.exe -shared -O2 -Wall -m64 -o dist\woldvein_trai
 pip install pyinstaller
 
 # 完整打包命令（与 AGENTS.md 一致，包含 DLL、依赖、隐藏导入）
-pyinstaller --onedir --windowed --name "woldvein_trainer_v0.3" `
+pyinstaller --onedir --windowed --name "woldvein_trainer_v0.3.1" `
   --add-data "dist\woldvein_trainer.dll;dist" `
   --add-data "docs;docs" `
   --collect-all keyboard --collect-all pystray --collect-all PIL `
@@ -787,8 +787,8 @@ pyinstaller --onedir --windowed --name "woldvein_trainer_v0.3" `
 
 ```
 dist/
-└── woldvein_trainer_v0.3/            # onedir 输出目录
-    ├── woldvein_trainer_v0.3.exe     # 主程序
+└── woldvein_trainer_v0.3.1/            # onedir 输出目录
+    ├── woldvein_trainer_v0.3.1.exe     # 主程序
     ├── _internal/                     # 运行时依赖（PyInstaller 自动生成）
     └── woldvein_trainer.dll          # DLL（外置于 EXE 同目录）
 ```
@@ -959,7 +959,13 @@ DLL 注入技术可能被部分杀毒软件误报为威胁。这是**正常现�
 
 ## 版本历史
 
-### v0.3 (2026-09-13) — 当前版本
+### v0.3.1 (2026-09-14) — 当前版本
+
+- 新增：自动纳税（世界系统页）、时间流速实测（高级工具页）
+- 修复：`m_nDayStamp` 累计语义、探查去 cjson 纯文本、`g_TimeDefine`、人口口径、NPC 列表多来源
+- 回档：撤销融合版三主题/KPI 数据条/圆角 UI（用户反馈不好看），恢复深/浅双主题界面
+
+### v0.3 (2026-09-13)
 
 **文档同步 / 模块化重构**：
 - 标签页口径统一为 6 大（新增「世界系统」页面：市场/产业链/流民/知名度/建筑精细）；热键设置标注为独立工具 `hotkey_configurator.py`
@@ -1036,4 +1042,4 @@ DLL 注入技术可能被部分杀毒软件误报为威胁。这是**正常现�
 
 ---
 
-*README 版本：v0.3 详细版 | 更新日期：2026-09-13*
+*README 版本：v0.3.1 详细版 | 更新日期：2026-09-14*

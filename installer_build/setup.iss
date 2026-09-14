@@ -1,5 +1,5 @@
-; woldvein Trainer v0.3 Installer Script for Inno Setup 6
-; 生成 woldvein_trainer_v0.3_setup.exe 安装包
+; woldvein Trainer v0.3.1 Installer Script for Inno Setup 6
+; 生成 woldvein_trainer_v0.3.1_setup.exe 安装包
 ;
 ; 特性：
 ;   - 中英双语（安装时选择语言）
@@ -12,10 +12,10 @@
 
 #define MyAppName "woldvein Trainer"
 #define MyAppNameZh "平野孤鸿全能修改器"
-#define MyAppVersion "0.3"
+#define MyAppVersion "0.3.1"
 #define MyAppPublisher "woldvein"
 #define MyAppURL "https://github.com/180lisilence/woldvein0.3"
-#define MyAppExeName "woldvein_trainer_v0.3.exe"
+#define MyAppExeName "woldvein_trainer_v0.3.1.exe"
 #define MyAppIcon "app.ico"
 
 [Setup]
@@ -28,11 +28,11 @@ AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
 AppVersion={#MyAppVersion}
-VersionInfoVersion=0.3.0.0
+VersionInfoVersion=0.3.1.0
 VersionInfoCompany=woldvein
 VersionInfoDescription=woldvein Trainer Installer
 VersionInfoProductName=woldvein Trainer
-VersionInfoProductVersion=0.3.0.0
+VersionInfoProductVersion=0.3.1.0
 
 ; 安装目录（默认 Program Files\woldvein_trainer）
 DefaultDirName={autopf}\woldvein_trainer
@@ -41,7 +41,7 @@ DefaultGroupName=woldvein Trainer
 
 ; 输出配置
 OutputDir=..\
-OutputBaseFilename=woldvein_trainer_v0.3_setup
+OutputBaseFilename=woldvein_trainer_v0.3.1_setup
 Compression=lzma2/ultra64
 SolidCompression=yes
 WizardStyle=modern
@@ -49,7 +49,7 @@ WizardStyle=modern
 ; 图标和外观
 SetupIconFile={#MyAppIcon}
 UninstallDisplayIcon={app}\{#MyAppIcon}
-UninstallDisplayName=woldvein Trainer v0.3
+UninstallDisplayName=woldvein Trainer v0.3.1
 
 ; 权限（需要管理员才能写入 Program Files）
 PrivilegesRequired=admin
@@ -93,7 +93,7 @@ Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunch}"; GroupDescription
 
 [Files]
 ; 主程序和 DLL（必装）
-Source: "..\dist\woldvein_trainer_v0.3\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\dist\woldvein_trainer_v0.3.1\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\dist\woldvein_trainer.dll"; DestDir: "{app}"; Flags: ignoreversion
 ; 默认配置（只在首次安装时写入，升级时保留用户的 config.json）
 ; Source: "..\dist\config.json"; DestDir: "{app}"; Flags: onlyifdoesntexist
@@ -164,7 +164,7 @@ var
   ResultCode: Integer;
 begin
   // 尝试关闭运行中的修改器（避免文件被占用无法覆盖）
-  if Exec(ExpandConstant('{cmd}'), '/C taskkill /F /IM woldvein_trainer_v0.3.exe >nul 2>nul', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
+  if Exec(ExpandConstant('{cmd}'), '/C taskkill /F /IM woldvein_trainer_v0.3.1.exe >nul 2>nul', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
   begin
     // 已尝试关闭，继续安装
   end;
@@ -176,7 +176,7 @@ function InitializeUninstall(): Boolean;
 var
   ResultCode: Integer;
 begin
-  if Exec(ExpandConstant('{cmd}'), '/C taskkill /F /IM woldvein_trainer_v0.3.exe >nul 2>nul', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
+  if Exec(ExpandConstant('{cmd}'), '/C taskkill /F /IM woldvein_trainer_v0.3.1.exe >nul 2>nul', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
   begin
     // 已尝试关闭
   end;

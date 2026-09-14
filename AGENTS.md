@@ -1,4 +1,4 @@
-﻿# woldvein_trainer - 平野孤鸿全能修改器 v0.3
+﻿# woldvein_trainer - 平野孤鸿全能修改器 v0.3.1
 
 > 最后更新：2026-09-12
 > 状态：活跃开发
@@ -19,7 +19,7 @@ woldvein_trainer\
 ├── config.json                  # 运行时配置（自动生成）
 ├── dist\
 │   └── woldvein_trainer.dll     # 注入DLL（59KB，inline-hook lua_pcall + 请求ID竞态防护）
-│   └── woldvein_trainer_v0.3.exe # 打包主程序（onedir 目录模式）
+│   └── woldvein_trainer_v0.3.1.exe # 打包主程序（onedir 目录模式）
 ├── docs\
 │   ├── PRD_v0.1.md              # 产品需求文档
 │   └── 用户手册.md
@@ -128,7 +128,7 @@ D:\TOOL\mingw64\mingw64\bin\gcc.exe -shared -O2 -Wall -m64 -o dist\woldvein_trai
 
 ### 打包 EXE
 ```bash
-pyinstaller --onedir --windowed --name "woldvein_trainer_v0.3" `
+pyinstaller --onedir --windowed --name "woldvein_trainer_v0.3.1" `
   --add-data "dist\woldvein_trainer.dll;dist" `
   --add-data "docs;docs" `
   --collect-all keyboard --collect-all pystray --collect-all PIL `

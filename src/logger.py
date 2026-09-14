@@ -25,6 +25,7 @@ import os
 import sys
 import threading
 from datetime import datetime
+from src.constants import APP_VERSION
 
 # 日志目录：兼容PyInstaller打包环境
 # 打包后：EXE所在目录/logs/
@@ -62,7 +63,7 @@ def init_log():
     log_path = os.path.join(LOG_DIR, f"trainer_{date_str}.log")
     _log_file = open(log_path, "a", encoding="utf-8")
     log(f"{'='*60}")
-    log(f"woldvein Trainer v0.3 启动")
+    log(f"woldvein Trainer v{APP_VERSION} 启动")
     log(f"{'='*60}")
 
 

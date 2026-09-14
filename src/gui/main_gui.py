@@ -51,6 +51,7 @@ else:
     sys.path.insert(0, PROJECT_ROOT)
 
 from src.config import load_config, save_config
+from src.constants import APP_VERSION
 from src.logger import init_log, set_log_callback, log, log_success, log_error, log_warning, close_log
 from src.injector import find_game_process, inject_dll, is_dll_injected, launch_game
 from src.hotkey_manager import hotkey_manager
@@ -243,7 +244,7 @@ class TrainerApp(ResourceTabMixin, CreativeTabMixin, HotkeyTabMixin, MonitorTabM
 
     def _setup_window(self):
         """设置窗口（尺寸：配置为空则按屏幕 80% 计算，上限 1280x800）"""
-        self.root.title("平野孤鸿 全能修改器 v0.3")
+        self.root.title(f"平野孤鸿 全能修改器 v{APP_VERSION}")
         win = self.config.get("window", {}) or {}
         w = win.get("width")
         h = win.get("height")
@@ -362,7 +363,7 @@ class TrainerApp(ResourceTabMixin, CreativeTabMixin, HotkeyTabMixin, MonitorTabM
         title.pack(side=tk.LEFT, padx=(20, 8), pady=12)
 
         # 版本号（弱化：小号灰色，不与标题争焦点）
-        version = ttk.Label(topbar, text="v0.3", style="Card.TLabel",
+        version = ttk.Label(topbar, text=f"v{APP_VERSION}", style="Card.TLabel",
                             font=("微软雅黑", 8), foreground=T("fg_muted"))
         version.pack(side=tk.LEFT, pady=14)
 

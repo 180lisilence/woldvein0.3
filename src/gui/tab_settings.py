@@ -16,6 +16,7 @@ from src.hotkey_manager import hotkey_manager, is_admin
 from .scrollable import ScrollableFrame
 from .widgets import T
 from .theme import FONT_MONO, FONT_SUB, FONT_TINY
+from src.constants import APP_VERSION
 from src.constants import DEFAULT_GAME_PATH, SIM_COMMON_REL
 
 
@@ -149,7 +150,7 @@ class SettingsTabMixin:
                   font=FONT_SUB).pack(anchor=tk.W, padx=15, pady=(10, 5))
 
         about_text = (
-            "平野孤鸿修改器 v0.3  |  Ballads of Hongye (Steam 2656540)\n"
+            f"平野孤鸿修改器 v{APP_VERSION}  |  Ballads of Hongye (Steam 2656540)\n"
             "DLL注入 + inline-hook lua_pcall  |  纯内存操作，不修改游戏文件"
         )
         ttk.Label(about_frame, text=about_text, style="Card.TLabel",
@@ -186,7 +187,7 @@ class SettingsTabMixin:
         log("========== 诊断日志开始 ==========")
 
         # 1. 基本状态
-        log(f"[基本] 修改器版本: v0.3")
+        log(f"[基本] 修改器版本: v{APP_VERSION}")
         log(f"[基本] 游戏进程PID: {self.game_pid or '未检测到'}")
         log(f"[基本] DLL注入状态: {'已注入' if self.dll_injected else '未注入'}")
         log(f"[基本] DLL路径: {self.dll_path}")
