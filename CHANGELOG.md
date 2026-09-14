@@ -2,6 +2,28 @@
 
 ## 2026-09-14
 
+### 修复：人口口径 / 实测倍率精度 / g_TimeDefine（实机验证）
+
+**来源**：2026-09-14 全量探查报告 + 直连 Lua 通道复测。
+
+1. **人口口径错误**：`LBaseBlock:GetPopulation(tbPSource)` 必须带参数（人口类型数组），
+   无参会直接 `return 0` 并打 Traceback；旧探针 `camp:GetPopulation()` 因此恒为 0。
+   修复：改读资源档 `SOURCE.CURRENT_POPULATION(7)`；上限 = `MAX_POPULATION(8) + MAX_REFUGEE_POPULATION(14)`；
+   另附 `GetDemilitarizedPopulation()`。
+   **实机复测**：population 170 / pop_max 170 / demilitarized 170（原为 0）。
+2. **实测倍率量化误差**：原「两点采样」在 4x 下只得 3.66x（m_nCurTime 按整数步进）。
+   改为 **5 点线性回归求斜率**。
+   **实机复测**：5 点 / 4.26s 窗口 → 实测等效倍率 **4.00x**（与 TICK_DELTA_TIMES 0.625 推导一致）。
+3. **`高级-时间系统` 报「TimeDefine 不存在」**：实际全局是 `g_TimeDefine`。
+   修复后正确显示 `MIN_TIME_SPEED=1 / MAX_TIME_SPEED=50 / SECONDS_PER_DAY=2`。
+4. **`基础-NPC列表` 报「CityNpcManager 不存在」**：改多来源探测后**实机复测成功**：
+   `NPC总数: 133 来源=LNPCManager`（本存档无活跃城市，故回退到全局 `g_LNPCManager.npcs`）。
+5. 「一键全量探查」清单补齐：新增 `世界-税收`、`高级-时间流速实测`。
+
+**顺带印证**：`m_nDayStamp=2516` 恰等于 `(7-1)×360+(12-1)×30+26` → 累计语义再次确认。
+
+**涉及文件**：`src/advanced_tools.py`、`src/gui/tab_settings.py`
+
 ### UI：真圆角（Canvas 绘制）+ 全局按钮 / 卡片接入
 
 **背景**：融合版方案承诺「小半径圆角」，但 tkinter / ttk 的 Frame、Button 原生是直角，

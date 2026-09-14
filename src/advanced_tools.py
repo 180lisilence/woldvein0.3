@@ -474,8 +474,25 @@ local ok, err = pcall(function()
         return "g_camp 不存在"
     end
     local info = {}
-    if camp.GetPopulation then info.population = camp:GetPopulation() end
-    if camp.GetMaxPopulation then info.max_population = camp:GetMaxPopulation() end
+    -- [FIX 2026-09-14] LBaseBlock:GetPopulation(tbPSource) 必须带参数：无参会直接 return 0（并打 Traceback）。
+    --   人口改读资源档：CURRENT_POPULATION=7；上限 = MAX_POPULATION[8] + MAX_REFUGEE_POPULATION[14]
+    if camp.GetSourceValue and block_define and block_define.SOURCE then
+        local S = block_define.SOURCE
+        local ok1, pop = pcall(function() return camp:GetSourceValue(S.CURRENT_POPULATION) end)
+        if ok1 then info.population = pop end
+        local ok2, mx = pcall(function()
+            return camp:GetSourceValue(S.MAX_POPULATION) + camp:GetSourceValue(S.MAX_REFUGEE_POPULATION)
+        end)
+        if ok2 then info.pop_max = mx end
+    end
+    if camp.GetDemilitarizedPopulation then
+        local ok3, d = pcall(function() return camp:GetDemilitarizedPopulation() end)
+        if ok3 then info.demilitarized = d end
+    end
+    if camp.GetMaxPopulation then
+        local ok4, m = pcall(function() return camp:GetMaxPopulation() end)
+        if ok4 then info.max_population = m end
+    end
     if camp.GetHappiness then info.happiness = camp:GetHappiness() end
     -- [API-FIX] LCamp 没有 GetMoney；金钱在 LBaseBlock:GetSourceValue(SOURCE.MONEY)
     if camp.GetSourceValue and block_define and block_define.SOURCE then
@@ -2082,22 +2099,13 @@ return err
 """
 
 
-def measure_time_speed(interval=2.0):
-    """实测游戏时间流速（阻塞约 interval 秒，须在异步线程调用）。
+def measure_time_speed(interval=1.0, samples=5):
+    """实测游戏时间流速（阻塞约 (samples-1)*interval 秒，须在异步线程调用）。
 
-    返回 (success, 多行文本)。用两次 m_nCurTime 采样换算「实时秒/游戏日」与等效倍率。
+    返回 (success, 多行文本)。多次采样 m_nCurTime 后做线性回归求斜率，
+    避开「两点取样」因整数步进（每逻辑 Tick 整数 +1）造成的量化误差。
     """
     import time as _time
-
-    s1, r1 = execute_lua_safe(LUA_TIME_MEASURE_SAMPLE, timeout=LUA_TIMEOUT)
-    t1 = _time.monotonic()
-    if not s1 or not isinstance(r1, str) or not r1.startswith("cur="):
-        return False, f"[失败] 第一次采样失败：{r1}"
-    _time.sleep(interval)
-    s2, r2 = execute_lua_safe(LUA_TIME_MEASURE_SAMPLE, timeout=LUA_TIMEOUT)
-    t2 = _time.monotonic()
-    if not s2 or not isinstance(r2, str) or not r2.startswith("cur="):
-        return False, f"[失败] 第二次采样失败：{r2}"
 
     def parse(s):
         d = {}
@@ -2107,39 +2115,60 @@ def measure_time_speed(interval=2.0):
                 d[k.strip()] = v.strip()
         return d
 
-    p1, p2 = parse(r1), parse(r2)
-    try:
-        c1 = float(p1["cur"])
-        c2 = float(p2["cur"])
-    except Exception as e:
-        return False, f"[失败] 解析采样值失败：{r1} / {r2}（{e}）"
-
-    def fnum(s, k):
+    pts = []
+    for i in range(max(2, samples)):
+        ok, r = execute_lua_safe(LUA_TIME_MEASURE_SAMPLE, timeout=LUA_TIMEOUT)
+        now = _time.monotonic()
+        if not ok or not isinstance(r, str) or not r.startswith("cur="):
+            if not pts:
+                return False, f"[失败] 采样失败：{r}"
+            break
+        d = parse(r)
         try:
-            return float(s.get(k))
+            pts.append((now, float(d["cur"]), d))
+        except Exception:
+            if not pts:
+                return False, f"[失败] 解析采样值失败：{r}"
+            break
+        if i < samples - 1:
+            _time.sleep(interval)
+
+    if len(pts) < 2:
+        return False, "[失败] 有效采样点不足"
+
+    n = len(pts)
+    mt = sum(p[0] for p in pts) / n
+    mc = sum(p[1] for p in pts) / n
+    num = sum((p[0] - mt) * (p[1] - mc) for p in pts)
+    den = sum((p[0] - mt) ** 2 for p in pts)
+    if den <= 0:
+        return False, "[失败] 采样时间窗口异常"
+    rate = num / den                              # 回归斜率：模拟秒 / 实时秒
+    ds = pts[-1][1] - pts[0][1]
+    dt = pts[-1][0] - pts[0][0]
+
+    d2 = pts[-1][2]
+
+    def fnum(k):
+        try:
+            return float(d2.get(k))
         except Exception:
             return None
 
-    sec_per_day = fnum(p2, "secPerDay")
-    day_real = fnum(p2, "dayReal")
-    day_tick = fnum(p2, "dayTick")
+    sec_per_day = fnum("secPerDay")
+    day_real = fnum("dayReal")
+    day_tick = fnum("dayTick")
 
-    dt = t2 - t1
-    ds = c2 - c1
-    if dt <= 0:
-        return False, "[失败] 采样时间窗口异常"
-    rate = ds / dt
-
-    lines = ["=== 时间流速实测 ==="]
-    lines.append(f"采样窗口 {dt:.2f} 实时秒；模拟时间前进 {ds:.2f} 秒")
-    lines.append(f"实测流速 {rate:.3f} 模拟秒 / 实时秒")
+    lines = ["=== 时间流速实测（多点回归）==="]
+    lines.append(f"采样 {n} 点，窗口 {dt:.2f} 实时秒；模拟时间前进 {ds:.2f} 秒")
+    lines.append(f"实测流速 {rate:.3f} 模拟秒 / 实时秒（回归斜率）")
     if sec_per_day and rate > 0:
         real_per_day = sec_per_day / rate
         lines.append(f"实测 1 游戏日 ≈ {real_per_day:.1f} 实时秒")
-    if day_real and sec_per_day and rate > 0:
+    if day_real and sec_per_day and rate > 0.0001:
         real_per_day = sec_per_day / rate
         lines.append(f"原版 1 游戏日 = {day_real:.1f} 实时秒 -> 实测等效倍率 ≈ {day_real / real_per_day:.2f}x")
-    if day_real and sec_per_day and rate <= 0.0001:
+    if rate <= 0.0001:
         lines.append("当前几乎静止（游戏暂停 / 未进入场景 / 窗口未激活？）")
     lines.append(f"游戏常量：SECONDS_PER_DAY={sec_per_day} DAY_TIME_REAL={day_real} DAY_TICK_COUNT={day_tick}")
     return True, "\n".join(lines)

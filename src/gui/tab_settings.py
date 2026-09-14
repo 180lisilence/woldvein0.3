@@ -284,6 +284,7 @@ class SettingsTabMixin:
         probes = [
             ("世界-市场物价", world_tools.probe_market),
             ("世界-产业链", world_tools.probe_industry_chain),
+            ("世界-税收", world_tools.probe_tax),
             ("世界-流民灾害", world_tools.probe_refugee),
             ("世界-灾害控制", world_tools.probe_disaster),
             ("世界-知名度", world_tools.probe_reputation),
@@ -297,6 +298,7 @@ class SettingsTabMixin:
             ("高级-地块", advanced_tools.probe_plots),
             ("高级-谋士", advanced_tools.probe_advisors),
             ("高级-Steam成就", advanced_tools.probe_steam_achievements),
+            ("高级-时间流速实测", advanced_tools.measure_time_speed),
             ("基础-时间状态", advanced_tools.get_time_status),
             ("基础-人口状态", advanced_tools.get_population_status),
             ("基础-建筑列表", advanced_tools.get_building_list),
