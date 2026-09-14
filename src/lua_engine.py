@@ -660,6 +660,34 @@ local ok, err = pcall(function()
             if h then status.happiness = h end
         end
     end
+    -- 时间 / 倍速 / 人口上限（融合版 KPI 数据条用）
+    if g_Time then
+        if g_Time.GetDayStamp then
+            local okd, ds = pcall(function() return g_Time:GetDayStamp() end)
+            if okd then status.day_stamp = ds end
+        end
+        if g_Time.GetYear then
+            local oky, y = pcall(function() return g_Time:GetYear() end)
+            if oky then status.year = y end
+        end
+        if g_Time.GetMonth then
+            local okm, mo = pcall(function() return g_Time:GetMonth() end)
+            if okm then status.month = mo end
+        end
+    end
+    if g_GameWorld then
+        local cur = tonumber(g_GameWorld.TICK_DELTA_TIMES)
+        status.tick_delta = cur
+        local d = _G.define
+        if cur and cur > 0 and d and d.DAY_TIME_REAL and d.DAY_TICK_COUNT and d.DAY_TICK_COUNT ~= 0 then
+            local base = d.DAY_TIME_REAL / d.DAY_TICK_COUNT
+            status.speed_mult = base / cur
+        end
+    end
+    if g_camp and g_camp.GetMaxPopulation then
+        local okp, mp = pcall(function() return g_camp:GetMaxPopulation() end)
+        if okp then status.pop_max = mp end
+    end
     -- 建筑卡片统计
     if g_LBuildingCardManager and g_LBuildingCardManager.tabBuildingCards then
         local count = 0

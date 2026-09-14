@@ -4,7 +4,7 @@
 
 > 专为西山居城建经营游戏《平野孤鸿》(BalladsOfHongye, Steam AppID 2656540) 开发的游戏修改工具。
 >
-> 纯内存操作 · DLL 注入 · Lua 执行引擎 · 左侧导航 + 6 个页面 · 12 个全局热键 · 深/浅主题 GUI
+> 纯内存操作 · DLL 注入 · Lua 执行引擎 · 左侧导航 + 6 个页面 · 12 个全局热键 · 三主题 GUI（深简/Bento/墨笺）
 
 ---
 
@@ -54,7 +54,7 @@
 
 | 层级 | 技术 | 说明 |
 |------|------|------|
-| GUI 层 | Python 3 + tkinter + ttk | 深/浅主题，5 大标签页 |
+| GUI 层 | Python 3 + tkinter + ttk | 三主题（深简/Bento/墨笺），6 个页面 |
 | 注入层 | Python ctypes + Win32 API | OpenProcess / VirtualAllocEx / CreateRemoteThread |
 | Hook 层 | C (MinGW-w64) + Inline-Hook | 14 字节绝对跳转框架 + 自研指令长度解码器 |
 | 执行层 | Lua 5.1 (Lua5X64.dll) | 在游戏主线程 lua_pcall hook 中执行 |
@@ -220,7 +220,9 @@
 |------|------|
 | **时间速度** | 调节游戏内时间流逝速度（0x 暂停 / 1x / 2x / 3x / 4x） |
 | **季节变换** | 直接切换当前季节（春 / 夏 / 秋 / 冬） |
+| **跳过天数/月数** | 按 360 天历法推算新日期；`m_nDayStamp` 用「天数增量」保持单调累计语义 |
 | **时间诊断** | 一键诊断 g_Time 系统状态，包括方法检测、SetTimeSpeed 测试、SetSeason 测试、时间速度常量、暂停状态等 |
+| **实测倍率** | 连续两次读 `g_Time:GetCurTime()`，用「模拟时间差 / 实时时间差」客观实测当前时间流速与等效倍率 |
 
 #### 时间诊断工具输出
 
@@ -247,6 +249,7 @@
 | 灾害控制 | **零天灾**（关闭水災/地震/饥荒/乾旱/寒潮…）/ **零人祸**（关闭流民/叛乱/犯罪…）+ 灾害探查 |
 | 知名度 | 双存储同时修改：`g_LReputationMgr:ChangeReputation` + `ChangeReputationBase` |
 | 建筑精细 | 建筑明细（UUID/等级/GDPL）、升级到顶、全部满人口 |
+| 税收（自动纳税） | 每年 1 月 1 日的「确认纳税」面板改为自动扣款（不弹窗、不弹对话，累计缴税照常累加）；另可立即缴税一次 |
 | 蓝图 / NPC 详情 | 仅探查（API 未在游戏源码中确认，先探查再定制） |
 
 > 所有脚本需在 DLL 注入并进入存档后执行；未确认的 API 一律先「探查」输出真实字段再操作。
@@ -649,7 +652,8 @@ woldvein_trainer/
 │   │   ├── tab_advanced.py  # 高级工具标签页 Mixin
 │   │   ├── tab_world.py     # 世界系统标签页 Mixin
 │   │   ├── tab_settings.py  # 应用设置标签页 Mixin
-│   │   ├── theme.py         # 深/浅主题色板
+│   │   ├── theme.py         # 三主题色板（深简/Bento/墨笺）
+│   │   ├── kpi_bar.py       # 顶部 KPI 数据条（常驻核心数据）
 │   │   ├── scrollable.py    # 侧边滚动条
 │   │   ├── widgets.py       # 控件工厂 + 颜色取用
 │   │   ├── async_helper.py  # 异步执行 + 按钮冷却
@@ -844,7 +848,7 @@ dist/
   },
   "auto_detect_game": true,
   "hotkeys_enabled": true,
-  "theme": "dark"
+  "theme": "shenjian"
 }
 ```
 

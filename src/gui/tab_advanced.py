@@ -100,6 +100,8 @@ class AdvancedTabMixin:
                    command=lambda: self._run_async(advanced_tools.restore_time_speed)).pack(side=tk.LEFT, padx=4)
         ttk.Button(time_row, text="🔍 速度状态", style="Warning.TButton",
                    command=lambda: self._run_async(self._adv_time_speed_status)).pack(side=tk.LEFT, padx=4)
+        ttk.Button(time_row, text="📏 实测倍率", style="Warning.TButton",
+                   command=lambda: self._run_async(self._adv_measure_time_speed)).pack(side=tk.LEFT, padx=4)
 
         season_row = tk.Frame(time_frame, bg=T("bg_card"))
         season_row.pack(fill=tk.X, padx=4, pady=(0, 4))
@@ -315,6 +317,12 @@ class AdvancedTabMixin:
         success, result = advanced_tools.get_time_speed_status()
         self._report_probe("高级-速度状态", result)
         self.root.after(0, lambda: self._adv_append_output(f"[速度状态]\n{result}"))
+
+    def _adv_measure_time_speed(self):
+        """实测游戏时间流速（阻塞约 2 秒，异步执行）"""
+        success, result = advanced_tools.measure_time_speed(2.0)
+        self._report_probe("高级-时间流速实测", result)
+        self.root.after(0, lambda: self._adv_append_output(f"[时间流速实测]\n{result}"))
 
     def _adv_boom_diagnose(self):
         """品阶诊断"""

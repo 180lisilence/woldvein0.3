@@ -747,3 +747,130 @@ def clear_manmade_disaster():
     else:
         log_error(f"零人祸失败: {result}")
     return success, result
+
+
+# ============================================================
+# 9. 税收（自动纳税）
+# ============================================================
+# 游戏机制（源码 pak_lua_dump/sim_common/script/gameplay/tax/tax_mgr.lua）：
+#   g_TaxManager:OnDay() 监听 NEW_DAY，CheckTimeToPay(year,month,day) = (year>1 and month==1 and day==1)
+#     -> SendTaxPage()：g_LHBUIProvider:EmitTo("LBlockProvider", S2UI_SendPayTax, data) 弹出「纳税」面板
+#     -> 玩家点确认 -> LBlockProvider:UI2S_ConfirmPayTax() -> g_TaxManager:PayForTax()
+# 用户诉求：不想手动点、也不想跳过（仍要照缴）-> 把 SendTaxPage 换成直接 PayForTax（不弹窗、不弹对话）
+
+LUA_TAX_PROBE = r"""
+local ok, err = pcall(function()
+    local lines = {"=== 税收状态 ==="}
+    local tm = g_TaxManager
+    if not tm then
+        table.insert(lines, "[失败] g_TaxManager 不存在（请先进入游戏场景）")
+        return table.concat(lines, "\n")
+    end
+    table.insert(lines, "自动纳税已挂钩 = " .. tostring(_G.g_trainer_orig_tax_SendTaxPage ~= nil))
+    table.insert(lines, "taxCount（累计缴税） = " .. tostring(tm.taxCount))
+    table.insert(lines, "curPaytax（上次缴税） = " .. tostring(tm.curPaytax))
+    table.insert(lines, "sendHistory（已弹过提示对话） = " .. tostring(tm.sendHistory))
+    if tm.DumpTaxInfo then
+        local ok2, info = pcall(function() return tm:DumpTaxInfo() end)
+        if ok2 and type(info) == "table" then
+            table.insert(lines, "当前品阶 boomLevel = " .. tostring(info.boomLevel))
+            table.insert(lines, "税率 taxFactor = " .. tostring(info.taxFactor))
+            table.insert(lines, "当前金钱 curMoney = " .. tostring(info.curMoney))
+            table.insert(lines, "按现值预计缴税 tax = " .. tostring(info.tax))
+        end
+    end
+    table.insert(lines, "缴税时点 = 每年 1 月 1 日（year > 1）")
+    return table.concat(lines, "\n")
+end)
+if not ok then return "[错误] " .. tostring(err) end
+return err
+"""
+
+LUA_TAX_AUTO_ENABLE = r"""
+local ok, err = pcall(function()
+    local tm = g_TaxManager
+    if not tm then return "[失败] g_TaxManager 不存在（请先进入游戏场景）" end
+    if not tm.SendTaxPage then return "[失败] g_TaxManager:SendTaxPage 不存在" end
+    if not _G.g_trainer_orig_tax_SendTaxPage then
+        _G.g_trainer_orig_tax_SendTaxPage = tm.SendTaxPage
+    end
+    -- [FIX 2026-09-14] 自动纳税：跳过纳税面板与提示对话，直接扣款
+    tm.SendTaxPage = function(self)
+        if self.PayForTax then
+            local ok2, e2 = pcall(function() self:PayForTax() end)
+            if not ok2 then
+                return "[自动纳税] PayForTax 异常: " .. tostring(e2)
+            end
+        end
+        return 1
+    end
+    return "[成功] 已开启自动纳税（不再弹「纳税」面板，改为自动扣款；累计缴税仍正常累加）"
+end)
+if not ok then return "[错误] " .. tostring(err) end
+return err
+"""
+
+LUA_TAX_AUTO_DISABLE = r"""
+local ok, err = pcall(function()
+    local tm = g_TaxManager
+    if not tm then return "[失败] g_TaxManager 不存在" end
+    if _G.g_trainer_orig_tax_SendTaxPage then
+        tm.SendTaxPage = _G.g_trainer_orig_tax_SendTaxPage
+        _G.g_trainer_orig_tax_SendTaxPage = nil
+        return "[成功] 已恢复原版纳税弹窗"
+    end
+    return "[提示] 当前未开启自动纳税，无需恢复"
+end)
+if not ok then return "[错误] " .. tostring(err) end
+return err
+"""
+
+LUA_TAX_PAY_NOW = r"""
+local ok, err = pcall(function()
+    local tm = g_TaxManager
+    if not tm then return "[失败] g_TaxManager 不存在（请先进入游戏场景）" end
+    if not tm.PayForTax then return "[失败] g_TaxManager:PayForTax 不存在" end
+    tm:PayForTax()
+    return "[成功] 已按当前税率缴纳一次（累计缴税 = " .. tostring(tm.taxCount) .. "）"
+end)
+if not ok then return "[错误] " .. tostring(err) end
+return err
+"""
+
+
+def probe_tax():
+    """税收状态探查（诊断用）"""
+    return execute_lua_safe(LUA_TAX_PROBE, timeout=8.0)
+
+
+def enable_auto_tax():
+    """开启自动纳税：跳过弹窗/对话，直接扣款"""
+    log("正在开启自动纳税 ...")
+    success, result = execute_lua_safe(LUA_TAX_AUTO_ENABLE, timeout=8.0)
+    if success and isinstance(result, str) and result.startswith("[成功]"):
+        log_success(result)
+    else:
+        log_error(f"自动纳税开启失败: {result}")
+    return success, result
+
+
+def disable_auto_tax():
+    """恢复原版纳税弹窗"""
+    log("正在恢复原版纳税弹窗 ...")
+    success, result = execute_lua_safe(LUA_TAX_AUTO_DISABLE, timeout=8.0)
+    if success and isinstance(result, str) and result.startswith("[成功]"):
+        log_success(result)
+    else:
+        log_error(f"自动纳税恢复失败: {result}")
+    return success, result
+
+
+def pay_tax_now():
+    """立即按当前税率缴纳一次"""
+    log("正在手动缴纳一次税款 ...")
+    success, result = execute_lua_safe(LUA_TAX_PAY_NOW, timeout=8.0)
+    if success and isinstance(result, str) and result.startswith("[成功]"):
+        log_success(result)
+    else:
+        log_error(f"缴税失败: {result}")
+    return success, result

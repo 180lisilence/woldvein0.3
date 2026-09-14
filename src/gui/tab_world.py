@@ -101,6 +101,24 @@ class WorldTabMixin:
                    command=lambda: self._world_with_cooldown(self._bld_pop_btn, world_tools.full_population_all, "全部满人口"))
         self._bld_pop_btn.pack(side=tk.LEFT, padx=4)
 
+        # === 税收（自动纳税）===
+        _, tax_frame = self._create_collapsible(scroll.inner, "税收（自动纳税）", default_open=True)
+        row = tk.Frame(tax_frame, bg=T("bg_card"))
+        row.pack(fill=tk.X, padx=4, pady=(0, 4))
+        ttk.Button(row, text="🔍 探查", style="Warning.TButton",
+                   command=lambda: self._world_probe(world_tools.probe_tax, "税收探查")).pack(side=tk.LEFT, padx=4)
+        self._tax_auto_btn = ttk.Button(row, text="🧾 自动纳税（关弹窗）", style="Success.TButton",
+                   command=lambda: self._world_with_cooldown(self._tax_auto_btn, world_tools.enable_auto_tax, "自动纳税"))
+        self._tax_auto_btn.pack(side=tk.LEFT, padx=4)
+        self._tax_restore_btn = ttk.Button(row, text="↩ 恢复弹窗", style="Restore.TButton",
+                   command=lambda: self._world_with_cooldown(self._tax_restore_btn, world_tools.disable_auto_tax, "恢复弹窗"))
+        self._tax_restore_btn.pack(side=tk.LEFT, padx=4)
+        self._tax_pay_btn = ttk.Button(row, text="💰 立即缴税一次", style="Primary.TButton",
+                   command=lambda: self._world_with_cooldown(self._tax_pay_btn, world_tools.pay_tax_now, "立即缴税"))
+        self._tax_pay_btn.pack(side=tk.LEFT, padx=4)
+        ttk.Label(row, text="每年 1 月 1 日默认弹「确认纳税」；开启后自动扣款、不弹窗",
+                  style="Card.TLabel", foreground=T("fg_muted"), font=FONT_TINY).pack(side=tk.LEFT, padx=8)
+
         # === 蓝图（仅探查）===
         _, bp_frame = self._create_collapsible(scroll.inner, "蓝图（仅探查）", default_open=False)
         row = tk.Frame(bp_frame, bg=T("bg_card"))

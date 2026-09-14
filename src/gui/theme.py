@@ -1,15 +1,18 @@
-﻿"""
+"""
 主题管理模块
-功能：深色/浅色主题切换，支持动态切换所有UI组件颜色
+功能：三套主题一键切换，支持动态切换所有UI组件颜色
 
-主题设计：
-    - dark：Catppuccin Mocha（当前 v0.3 深色主题）
-    - light：Catppuccin Latte（浅色主题，与深色同族系，视觉一致）
+主题设计（v0.3 融合版）：
+    - shenjian（深简）：方案A 瑞士极简 · 深色 + 绿强调（默认，悬浮游戏窗口低干扰）
+    - bento（Bento）：方案B 数据密集 · 更深的暗底 + 卡片色块（高频监控）
+    - mojian（墨笺）：方案C E-Ink 优化 · 米纸底 + 朱红强调（贴合《平野鸿孤》国风）
+
+设计原则：**布局代码只有一套，主题仅切换色板 / 少量字体质感**。
 
 使用方式：
-    from src.gui.theme import ThemeManager, current_theme
-    ThemeManager.apply(style, root, "dark")
-    ThemeManager.toggle(style, root)
+    from src.gui.theme import ThemeManager, get_theme
+    ThemeManager.apply(style, root, "shenjian")
+    ThemeManager.apply(style, root)      # 循环切到下一个主题
 """
 import tkinter as tk
 from tkinter import ttk
@@ -26,54 +29,76 @@ FONT_MONO_BOLD = ("Consolas", 10, "bold")
 FONT_MONO = ("Consolas", 9)
 
 
-# 深色主题色板（Catppuccin Mocha）
-DARK = {
-    "name": "dark",
+# ---------------------------------------------------------------- 三套色板
+# 主题 1：深简（方案A · 瑞士极简）
+SHENJIAN = {
+    "name": "shenjian",
+    "label": "深简",
     # 背景层级（由深到浅）
-    "bg":          "#1e1e2e",   # 主背景（Crust）
-    "bg_surface":  "#11111b",   # 最深（Mantle，日志区）
-    "bg_card":     "#313244",   # 卡片/面板（Surface0）
-    "bg_elevated": "#45475a",   # 按钮悬浮（Surface1）
-    "bg_selected": "#585b70",   # 选中态（Surface2）
+    "bg":           "#0F172A",   # 主背景
+    "bg_surface":   "#0B1220",   # 最深（日志区）
+    "bg_card":      "#1B2336",   # 卡片/面板
+    "bg_elevated":  "#222C44",   # 按钮悬浮
+    "bg_selected":  "#2A3650",   # 选中态
     # 文字
-    "fg":          "#cdd6f4",   # 主文字（Text）
-    "fg_muted":    "#6c7086",   # 次要文字（Overlay0）
-    "fg_bright":   "#f5e0dc",   # 高亮文字（Rosewater）
+    "fg":           "#F8FAFC",   # 主文字
+    "fg_muted":     "#94A3B8",   # 次要文字
+    "fg_bright":    "#E2E8F0",   # 高亮文字
     # 强调色
-    "accent":      "#89b4fa",   # 主强调（Blue）
-    "accent_hover":"#74c7ec",   # 悬浮态（Sapphire）
+    "accent":       "#22C55E",   # 主强调（绿）
+    "accent_hover": "#16A34A",   # 悬浮态
     # 语义色
-    "success":     "#a6e3a1",   # 成功（Green）
-    "warning":     "#f9e2af",   # 警告（Yellow）
-    "error":       "#f38ba8",   # 错误（Red）
-    "info":        "#89b4fa",   # 信息（Blue）
+    "success":      "#22C55E",
+    "warning":      "#F59E0B",
+    "error":        "#EF4444",
+    "info":         "#3B82F6",
 }
 
-# 浅色主题色板（Catppuccin Latte）
-LIGHT = {
-    "name": "light",
-    "bg":          "#eff1f5",   # 主背景
-    "bg_surface":  "#e6e9ef",   # 日志区
-    "bg_card":     "#ffffff",   # 卡片/面板
-    "bg_elevated": "#dce0e8",   # 按钮悬浮
-    "bg_selected": "#bcc0cc",   # 选中态
-    # 文字
-    "fg":          "#4c4f69",   # 主文字
-    "fg_muted":    "#9ca0b0",   # 次要文字
-    "fg_bright":   "#526fe0",   # 高亮文字
-    # 强调色
-    "accent":      "#1e66f5",   # 主强调
-    "accent_hover":"#2ac3de",   # 悬浮态
-    # 语义色
-    "success":     "#40a02b",   # 成功
-    "warning":     "#df8e1d",   # 警告
-    "error":       "#d20f39",   # 错误
-    "info":        "#1e66f5",   # 信息
+# 主题 2：Bento（方案B · 数据密集）
+BENTO = {
+    "name": "bento",
+    "label": "Bento",
+    "bg":           "#020617",   # 更深的暗底
+    "bg_surface":   "#01040F",
+    "bg_card":      "#0E1223",
+    "bg_elevated":  "#1A1E2F",
+    "bg_selected":  "#262C40",
+    "fg":           "#F8FAFC",
+    "fg_muted":     "#94A3B8",
+    "fg_bright":    "#E2E8F0",
+    "accent":       "#22C55E",
+    "accent_hover": "#16A34A",
+    "success":      "#22C55E",
+    "warning":      "#F59E0B",
+    "error":        "#EF4444",
+    "info":         "#3B82F6",
 }
 
-# 主题映射
-THEMES = {"dark": DARK, "light": LIGHT}
-_current = "dark"
+# 主题 3：墨笺（方案C · E-Ink 米纸，降低刺眼）
+MOJIAN = {
+    "name": "mojian",
+    "label": "墨笺",
+    "bg":           "#F3EDE1",   # 米纸底（非纯白，避免刺眼）
+    "bg_surface":   "#EAE2D2",   # 日志区
+    "bg_card":      "#FBF8F1",
+    "bg_elevated":  "#EFE7D8",
+    "bg_selected":  "#E2D8C4",
+    "fg":           "#1E1A15",   # 墨黑
+    "fg_muted":     "#5C5449",   # 淡墨（仍 >= 4.5:1）
+    "fg_bright":    "#7A1F18",
+    "accent":       "#9E2B22",   # 朱红
+    "accent_hover": "#7F221B",
+    "success":      "#2F6B45",
+    "warning":      "#8A6A16",
+    "error":        "#B3352A",
+    "info":         "#2B5E8A",
+}
+
+# 主题映射 + 切换顺序
+THEMES = {"shenjian": SHENJIAN, "bento": BENTO, "mojian": MOJIAN}
+THEME_ORDER = ["shenjian", "bento", "mojian"]
+THEME_LABELS = {"shenjian": "深简", "bento": "Bento", "mojian": "墨笺"}
+_current = "shenjian"
 
 
 def get_theme():
@@ -86,23 +111,29 @@ def get_theme_name():
     return _current
 
 
+def next_theme():
+    """返回循环顺序中的下一个主题名"""
+    i = THEME_ORDER.index(_current) if _current in THEME_ORDER else 0
+    return THEME_ORDER[(i + 1) % len(THEME_ORDER)]
+
+
 class ThemeManager:
-    """主题管理器：统一应用和管理深色/浅色主题"""
+    """主题管理器：统一应用和管理三套主题"""
 
     @staticmethod
     def apply(style, root, theme_name=None):
-        """应用指定主题（或切换当前主题）
+        """应用指定主题（theme_name=None 时循环切到下一个主题）
 
         参数：
             style: ttk.Style 实例
             root: tk.Tk 根窗口
-            theme_name: "dark" / "light"，None 则切换到另一个主题
+            theme_name: "shenjian" / "bento" / "mojian"
         """
         global _current
-        if theme_name:
+        if theme_name and theme_name in THEMES:
             _current = theme_name
-        else:
-            _current = "light" if _current == "dark" else "dark"
+        elif not theme_name:
+            _current = next_theme()
 
         t = THEMES[_current]
 
@@ -145,12 +176,12 @@ class ThemeManager:
         style.configure("Success.TButton", background=t["success"], foreground=t["bg"],
                         font=FONT_BOLD, padding=[16, 8], borderwidth=0)
         style.map("Success.TButton",
-                  background=[("active", "#94d38f"), ("hover", "#94d38f")])
+                  background=[("active", t["success"]), ("hover", t["success"])])
 
         style.configure("Danger.TButton", background=t["error"], foreground=t["bg"],
                         font=FONT_BOLD, padding=[16, 8], borderwidth=0)
         style.map("Danger.TButton",
-                  background=[("active", "#e07088"), ("hover", "#e07088")])
+                  background=[("active", t["error"]), ("hover", t["error"])])
 
         style.configure("Small.TButton", background=t["bg_elevated"], foreground=t["fg"],
                         font=FONT_TINY, padding=[8, 3], borderwidth=0)
@@ -170,20 +201,37 @@ class ThemeManager:
                   background=[("active", t["bg_selected"]), ("hover", t["bg_selected"])],
                   foreground=[("active", t["accent"]), ("hover", t["accent"])])
 
-        # 恢复按钮样式（v0.3 新增）
+        # 恢复按钮样式
         style.configure("Restore.TButton", background=t["warning"], foreground=t["bg"],
                         font=("微软雅黑", 9, "bold"), padding=[8, 3], borderwidth=0)
         style.map("Restore.TButton",
                   background=[("active", t["bg_selected"])])
 
-        # 次要按钮（灰色，v0.3 UI优化新增）
+        # 次要按钮（灰色）
         style.configure("Secondary.TButton", background=t["bg_elevated"], foreground=t["fg_muted"],
                         font=FONT_BODY, padding=[12, 6], borderwidth=0)
         style.map("Secondary.TButton",
                   background=[("active", t["bg_selected"])],
                   foreground=[("active", t["fg"])])
 
-        # 状态指示灯标签（绿点/黄点/红点 + 文字，v0.3 UI优化新增）
+        # 主题切换芯片（顶部三主题切换）
+        style.configure("ThemeChip.TButton", background=t["bg_selected"], foreground=t["fg_muted"],
+                        font=FONT_TINY, padding=[10, 4], borderwidth=0)
+        style.map("ThemeChip.TButton",
+                  background=[("active", t["bg_elevated"]), ("hover", t["bg_elevated"])],
+                  foreground=[("active", t["fg"]), ("hover", t["fg"])])
+        style.configure("ThemeChipActive.TButton", background=t["accent"], foreground=t["bg"],
+                        font=FONT_TINY, padding=[10, 4], borderwidth=0)
+        style.map("ThemeChipActive.TButton",
+                  background=[("active", t["accent_hover"]), ("hover", t["accent_hover"])])
+
+        # KPI 数值标签（顶部数据条）
+        style.configure("KpiKey.TLabel", background=t["bg_card"], foreground=t["fg_muted"],
+                        font=FONT_TINY)
+        style.configure("KpiValue.TLabel", background=t["bg_card"], foreground=t["fg"],
+                        font=FONT_MONO_BOLD)
+
+        # 状态指示灯标签（绿点/黄点/红点 + 文字）
         style.configure("Status.TLabel", background=t["bg_card"], foreground=t["fg"],
                         font=FONT_BODY)
         style.configure("StatusSuccess.TLabel", background=t["bg_card"], foreground=t["success"],
@@ -193,7 +241,7 @@ class ThemeManager:
         style.configure("StatusError.TLabel", background=t["bg_card"], foreground=t["error"],
                         font=FONT_BOLD)
 
-        # 禁用状态按钮（置灰，v0.3 UI优化新增）
+        # 禁用状态按钮（置灰）
         style.configure("Disabled.TButton", background=t["bg_card"], foreground=t["fg_muted"],
                         font=FONT_BODY, padding=[12, 6], borderwidth=0)
 
@@ -238,7 +286,7 @@ class ThemeManager:
 
     @staticmethod
     def toggle(style, root):
-        """切换主题（dark↔light），返回切换后的主题名"""
+        """按 深简 → Bento → 墨笺 循环切换，返回切换后的主题名"""
         ThemeManager.apply(style, root)
         return _current
 

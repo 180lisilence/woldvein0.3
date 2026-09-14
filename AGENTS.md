@@ -53,7 +53,8 @@ woldvein_trainer\
 │       ├── tab_advanced.py      # 高级工具标签页Mixin
 │       ├── tab_world.py         # 世界系统标签页Mixin
 │       ├── tab_settings.py      # 应用设置标签页Mixin
-│       ├── theme.py             # 深/浅主题色板
+│       ├── theme.py             # 三主题色板（深简/Bento/墨笺）
+│       ├── kpi_bar.py           # 顶部 KPI 数据条（常驻核心数据）
 │       ├── scrollable.py        # 侧边滚动条
 │       ├── widgets.py           # 控件工厂 + 颜色取用
 │       ├── async_helper.py      # 异步执行 + 按钮冷却
@@ -68,8 +69,8 @@ woldvein_trainer\
 1. **资源修改**：10种资源（金钱/木料/矿产/衣物/食物/水/盐/酒/精华/人口，人口不提供一键修改）+幸福度+知名度，实时显示当前值（统一GameStatusProvider刷新）
 2. **创造模式**：4个子选项独立开关（鸿业满级/全建筑解锁/无限资源/升级无限制），卡片式布局
 3. **游戏监控**：进程/内存/CPU实时监控，Lua错误检测，崩溃自动分析，存档状态，复制错误信息
-4. **高级工具**：NPC管理，时间/天气/季节控制，建造升级细粒度控制，SimWorld操作
-5. **世界系统**：市场物价、产业链、流民灾害、灾害控制（零天灾/零人祸）、知名度（双存储）、建筑精细操作；蓝图/NPC 详情为探查面板
+4. **高级工具**：NPC管理，时间/天气/季节控制，建造升级细粒度控制，SimWorld操作，时间流速实测
+5. **世界系统**：市场物价、产业链、流民灾害、灾害控制（零天灾/零人祸）、知名度（双存储）、建筑精细操作、税收（自动纳税）；蓝图/NPC 详情为探查面板
 6. **应用设置**：诊断日志输出，日志路径管理，清空日志，散文件MOD安装/卸载，热键配置工具入口
 
 > 注：存档编辑已独立为 `save_editor_tool` 项目；热键设置已独立为 `hotkey_configurator.py`（独立工具，非标签页）。
@@ -107,6 +108,8 @@ woldvein_trainer\
 - 时间加速：修改 `g_GameWorld.TICK_DELTA_TIMES`（控制 LogicTick 触发频率，影响日历+建筑+NPC产出）；`g_Time:SetTimeSpeed` 只影响日历，已弃用
 - 季节变换：hook `GetCurSeason`/`GetSeason` 返回固定值（直接 `SetSeason` 会被月度重算覆盖）
 - 跳过天数：基于 `UpdateSpecialTime` 的跳天逻辑（`months*30` 天），绕开 `SetTimeToMonthsLater` 的 `challengeblock` nil 错误
+- **`m_nDayStamp` 是单调累计天数**（`_updateDay` 逐日累加、跨年不重置）；`GetDayStamp()` 在游戏里只被灾害调度用作差值 → 回写必须用「天数增量」，禁止写成 `(月-1)*30+日`
+- 原版节奏：`SECONDS_PER_DAY = define.DAY_TICK_COUNT`，`DAY_TIME_REAL` = 原版「1 游戏日 = 多少实时秒」；逻辑 Tick 触发周期 = `g_GameWorld.TICK_DELTA_TIMES`
 - 暂停：`g_Game:LogicTickPause()`（停止所有逻辑Tick）；恢复 `g_Game:LogicTickResume()`
 - UI事件：`g_LHBUIProvider:EmitTo("LSystemProvider", event, data)`
 

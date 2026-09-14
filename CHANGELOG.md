@@ -2,6 +2,105 @@
 
 ## 2026-09-14
 
+### UI：融合版三主题（深简 / Bento / 墨笺）+ 顶部 KPI 数据条
+
+**背景**：用户选定「A 骨架 + B 顶部 KPI + C 作为可切主题」的融合方案（一套布局代码，三套主题只换配色）。
+
+**实现**
+- `src/gui/theme.py` 重写：`THEMES` 由「深/浅」改为三主题字典 `{shenjian, bento, mojian}`；
+  新增 `THEME_ORDER` / `THEME_LABELS` / `next_theme()`；新增 `ThemeChip(.Active).TButton`、`KpiKey/KpiValue.TLabel` 样式。
+  - 深简（默认）：`#0F172A` 深板岩 + `#22C55E` 绿强调（瑞士极简骨架）
+  - Bento：`#020617` 近黑 + 绿强调（数据密集）
+  - 墨笺：`#F3EDE1` 米纸 + `#9E2B22` 朱红（E-Ink 优化，降低白底刺眼；`fg_muted #5C5449` 仍达标）
+- 新增 `src/gui/kpi_bar.py`：顶部常驻 KPI 条（金钱/人口/人口上限/木料/矿产/游戏天数/倍速），
+  复用 `GameStatusProvider` 单例（不新增轮询）；支持动态着色（人口接近上限→黄、金钱/木料/矿产为 0→红）。
+- `main_gui.py`：顶部「深/浅」单按钮 → 三主题芯片；新增 `set_theme()`（`toggle_theme()` 保留为循环切换）；
+  内容区顶部接入 KPI 条。
+- `lua_engine.LUA_GET_STATUS` 扩展字段：`day_stamp / year / month / tick_delta / speed_mult / pop_max`。
+- `config.py`：`theme` 默认 `"shenjian"`。
+
+**验证**：`py_compile` / `compileall` / `verify.py` 全过；GUI 冒烟（构建 + 三主题切换 + KPI 更新）`SMOKE_RC 0`。
+
+### 修复：日志挖出的两个真 bug（g_TimeDefine / NPC 管理器路径）
+
+**来源**：2026-09-14 18:39 全量探查报告（实机）。
+1. `高级-时间系统` 恒报「TimeDefine 不存在」——实际全局是 **`g_TimeDefine`**（`time_define.lua` 定义）。
+   修复：诊断脚本改用 `g_TimeDefine or TimeDefine`。
+2. `基础-NPC列表` 恒报「CityNpcManager 不存在」——报告确认 `g_CityManager:GetActiveCity()` 返回 **nil**
+   （对象上只有 `m_lsCityInfo`，无 `m_lActiveCity`）。
+   修复：`_LUA_NPC_MGR_HEAD` 改「`GetActiveCity()` 优先 + 旧字段兜底」并回报诊断；
+   `LUA_NPC_LIST` 改为**多来源探测**（城市NPC管理器 → `g_LNPCManager.npcs` → `g_LSightSeeingNPCMgr.tbRoles`），
+   输出可读文本并注明来源。
+
+**同批报告的实机印证**
+- `m_nDayStamp = 556`，恰等于 `(2-1)×360+(7-1)×30+16` → 累计语义确证，与当日修复一致
+- 实测倍率：1x → 1.22x，4x → 3.66x（TICK_DELTA_TIMES 0.625）→ 时间倍速 v3 确实生效
+- 探查输出已无 `cjson不可用`
+
+**涉及文件**：`src/gui/theme.py`、`src/gui/kpi_bar.py`(新)、`src/gui/main_gui.py`、`src/config.py`、`src/lua_engine.py`、`src/advanced_tools.py`
+
+### 新功能：自动纳税（世界系统）+ 时间流速实测（高级工具）
+
+**背景**：游戏每年正月初一由 `g_TaxManager` 弹「确认纳税」面板，必须手动点确认。用户诉求：照缴但不想点、也不能跳。
+
+**源码定性（`pak_lua_dump/.../gameplay/tax/tax_mgr.lua`）**
+- `LTaxManager:OnDay()`（监听 `NEW_DAY`）→ `CheckTimeToPay(y,m,d) = (year>1 and month==1 and day==1)`
+- → `SendTaxPage()`：`g_LHBUIProvider:EmitTo("LBlockProvider", S2UI_SendPayTax, data)` 弹出面板
+- → 玩家点确认 → `LBlockProvider:UI2S_ConfirmPayTax()` → `g_TaxManager:PayForTax()`
+
+**实现（自动纳税）**
+- `world_tools.py`：新增 `LUA_TAX_PROBE / LUA_TAX_AUTO_ENABLE / LUA_TAX_AUTO_DISABLE / LUA_TAX_PAY_NOW`
+  与 `probe_tax / enable_auto_tax / disable_auto_tax / pay_tax_now`。
+  自动纳税 = 把 `g_TaxManager.SendTaxPage` 换成直接 `PayForTax()`（不弹窗、不弹对话，累计缴税照常累加）。
+- `tab_world.py`：新增「税收（自动纳税）」卡片（探查 / 自动纳税 / 恢复弹窗 / 立即缴税一次）。
+
+**时间流速实测（高级工具页「📏 实测倍率」）**
+- 源码事实（`time_define.lua`）：`SECONDS_PER_DAY = define.DAY_TICK_COUNT`，
+  `TICK_DELTA_TIMES = define.DAY_TIME_REAL / define.DAY_TICK_COUNT`
+  → **原版 1 游戏日 = DAY_TIME_REAL 实时秒**；逻辑 Tick 触发周期即 `g_GameWorld.TICK_DELTA_TIMES`。
+- `advanced_tools.measure_time_speed()`：连续两次读 `g_Time:GetCurTime()`，用
+  「模拟时间差 / 实时时间差」直接测出实际倍率（`≈ DAY_TIME_REAL / 实测实时秒每游戏日`），不依赖假设。
+
+**验证**：`py_compile` / `compileall` / `verify.py` 全项通过。
+
+**涉及文件**：`src/world_tools.py`、`src/advanced_tools.py`、`src/gui/tab_world.py`、`src/gui/tab_advanced.py`
+
+**待实机确认**：开启自动纳税后跨年（1 月 1 日）不再弹面板、金钱正常扣除且「税收探查」taxCount 增加；
+「实测倍率」在 1x/2x/4x 下应分别读数约 1/2/4。
+
+### 修复：m_nDayStamp 语义误用（跳天/跳月/季节同步会破坏灾害计时）
+
+**源码定性（`pak_lua_clean\LTimeManager.lua`）**
+- `LTimeManager:_updateDay()`：`self.m_tb.m_nDayStamp = self.m_tb.m_nDayStamp + nPastDay`
+  → **逐日累加、跨年不重置**，即**单调累计天数**。
+- `LTimeManager:GetDayStamp()` 返回该值；全项目检索，它**只被灾害调度用作差值**：
+  - `LBaseDisaster:DisasterReliefEvent`：`g_Time:GetDayStamp() - self.m_nProbTime < IntervalDay`
+  - `LFloodDisaster` / `LSevereFrostDisaster` / `LColdWinterDisaster` / `LSpringRainGainDisaster`：
+    `GetDayStamp() - m_nLastTriggerDay >= CONTINUE_DAYS` / `== RELIEVE_EVENT_DAY` / `< INTERVAL`
+  → 一旦回写成“年内值” `(月-1)*30+日`，差值会突变为负 →
+  **进行中的灾害永不结束、后续灾害被长时间压制**。
+
+**修复**
+- `_LUA_CALENDAR`（跳天/跳月共用）：新值改为**天数增量** `newStamp = curStamp + days`
+  （原先写 `(newMonth-1)*30+newDay`）。
+- `LUA_TIME_SET_SEASON`（季节同步日期）：不再直接写 `(月-1)*30+日`，改为按**日序差值**累加
+  `m_nDayStamp = m_nDayStamp + (newDoy - oldDoy)`，保持单调。
+- 顺带修正 `_LUA_CALENDAR` 顶部与代码相矛盾的注释（注释认定不能用年内值，代码此前却用了）。
+
+**验证**：`py_compile` / `compileall` / `verify.py` 全项通过（10 资源 / 12 热键 / DLL 59153 B）。
+
+### 探查输出：去掉 cjson 依赖，改纯文本（游戏 Lua 环境无 cjson）
+
+**现象**：NPC 列表 / 时间状态 / 人口状态 / 建筑列表 / SimWorld 状态 5 个探查脚本走
+`pcall(require,"cjson")`，环境缺 cjson 时整段详情退化成字符串 `"cjson不可用"`。
+
+**修复**：新增共享 Lua 片段 `_LUA_TB2TEXT`（`__tb2text(tb)`：数组逐行、字典按 key 排序逐行），
+5 个脚本改为 `_LUA_TB2TEXT + (...)` 前置，序列化处改调 `__tb2text(...)`，彻底移除 cjson 依赖。
+
+**涉及文件**：`src/advanced_tools.py`
+
+**待实机确认**：跳天/跳月后 `GetDayStamp` 仍单调递增；探查面板显示完整列表而非 `cjson不可用`。
+
 ### 修复：创造模式按钮点击无反应（防呆置灰逻辑漏洞）
 
 **现象**：实机点击「▶ 开启创造模式」完全无反应，日志里也没有任何 `正在开启创造模式...` 记录。

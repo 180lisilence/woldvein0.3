@@ -60,13 +60,15 @@ _LUA_CALENDAR = r"""    -- 历法常量（游戏 360 天历法：12 月 × 30 �
     local DY = 360
     local SPD = 86400
     local MAX_SKIP = 3600
-    -- 【关键】m_nDayStamp 实为“累计天数”（_updateDay 里逐日累加、跨年不重置），
-    --   不是“年内第几天”。回写若用 (月-1)*30+日 会把累计值改小，
-    --   可能干扰灾害计时（GetDayStamp 差值）。此处只用 年/月/日 推算。
+    -- 【关键】m_nDayStamp 是“累计天数”（游戏 _updateDay 逐日累加、跨年不重置）。
+    --   证据：GetDayStamp() 在游戏里只被灾害调度用作差值
+    --   （如 LBaseDisaster:DisasterReliefEvent 的 `GetDayStamp() - m_nProbTime < IntervalDay`），
+    --   必须单调递增；故回写一律用“天数增量”，见下方 newStamp。
     local curDay = tm.m_tb.m_nDay or 1
     local curMonth = tm.m_tb.m_nMonth or 1
     local curYear = tm.m_tb.m_nYear or 1
     local curTime = tm.m_tb.m_nCurTime or 0
+    local curStamp = tm.m_tb.m_nDayStamp or 0
     local season = tm.m_tb.m_nSeason
     -- 安全上限：单次最多跳 MAX_SKIP 天（10 年）
     if days > MAX_SKIP then days = MAX_SKIP end
@@ -78,7 +80,8 @@ _LUA_CALENDAR = r"""    -- 历法常量（游戏 360 天历法：12 月 × 30 �
     local newYear = curYear + addYears
     local newMonth = math.floor((remain - 1) / DM) + 1
     local newDay = remain - (newMonth - 1) * DM
-    local newStamp = (newMonth - 1) * DM + newDay
+    -- [FIX 2026-09-14] 按“天数增量”累加，保持 m_nDayStamp 单调累计语义
+    local newStamp = curStamp + days
     if newYear < 1 then newYear = 1 end
 
     if tm.UpdateSpecialTime then
@@ -103,17 +106,48 @@ _LUA_BUILDINGMGR_HEAD = r"""    local BWM = g_BuildingWorldModule
     end
 """
 
-# NPC 管理器解析
-_LUA_NPC_MGR_HEAD = r"""    -- NPC管理器访问路径：g_CityManager.m_lActiveCity.m_lCityNpcMgr
-    local mgr = nil
-    if g_CityManager and g_CityManager.m_lActiveCity then
-        mgr = g_CityManager.m_lActiveCity.m_lCityNpcMgr
+# NPC 管理器解析（城市NPC管理器）
+# [FIX 2026-09-14] 实机确认 g_CityManager 上只有 m_lsCityInfo、没有 m_lActiveCity；
+#   且 GetActiveCity() 在无活跃城市时返回 nil。改为「GetActiveCity() 优先 + 旧字段兜底」。
+_LUA_NPC_MGR_HEAD = r"""    local city = nil
+    if g_CityManager and g_CityManager.GetActiveCity then
+        local okc, c = pcall(function() return g_CityManager:GetActiveCity() end)
+        if okc then city = c end
     end
+    if not city and g_CityManager then city = g_CityManager.m_lActiveCity end
+    local mgr = city and city.m_lCityNpcMgr or nil
     if not mgr then
-        return "CityNpcManager 不存在（请先进入游戏场景）"
+        return "[失败] 城市NPC管理器不可用（GetActiveCity=" .. tostring(city) .. "，需进入有活跃城市的存档）"
     end
 """
 
+# 表格 → 可读文本（游戏 Lua 环境常缺 cjson；替代 cjson.encode）
+_LUA_TB2TEXT = r"""local function __tb2text(tb)
+    local out = {}
+    local n = #tb
+    if n > 0 then
+        for i = 1, n do
+            local v = tb[i]
+            if type(v) == "table" then
+                local sub = {}
+                for k, vv in pairs(v) do table.insert(sub, tostring(k) .. "=" .. tostring(vv)) end
+                table.sort(sub)
+                table.insert(out, "  " .. i .. ". " .. table.concat(sub, ", "))
+            else
+                table.insert(out, "  " .. i .. ". " .. tostring(v))
+            end
+        end
+    else
+        local keys = {}
+        for k in pairs(tb) do table.insert(keys, k) end
+        table.sort(keys, function(a, b) return tostring(a) < tostring(b) end)
+        for _, k in ipairs(keys) do
+            table.insert(out, "  " .. tostring(k) .. " = " .. tostring(tb[k]))
+        end
+    end
+    return table.concat(out, "\n")
+end
+"""
 
 # 倍速基准解析（只认游戏权威值；SET_SPEED / RESTORE_TIME_SPEED 共用）
 _LUA_TIME_BASE_RESOLVE = r"""    -- 【v0.3 修复】原始值只认游戏权威值 define.DAY_TIME_REAL / define.DAY_TICK_COUNT
@@ -166,27 +200,48 @@ def _log_result(success, result, fail_msg):
 # 1. NPC 管理
 # ============================================================
 
-LUA_NPC_LIST = (r"""
+LUA_NPC_LIST = _LUA_TB2TEXT + (r"""
 local ok, err = pcall(function()
-    local result = {}
-""" + _LUA_NPC_MGR_HEAD + r"""    -- 遍历所有NPC
+    -- [FIX 2026-09-14] 城市NPC管理器在无活跃城市时不可用（实机 GetActiveCity()=nil），
+    --   改为多来源探测：城市NPC管理器 → 全局 LNPCManager → 观光NPC管理器
+    local mgr, tbl, src = nil, nil, nil
+    if g_CityManager and g_CityManager.GetActiveCity then
+        local okc, city = pcall(function() return g_CityManager:GetActiveCity() end)
+        if okc and city and city.m_lCityNpcMgr then
+            mgr, src = city.m_lCityNpcMgr, "CityNpcMgr"
+        end
+    end
+    if not mgr and g_LNPCManager then
+        mgr, tbl, src = g_LNPCManager, g_LNPCManager.npcs, "LNPCManager"
+    end
+    if not mgr and g_LSightSeeingNPCMgr then
+        mgr, tbl, src = g_LSightSeeingNPCMgr, g_LSightSeeingNPCMgr.tbRoles, "SightSeeingNPCMgr"
+    end
+    if not mgr then
+        return "[失败] 未找到可用 NPC 管理器（CityNpcMgr / LNPCManager / SightSeeingNPCMgr 均不可用）"
+    end
+    if not tbl then tbl = mgr.tabNpcs end
+    local lines = {}
     local count = 0
-    if mgr.tabNpcs then
-        for id, npc in pairs(mgr.tabNpcs) do
+    if tbl then
+        for id, npc in pairs(tbl) do
             count = count + 1
             if count <= 50 then
-                local info = {}
-                info.id = id
-                if npc.GetName then info.name = npc:GetName() end
-                if npc.GetCareer then info.career = npc:GetCareer() end
-                if npc.GetLevel then info.level = npc:GetLevel() end
-                table.insert(result, info)
+                local parts = {"id=" .. tostring(id)}
+                if type(npc) == "table" then
+                    if npc.GetName then local okn, n = pcall(function() return npc:GetName() end); if okn then table.insert(parts, "name=" .. tostring(n)) end end
+                    if npc.GetCareer then local okc2, ca = pcall(function() return npc:GetCareer() end); if okc2 then table.insert(parts, "career=" .. tostring(ca)) end end
+                    if npc.GetLevel then local okl, lv = pcall(function() return npc:GetLevel() end); if okl then table.insert(parts, "level=" .. tostring(lv)) end end
+                end
+                table.insert(lines, "  " .. table.concat(parts, ", "))
             end
         end
     end
-    return string.format("NPC总数: %d (显示前50个)", count) .. "|" .. (function() local ok,cjson=pcall(require,"cjson"); if ok then return cjson.encode(result) else return "cjson不可用" end end)()
+    table.insert(lines, 1, "NPC总数: " .. tostring(count) .. " (显示前50个)  来源=" .. tostring(src))
+    return table.concat(lines, "\n")
 end)
-return ok and err or "执行失败: " .. tostring(err)
+if not ok then return "[错误] " .. tostring(err) end
+return err
 """)
 
 LUA_NPC_ADD = (r"""
@@ -226,7 +281,7 @@ return ok and err or "执行失败: " .. tostring(err)
 # 2. 时间/天气控制
 # ============================================================
 
-LUA_TIME_GET_STATUS = r"""
+LUA_TIME_GET_STATUS = _LUA_TB2TEXT + r"""
 local ok, err = pcall(function()
     local tm = g_Time  -- 时间管理器全局变量名是g_Time，不是g_TimeManager
     if not tm then
@@ -241,8 +296,8 @@ local ok, err = pcall(function()
     if tm.GetCurSeason then info.cur_season = tm:GetCurSeason() end
     if tm.GetTimeSpeed then info.speed = tm:GetTimeSpeed() end
     if tm.GetDayStamp then info.day_stamp = tm:GetDayStamp() end
-    local ok, cjson = pcall(require, "cjson")
-    if ok then return cjson.encode(info) else return "cjson不可用" end
+    -- 纯文本输出（游戏 Lua 环境无 cjson）
+    return __tb2text(info)
 end)
 return ok and err or "执行失败: " .. tostring(err)
 """
@@ -302,14 +357,22 @@ local ok, err = pcall(function()
     if tm.m_tb then
         local startMonth = (season - 1) * 3 + 1
         local endMonth = season * 3
-        local curMonth = tm.m_tb.m_nMonth or 1
-        local curDay = tm.m_tb.m_nDay or 1
+        local oldMonth = tm.m_tb.m_nMonth or 1
+        local oldDay = tm.m_tb.m_nDay or 1
+        local curMonth = oldMonth
+        local curDay = oldDay
         if curMonth < startMonth or curMonth > endMonth then
             curMonth = startMonth
             if curDay > 30 then curDay = 30 end
             tm.m_tb.m_nMonth = curMonth
             tm.m_tb.m_nDay = curDay
-            tm.m_tb.m_nDayStamp = (curMonth - 1) * 30 + curDay
+            -- [FIX 2026-09-14] m_nDayStamp 是累计天数：按“日序差值”保持单调，
+            --   不能再写成 (月-1)*30+日（会把累计值拉回年内值，破坏灾害计时）
+            if tm.m_tb.m_nDayStamp then
+                local oldDoy = (oldMonth - 1) * 30 + oldDay
+                local newDoy = (curMonth - 1) * 30 + curDay
+                tm.m_tb.m_nDayStamp = tm.m_tb.m_nDayStamp + (newDoy - oldDoy)
+            end
             synced = true
         end
     end
@@ -404,7 +467,7 @@ end)
 return ok and err or "执行失败: " .. tostring(err)
 """
 
-LUA_POPULATION_STATUS = r"""
+LUA_POPULATION_STATUS = _LUA_TB2TEXT + r"""
 local ok, err = pcall(function()
     local camp = g_camp
     if not camp then
@@ -418,8 +481,7 @@ local ok, err = pcall(function()
     if camp.GetSourceValue and block_define and block_define.SOURCE then
         info.money = camp:GetSourceValue(block_define.SOURCE.MONEY)
     end
-    local ok, cjson = pcall(require, "cjson")
-    if ok then return cjson.encode(info) else return "cjson不可用" end
+    return __tb2text(info)
 end)
 return ok and err or "执行失败: " .. tostring(err)
 """
@@ -428,7 +490,7 @@ return ok and err or "执行失败: " .. tostring(err)
 # 4. 建造/升级细粒度控制
 # ============================================================
 
-LUA_BUILDING_LIST = (r"""
+LUA_BUILDING_LIST = _LUA_TB2TEXT + (r"""
 local ok, err = pcall(function()
 """ + _LUA_BUILDINGMGR_HEAD + r"""    local result = {}
     local count = 0
@@ -455,7 +517,7 @@ local ok, err = pcall(function()
             end
         end
     end
-    return string.format("建筑总数: %d (显示前30个)", count) .. "|" .. (function() local ok,cjson=pcall(require,"cjson"); if ok then return cjson.encode(result) else return "cjson不可用" end end)()
+    return string.format("建筑总数: %d (显示前30个)", count) .. "\n" .. __tb2text(result)
 end)
 return ok and err or "执行失败: " .. tostring(err)
 """)
@@ -517,7 +579,7 @@ return ok and err or "执行失败: " .. tostring(err)
 # 5. SimWorld 级操作
 # ============================================================
 
-LUA_SIMWORLD_STATUS = r"""
+LUA_SIMWORLD_STATUS = _LUA_TB2TEXT + r"""
 local ok, err = pcall(function()
     local info = {}
     -- 游戏世界状态
@@ -538,8 +600,7 @@ local ok, err = pcall(function()
             end
         end
     end
-    local ok, cjson = pcall(require, "cjson")
-    if ok then return cjson.encode(info) else return "cjson不可用" end
+    return __tb2text(info)
 end)
 return ok and err or "执行失败: " .. tostring(err)
 """
@@ -673,12 +734,14 @@ local ok, err = pcall(function()
     
     table.insert(lines, "")
     table.insert(lines, "【6. 时间速度常量】")
-    if TimeDefine then
-        table.insert(lines, string.format("  MIN_TIME_SPEED: %s", tostring(TimeDefine.MIN_TIME_SPEED)))
-        table.insert(lines, string.format("  MAX_TIME_SPEED: %s", tostring(TimeDefine.MAX_TIME_SPEED)))
-        table.insert(lines, string.format("  SECONDS_PER_DAY: %s", tostring(TimeDefine.SECONDS_PER_DAY)))
+    -- [FIX 2026-09-14] 实际全局是 g_TimeDefine（time_define.lua 定义）；旧代码查的是 TimeDefine → 恒报"不存在"
+    local TD = g_TimeDefine or TimeDefine
+    if TD then
+        table.insert(lines, string.format("  MIN_TIME_SPEED: %s", tostring(TD.MIN_TIME_SPEED)))
+        table.insert(lines, string.format("  MAX_TIME_SPEED: %s", tostring(TD.MAX_TIME_SPEED)))
+        table.insert(lines, string.format("  SECONDS_PER_DAY: %s", tostring(TD.SECONDS_PER_DAY)))
     else
-        table.insert(lines, "  TimeDefine 不存在")
+        table.insert(lines, "  g_TimeDefine / TimeDefine 均不存在")
     end
     if _G.define then
         table.insert(lines, string.format("  define.DAY_TIME_REAL: %s", tostring(_G.define.DAY_TIME_REAL)))
@@ -1985,3 +2048,98 @@ def restore_game_speed():
     log("正在恢复游戏运行...")
     success, result = execute_lua_safe(LUA_RESTORE_GAME_SPEED)
     return _log_result(success, result, "恢复游戏运行失败")
+
+
+# ============================================================
+# 时间流速实测（判断时间倍速是否真的生效）
+# ============================================================
+# 游戏机制（源码 time_define.lua / LTimeManager.lua / game_world.lua）：
+#   SECONDS_PER_DAY = define.DAY_TICK_COUNT；DAY_TIME_REAL = 原版「一游戏日 = 多少实时秒」
+#   LTimeManager:Tick() 使 m_nCurTime += 1 * m_nTimeSpeed（每逻辑 Tick 一次）
+#   逻辑 Tick 触发周期 = g_GameWorld.TICK_DELTA_TIMES
+#   -> 原版：1 游戏日 = SECONDS_PER_DAY * TICK_DELTA_TIMES = DAY_TIME_REAL 实时秒
+#   本函数用「两次读 m_nCurTime 的差值 / 实时时间差」直接测当前实际倍率，不依赖任何假设。
+
+LUA_TIME_MEASURE_SAMPLE = r"""
+local ok, err = pcall(function()
+    local tm = g_Time
+    if not tm then return "[失败] g_Time 不存在（请先进入游戏场景）" end
+    local cur = nil
+    if tm.GetCurTime then cur = tm:GetCurTime() end
+    if cur == nil and tm.m_tb then cur = tm.m_tb.m_nCurTime end
+    if cur == nil then return "[失败] 无法读取 m_nCurTime" end
+    local d = _G.define
+    local secPerDay = nil
+    if g_TimeDefine then secPerDay = g_TimeDefine.SECONDS_PER_DAY end
+    if secPerDay == nil and d then secPerDay = d.DAY_TICK_COUNT end
+    local dayReal = d and d.DAY_TIME_REAL or nil
+    local dayTick = d and d.DAY_TICK_COUNT or nil
+    return string.format("cur=%.6f;secPerDay=%s;dayReal=%s;dayTick=%s",
+        cur, tostring(secPerDay), tostring(dayReal), tostring(dayTick))
+end)
+if not ok then return "[错误] " .. tostring(err) end
+return err
+"""
+
+
+def measure_time_speed(interval=2.0):
+    """实测游戏时间流速（阻塞约 interval 秒，须在异步线程调用）。
+
+    返回 (success, 多行文本)。用两次 m_nCurTime 采样换算「实时秒/游戏日」与等效倍率。
+    """
+    import time as _time
+
+    s1, r1 = execute_lua_safe(LUA_TIME_MEASURE_SAMPLE, timeout=LUA_TIMEOUT)
+    t1 = _time.monotonic()
+    if not s1 or not isinstance(r1, str) or not r1.startswith("cur="):
+        return False, f"[失败] 第一次采样失败：{r1}"
+    _time.sleep(interval)
+    s2, r2 = execute_lua_safe(LUA_TIME_MEASURE_SAMPLE, timeout=LUA_TIMEOUT)
+    t2 = _time.monotonic()
+    if not s2 or not isinstance(r2, str) or not r2.startswith("cur="):
+        return False, f"[失败] 第二次采样失败：{r2}"
+
+    def parse(s):
+        d = {}
+        for kv in s.split(";"):
+            if "=" in kv:
+                k, v = kv.split("=", 1)
+                d[k.strip()] = v.strip()
+        return d
+
+    p1, p2 = parse(r1), parse(r2)
+    try:
+        c1 = float(p1["cur"])
+        c2 = float(p2["cur"])
+    except Exception as e:
+        return False, f"[失败] 解析采样值失败：{r1} / {r2}（{e}）"
+
+    def fnum(s, k):
+        try:
+            return float(s.get(k))
+        except Exception:
+            return None
+
+    sec_per_day = fnum(p2, "secPerDay")
+    day_real = fnum(p2, "dayReal")
+    day_tick = fnum(p2, "dayTick")
+
+    dt = t2 - t1
+    ds = c2 - c1
+    if dt <= 0:
+        return False, "[失败] 采样时间窗口异常"
+    rate = ds / dt
+
+    lines = ["=== 时间流速实测 ==="]
+    lines.append(f"采样窗口 {dt:.2f} 实时秒；模拟时间前进 {ds:.2f} 秒")
+    lines.append(f"实测流速 {rate:.3f} 模拟秒 / 实时秒")
+    if sec_per_day and rate > 0:
+        real_per_day = sec_per_day / rate
+        lines.append(f"实测 1 游戏日 ≈ {real_per_day:.1f} 实时秒")
+    if day_real and sec_per_day and rate > 0:
+        real_per_day = sec_per_day / rate
+        lines.append(f"原版 1 游戏日 = {day_real:.1f} 实时秒 -> 实测等效倍率 ≈ {day_real / real_per_day:.2f}x")
+    if day_real and sec_per_day and rate <= 0.0001:
+        lines.append("当前几乎静止（游戏暂停 / 未进入场景 / 窗口未激活？）")
+    lines.append(f"游戏常量：SECONDS_PER_DAY={sec_per_day} DAY_TIME_REAL={day_real} DAY_TICK_COUNT={day_tick}")
+    return True, "\n".join(lines)
