@@ -26,6 +26,7 @@ import tkinter as tk
 from tkinter import ttk, scrolledtext
 import threading
 from .widgets import T
+from .rounded import RoundedButton
 from .theme import FONT_MONO, FONT_SUB
 
 
@@ -62,7 +63,7 @@ def build_diagnostic_panel(parent, title, description, button_text,
               foreground=T("fg_muted")).pack(anchor=tk.W, padx=15, pady=(0, 5))
 
     # 按钮
-    diag_btn = ttk.Button(frame, text=button_text, style=button_style)
+    diag_btn = RoundedButton(frame, text=button_text, style=button_style)
     diag_btn.pack(anchor=tk.W, padx=15, pady=(0, 10))
 
     # 输出文本框

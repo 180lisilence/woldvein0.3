@@ -15,6 +15,7 @@ from src.logger import log, log_error, log_warning, get_log_path, get_log_dir, c
 from src.hotkey_manager import hotkey_manager, is_admin
 from .scrollable import ScrollableFrame
 from .widgets import T
+from .rounded import RoundedButton
 from .theme import FONT_MONO, FONT_SUB, FONT_TINY
 from src.constants import DEFAULT_GAME_PATH, SIM_COMMON_REL
 
@@ -41,9 +42,9 @@ class SettingsTabMixin:
         btn_row = ttk.Frame(diag_frame, style="Card.TFrame")
         btn_row.pack(fill=tk.X, padx=15, pady=(0, 15))
 
-        ttk.Button(btn_row, text="📋 输出诊断日志", style="Primary.TButton",
+        RoundedButton(btn_row, text="📋 输出诊断日志", style="Primary.TButton",
                    command=self._output_diagnostic_log).pack(side=tk.LEFT, padx=3)
-        ttk.Button(btn_row, text="🗑️ 清空日志", style="Warning.TButton",
+        RoundedButton(btn_row, text="🗑️ 清空日志", style="Warning.TButton",
                    command=self.on_clear_log).pack(side=tk.LEFT, padx=3)
 
         # 日志路径显示（脱敏：长路径缩写）
@@ -71,11 +72,11 @@ class SettingsTabMixin:
 
         log_btn_row = ttk.Frame(log_frame, style="Card.TFrame")
         log_btn_row.pack(fill=tk.X)
-        ttk.Button(log_btn_row, text="📂 打开日志文件夹", style="Primary.TButton",
+        RoundedButton(log_btn_row, text="📂 打开日志文件夹", style="Primary.TButton",
                    command=lambda: os.startfile(get_log_dir())).pack(side=tk.LEFT, padx=3)
-        ttk.Button(log_btn_row, text="📄 打开日志文件", style="Primary.TButton",
+        RoundedButton(log_btn_row, text="📄 打开日志文件", style="Primary.TButton",
                    command=lambda: os.startfile(get_log_path())).pack(side=tk.LEFT, padx=3)
-        ttk.Button(log_btn_row, text="📋 复制路径", style="Warning.TButton",
+        RoundedButton(log_btn_row, text="📋 复制路径", style="Warning.TButton",
                    command=lambda: self._copy_to_clipboard(get_log_path())).pack(side=tk.LEFT, padx=3)
 
         # === 探查报告（一键全量探查，便于一次性复制）===
@@ -90,11 +91,11 @@ class SettingsTabMixin:
 
         rep_btn_row = ttk.Frame(rep_frame, style="Card.TFrame")
         rep_btn_row.pack(fill=tk.X, padx=15, pady=(0, 15))
-        ttk.Button(rep_btn_row, text="🧪 一键全量探查", style="Primary.TButton",
+        RoundedButton(rep_btn_row, text="🧪 一键全量探查", style="Primary.TButton",
                    command=self._run_full_probe).pack(side=tk.LEFT, padx=3)
-        ttk.Button(rep_btn_row, text="📄 打开报告文件", style="Success.TButton",
+        RoundedButton(rep_btn_row, text="📄 打开报告文件", style="Success.TButton",
                    command=self._open_probe_report).pack(side=tk.LEFT, padx=3)
-        ttk.Button(rep_btn_row, text="🗑 清空报告", style="Warning.TButton",
+        RoundedButton(rep_btn_row, text="🗑 清空报告", style="Warning.TButton",
                    command=self._clear_probe_report).pack(side=tk.LEFT, padx=3)
 
         # === MOD管理 ===
@@ -115,11 +116,11 @@ class SettingsTabMixin:
                                           foreground=T("fg_muted"))
         self.mod_status_label.pack(side=tk.LEFT, padx=5)
 
-        ttk.Button(mod_btn_row, text="🔍 检测MOD", style="Primary.TButton",
+        RoundedButton(mod_btn_row, text="🔍 检测MOD", style="Primary.TButton",
                    command=self._check_mod_status).pack(side=tk.RIGHT, padx=3)
-        ttk.Button(mod_btn_row, text="📦 安装散文件MOD", style="Success.TButton",
+        RoundedButton(mod_btn_row, text="📦 安装散文件MOD", style="Success.TButton",
                    command=self._install_mod).pack(side=tk.RIGHT, padx=3)
-        ttk.Button(mod_btn_row, text="🗑️ 卸载散文件MOD", style="Danger.TButton",
+        RoundedButton(mod_btn_row, text="🗑️ 卸载散文件MOD", style="Danger.TButton",
                    command=self._uninstall_mod).pack(side=tk.RIGHT, padx=3)
 
         # === 热键配置（独立工具入口）===
@@ -135,7 +136,7 @@ class SettingsTabMixin:
         hotkey_btn_row = ttk.Frame(hotkey_frame, style="Card.TFrame")
         hotkey_btn_row.pack(fill=tk.X, padx=15, pady=(0, 15))
 
-        ttk.Button(hotkey_btn_row, text="⚙️ 打开热键配置工具", style="Primary.TButton",
+        RoundedButton(hotkey_btn_row, text="⚙️ 打开热键配置工具", style="Primary.TButton",
                    command=self._open_hotkey_configurator).pack(side=tk.LEFT, padx=3)
         ttk.Label(hotkey_btn_row, text="（需 Python 环境，源码模式下可用）",
                   style="Card.TLabel", foreground=T("fg_muted"),

@@ -11,6 +11,7 @@ from src import advanced_tools
 from src.game_status import get_status_provider
 from .scrollable import ScrollableFrame
 from .widgets import T
+from .rounded import RoundedButton
 from src.constants import RESOURCE_ADD_AMOUNT, FAME_ADD_AMOUNT
 from .theme import FONT_MONO_LG, FONT_MONO, FONT_BOLD, FONT_BODY, FONT_TINY
 
@@ -34,12 +35,12 @@ class ResourceTabMixin:
         all_frame.pack(fill=tk.X, padx=15, pady=(0, 15))
         ttk.Label(all_frame, text="快捷操作", style="Card.TLabel").pack(side=tk.LEFT, padx=15, pady=10)
         # 满天赋按钮
-        ttk.Button(all_frame, text="🌟 满天赋", style="Success.TButton",
+        RoundedButton(all_frame, text="🌟 满天赋", style="Success.TButton",
                    command=lambda: self._run_async(advanced_tools.max_all_talents)).pack(side=tk.RIGHT, padx=(5, 15), pady=10)
         # v0.3 新增：资源归零按钮
-        ttk.Button(all_frame, text="↩ 资源归零", style="Restore.TButton",
+        RoundedButton(all_frame, text="↩ 资源归零", style="Restore.TButton",
                    command=lambda: self._run_async(zero_all_resources)).pack(side=tk.RIGHT, padx=5, pady=10)
-        ttk.Button(all_frame, text="一键全部资源 +100万", style="Primary.TButton",
+        RoundedButton(all_frame, text="一键全部资源 +100万", style="Primary.TButton",
                    command=lambda: self._run_async(add_all_resources)).pack(side=tk.RIGHT, padx=5, pady=10)
 
         # 当前时间流速显示
@@ -103,12 +104,12 @@ class ResourceTabMixin:
             btn_group = tk.Frame(row_frame, bg=row_bg)
             btn_group.pack(side=tk.RIGHT, padx=(0, 8), pady=2)
 
-            add_btn = ttk.Button(btn_group, text="+100万", style="Success.TButton",
+            add_btn = RoundedButton(btn_group, text="+100万", style="Success.TButton",
                                  command=lambda rid=res["id"], rn=res["name"]: self._run_async(add_resource, rid, RESOURCE_ADD_AMOUNT))
             add_btn.pack(side=tk.LEFT, padx=(0, 4))
             self.resource_buttons.append(add_btn)
 
-            custom_btn = ttk.Button(btn_group, text="增加", style="Small.TButton",
+            custom_btn = RoundedButton(btn_group, text="增加", style="Small.TButton",
                                     command=lambda rid=res["id"], v=var: self._run_async(
                                         add_resource, rid, int(v.get()) if v.get().isdigit() else RESOURCE_ADD_AMOUNT))
             custom_btn.pack(side=tk.LEFT)
@@ -135,12 +136,12 @@ class ResourceTabMixin:
         btn_row = ttk.Frame(special_frame, style="Card.TFrame")
         btn_row.pack(fill=tk.X, padx=12, pady=10)
 
-        ttk.Button(btn_row, text="幸福度最大", style="Primary.TButton",
+        RoundedButton(btn_row, text="幸福度最大", style="Primary.TButton",
                    command=lambda: self._run_async(max_happiness)).pack(side=tk.LEFT, padx=5)
-        ttk.Button(btn_row, text="知名度 +1万", style="Primary.TButton",
+        RoundedButton(btn_row, text="知名度 +1万", style="Primary.TButton",
                    command=lambda: self._run_async(add_fame, FAME_ADD_AMOUNT)).pack(side=tk.LEFT, padx=5)
         # v0.3 新增：恢复按钮
-        ttk.Button(btn_row, text="↩ 恢复幸福度", style="Restore.TButton",
+        RoundedButton(btn_row, text="↩ 恢复幸福度", style="Restore.TButton",
                    command=lambda: self._run_async(restore_happiness)).pack(side=tk.LEFT, padx=5)
 
         # 订阅游戏状态刷新（统一管理，避免多 tab 并发竞态）

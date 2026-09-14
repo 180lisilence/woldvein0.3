@@ -34,9 +34,9 @@ class Tooltip:
         self._after_id = None
 
         # 绑定事件
-        widget.bind("<Enter>", self._on_enter)
-        widget.bind("<Leave>", self._on_leave)
-        widget.bind("<ButtonPress>", self._on_leave)  # 点击时隐藏
+        widget.bind("<Enter>", self._on_enter, add="+")
+        widget.bind("<Leave>", self._on_leave, add="+")
+        widget.bind("<ButtonPress>", self._on_leave, add="+")  # 点击时隐藏
 
     def _on_enter(self, event=None):
         """鼠标进入：延迟显示"""

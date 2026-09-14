@@ -11,6 +11,7 @@ from src.game_status import get_status_provider
 from src.logger import log_warning
 from .theme import FONT_MONO_BOLD, FONT_TINY
 from .widgets import T
+from .rounded import RoundedFrame
 
 # (status 字段, 中文标签, 格式化, 颜色键)
 KPI_DEFS = [
@@ -55,13 +56,12 @@ class KpiBar(ttk.Frame):
             row_frame = ttk.Frame(self, style="TFrame")
             row_frame.pack(fill=tk.X, pady=(0, 4))
             for i, (key, label, kind, color_key) in enumerate(row):
-                card = tk.Frame(row_frame, bg=T("bg_card"), highlightthickness=1,
-                                highlightbackground=T("bg_elevated"),
-                                highlightcolor=T("bg_elevated"))
+                card = RoundedFrame(row_frame, radius=8, fill_key="bg_card",
+                                    outline_key="bg_elevated")
                 card.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0 if i == 0 else 6, 0))
-                tk.Label(card, text=label, bg=T("bg_card"), fg=T("fg_muted"),
+                tk.Label(card.body, text=label, bg=T("bg_card"), fg=T("fg_muted"),
                          font=FONT_TINY).pack(anchor="w", padx=8, pady=(4, 0))
-                v = tk.Label(card, text="--", bg=T("bg_card"), fg=T(color_key),
+                v = tk.Label(card.body, text="--", bg=T("bg_card"), fg=T(color_key),
                              font=FONT_MONO_BOLD)
                 v.pack(anchor="w", padx=8, pady=(0, 4))
                 self._cards[key] = (v, kind, color_key)

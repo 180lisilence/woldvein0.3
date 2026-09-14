@@ -2,6 +2,29 @@
 
 ## 2026-09-14
 
+### UI：真圆角（Canvas 绘制）+ 全局按钮 / 卡片接入
+
+**背景**：融合版方案承诺「小半径圆角」，但 tkinter / ttk 的 Frame、Button 原生是直角，
+此前只用「描边 + 分层色」近似，实机看仍是直角。
+
+**实现**
+- 新增 `src/gui/rounded.py`：
+  - `RoundedFrame`：外层仍为普通 `tk.Frame`（尺寸由内容决定，不改变原布局语义），
+    圆角背景由一层 `place(relwidth/relheight=1)` 的 Canvas 绘制并置于底层；
+  - `RoundedButton`：Canvas 绘制的圆角按钮，API 对齐 `ttk.Button` 常用子集
+    （`text/state/style/command/width`、`configure/cget/invoke`、hover 与禁用态、`cursor=hand2`）；
+  - `redraw_all()`：主题切换后重绘全部圆角组件（Canvas 不受 ttk 样式影响）。
+- 全局接入：**99 处 `ttk.Button` → `RoundedButton`**
+  （main_gui 5 / tab_advanced 44 / tab_world 24 / tab_settings 12 / tab_resource 8 / tab_creative 3 / tab_monitor 2 / diagnostic_panel 1）
+- `tab_advanced._create_collapsible`：折叠面板容器改 `RoundedFrame`（所有区块卡片圆角）
+- `kpi_bar`：KPI 卡片改 `RoundedFrame`
+- `tooltip.py`：`bind` 改 `add="+"`，避免覆盖圆角按钮的 hover 绑定
+
+**验证**：`compileall` / `verify.py` 通过；GUI 冒烟（构建 + 三主题切换 + 按钮 `config/cget/state`）通过；
+**实机截图**确认三主题下按钮、KPI 卡片、区块卡片均为圆角（像素采样核对 KPI 两行均铺满宽度）。
+
+**已知限制**：真阴影 / 毛玻璃 tkinter 无法实现，仍以「描边 + 分层色」近似。
+
 ### UI：融合版三主题（深简 / Bento / 墨笺）+ 顶部 KPI 数据条
 
 **背景**：用户选定「A 骨架 + B 顶部 KPI + C 作为可切主题」的融合方案（一套布局代码，三套主题只换配色）。

@@ -57,6 +57,7 @@ from src.hotkey_manager import hotkey_manager
 from src.game_monitor import game_monitor, set_game_root
 from src.game_status import get_status_provider
 from .widgets import T, build_recolor_map, recolor_widget_tree
+from .rounded import RoundedButton, redraw_all
 
 # Mixin 标签页模块
 from .tab_resource import ResourceTabMixin
@@ -284,6 +285,11 @@ class TrainerApp(ResourceTabMixin, CreativeTabMixin, HotkeyTabMixin, MonitorTabM
             recolor_widget_tree(self.root, build_recolor_map(old_palette, dict(get_theme())))
         except Exception as e:
             log_warning(f"主题重绘失败: {e}")
+        # 重绘圆角组件（Canvas 不受 ttk 样式影响）
+        try:
+            redraw_all()
+        except Exception as e:
+            log_warning(f"圆角重绘失败: {e}")
         # 更新各输出区颜色
         bg, fg, insertbg = ThemeManager.get_log_colors()
         for attr, with_insert in (("log_text", True), ("adv_output_text", False),
@@ -361,7 +367,7 @@ class TrainerApp(ResourceTabMixin, CreativeTabMixin, HotkeyTabMixin, MonitorTabM
         """创建内容页 Frame + 左侧导航按钮，返回该页 Frame"""
         page = ttk.Frame(self.content_frame)
         self._pages[key] = page
-        btn = ttk.Button(self.nav_frame, text=label, style="Nav.TButton",
+        btn = RoundedButton(self.nav_frame, text=label, style="Nav.TButton",
                          command=lambda k=key: self._show_page(k))
         btn.pack(fill=tk.X, padx=8, pady=1)
         self._nav_buttons[key] = btn
@@ -401,7 +407,7 @@ class TrainerApp(ResourceTabMixin, CreativeTabMixin, HotkeyTabMixin, MonitorTabM
         # 三主题切换芯片（深简 / Bento / 墨笺）
         self._theme_btns = {}
         for _name in THEME_ORDER:
-            _b = ttk.Button(right_frame, text=THEME_LABELS[_name], style="ThemeChip.TButton",
+            _b = RoundedButton(right_frame, text=THEME_LABELS[_name], style="ThemeChip.TButton",
                             command=lambda n=_name: self.set_theme(n))
             _b.pack(side=tk.LEFT, padx=(0, 4))
             bind_tooltip(_b, f"切换主题：{THEME_LABELS[_name]}")
@@ -414,13 +420,13 @@ class TrainerApp(ResourceTabMixin, CreativeTabMixin, HotkeyTabMixin, MonitorTabM
         bind_tooltip(self.status_indicator, "游戏进程和DLL注入状态")
 
         # 启动游戏按钮（主操作=蓝色）
-        self.launch_btn = ttk.Button(right_frame, text="启动游戏", style="Primary.TButton",
+        self.launch_btn = RoundedButton(right_frame, text="启动游戏", style="Primary.TButton",
                                       command=self.on_launch_game)
         self.launch_btn.pack(side=tk.LEFT, padx=(0, 8))
         bind_tooltip(self.launch_btn, "通过Steam启动游戏")
 
         # 注入按钮（主操作=蓝色，未注入时可点击）
-        self.inject_btn = ttk.Button(right_frame, text="注入DLL", style="Primary.TButton",
+        self.inject_btn = RoundedButton(right_frame, text="注入DLL", style="Primary.TButton",
                                       command=self.on_inject_dll, state=tk.DISABLED)
         self.inject_btn.pack(side=tk.LEFT)
         bind_tooltip(self.inject_btn, "注入修改器DLL到游戏进程")
@@ -438,7 +444,7 @@ class TrainerApp(ResourceTabMixin, CreativeTabMixin, HotkeyTabMixin, MonitorTabM
                                           font=FONT_BOLD)
         self.log_toggle_label.pack(side=tk.LEFT)
         self.log_toggle_label.bind("<Button-1>", lambda e: self._toggle_log_panel())
-        ttk.Button(header, text="清空", command=self.on_clear_log).pack(side=tk.RIGHT)
+        RoundedButton(header, text="清空", command=self.on_clear_log).pack(side=tk.RIGHT)
 
         # 日志颜色从主题获取
         log_bg, log_fg, log_insert = ThemeManager.get_log_colors()

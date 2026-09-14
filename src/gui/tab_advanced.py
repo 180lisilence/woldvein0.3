@@ -14,6 +14,7 @@ from .diagnostic_panel import attach_diag_to_button
 from .scrollable import ScrollableFrame
 from .theme import FONT_BOLD, FONT_MONO, FONT_SUB, ThemeManager
 from .widgets import T
+from .rounded import RoundedButton, RoundedFrame
 
 
 class AdvancedTabMixin:
@@ -24,32 +25,33 @@ class AdvancedTabMixin:
 
         返回 (header_frame, content_frame)，调用方将内容放入content_frame。
         点击标题可展开/折叠。
-        使用 tk.Frame + 深色背景，避免 ttk 默认白色边框。
+        使用 RoundedFrame（Canvas 圆角）+ 深色背景，避免 ttk 默认白色边框。
         """
-        # 容器：深色背景，无边框
-        container = tk.Frame(parent, bg=T("bg_card"), highlightthickness=1,
-                             highlightbackground=T("bg_elevated"), highlightcolor=T("bg_elevated"))
+        # 容器：圆角卡片（tkinter 原生 Frame 无法圆角，见 rounded.py）
+        container = RoundedFrame(parent, radius=10, fill_key="bg_card", outline_key="bg_elevated")
         container.pack(fill=tk.X, padx=15, pady=(0, 8))
+        _holder = container.body  # 圆角容器内部承载区
 
-        # 标题栏（可点击）：略深背景区分
-        header = tk.Frame(container, bg=T("bg_elevated"))
+        # 标题栏：与卡片同色 + 底部分隔线，避免方角盖住圆角
+        header = tk.Frame(_holder, bg=T("bg_card"))
         header.pack(fill=tk.X)
         header.bind("<Button-1>", lambda e: self._toggle_collapsible(container))
 
         arrow = "▼" if default_open else "▶"
         self._collapsible_arrows = getattr(self, '_collapsible_arrows', {})
-        arrow_label = tk.Label(header, text=arrow, bg=T("bg_elevated"), fg=T("fg"),
+        arrow_label = tk.Label(header, text=arrow, bg=T("bg_card"), fg=T("accent"),
                                font=FONT_BOLD, width=3)
         arrow_label.pack(side=tk.LEFT, padx=(10, 5), pady=8)
         arrow_label.bind("<Button-1>", lambda e: self._toggle_collapsible(container))
 
-        title_label = tk.Label(header, text=title, bg=T("bg_elevated"), fg=T("fg"),
+        title_label = tk.Label(header, text=title, bg=T("bg_card"), fg=T("fg"),
                                font=FONT_SUB)
         title_label.pack(side=tk.LEFT, pady=8)
         title_label.bind("<Button-1>", lambda e: self._toggle_collapsible(container))
+        tk.Frame(_holder, bg=T("bg_elevated"), height=1).pack(fill=tk.X)
 
         # 内容区：与容器同色背景
-        content_frame = tk.Frame(container, bg=T("bg_card"))
+        content_frame = tk.Frame(_holder, bg=T("bg_card"))
         if default_open:
             content_frame.pack(fill=tk.X, padx=8, pady=(8, 8))
         else:
@@ -83,51 +85,51 @@ class AdvancedTabMixin:
         time_row = tk.Frame(time_frame, bg=T("bg_card"))
         time_row.pack(fill=tk.X, padx=4, pady=(0, 4))
 
-        ttk.Button(time_row, text="获取时间", style="Primary.TButton",
+        RoundedButton(time_row, text="获取时间", style="Primary.TButton",
                    command=lambda: self._run_async(self._adv_get_time)).pack(side=tk.LEFT, padx=4)
-        ttk.Button(time_row, text="暂停(0x)", style="Warning.TButton",
+        RoundedButton(time_row, text="暂停(0x)", style="Warning.TButton",
                    command=lambda: self._run_async(self._adv_set_time_speed, 0)).pack(side=tk.LEFT, padx=4)
-        ttk.Button(time_row, text="1x", style="Primary.TButton",
+        RoundedButton(time_row, text="1x", style="Primary.TButton",
                    command=lambda: self._run_async(self._adv_set_time_speed, 1)).pack(side=tk.LEFT, padx=4)
-        ttk.Button(time_row, text="2x", style="Primary.TButton",
+        RoundedButton(time_row, text="2x", style="Primary.TButton",
                    command=lambda: self._run_async(self._adv_set_time_speed, 2)).pack(side=tk.LEFT, padx=4)
-        ttk.Button(time_row, text="3x", style="Primary.TButton",
+        RoundedButton(time_row, text="3x", style="Primary.TButton",
                    command=lambda: self._run_async(self._adv_set_time_speed, 3)).pack(side=tk.LEFT, padx=4)
-        ttk.Button(time_row, text="4x", style="Primary.TButton",
+        RoundedButton(time_row, text="4x", style="Primary.TButton",
                    command=lambda: self._run_async(self._adv_set_time_speed, 4)).pack(side=tk.LEFT, padx=4)
         # v0.3 新增：恢复时间速度
-        ttk.Button(time_row, text="↩ 恢复速度", style="Restore.TButton",
+        RoundedButton(time_row, text="↩ 恢复速度", style="Restore.TButton",
                    command=lambda: self._run_async(advanced_tools.restore_time_speed)).pack(side=tk.LEFT, padx=4)
-        ttk.Button(time_row, text="🔍 速度状态", style="Warning.TButton",
+        RoundedButton(time_row, text="🔍 速度状态", style="Warning.TButton",
                    command=lambda: self._run_async(self._adv_time_speed_status)).pack(side=tk.LEFT, padx=4)
-        ttk.Button(time_row, text="📏 实测倍率", style="Warning.TButton",
+        RoundedButton(time_row, text="📏 实测倍率", style="Warning.TButton",
                    command=lambda: self._run_async(self._adv_measure_time_speed)).pack(side=tk.LEFT, padx=4)
 
         season_row = tk.Frame(time_frame, bg=T("bg_card"))
         season_row.pack(fill=tk.X, padx=4, pady=(0, 4))
 
-        ttk.Button(season_row, text="春", style="Success.TButton",
+        RoundedButton(season_row, text="春", style="Success.TButton",
                    command=lambda: self._run_async(self._adv_set_season, 1)).pack(side=tk.LEFT, padx=4)
-        ttk.Button(season_row, text="夏", style="Success.TButton",
+        RoundedButton(season_row, text="夏", style="Success.TButton",
                    command=lambda: self._run_async(self._adv_set_season, 2)).pack(side=tk.LEFT, padx=4)
-        ttk.Button(season_row, text="秋", style="Success.TButton",
+        RoundedButton(season_row, text="秋", style="Success.TButton",
                    command=lambda: self._run_async(self._adv_set_season, 3)).pack(side=tk.LEFT, padx=4)
-        ttk.Button(season_row, text="冬", style="Success.TButton",
+        RoundedButton(season_row, text="冬", style="Success.TButton",
                    command=lambda: self._run_async(self._adv_set_season, 4)).pack(side=tk.LEFT, padx=4)
         ttk.Separator(season_row, orient=tk.VERTICAL).pack(side=tk.LEFT, fill=tk.Y, padx=8)
-        ttk.Button(season_row, text="跳过1天", style="Primary.TButton",
+        RoundedButton(season_row, text="跳过1天", style="Primary.TButton",
                    command=lambda: self._run_async(self._adv_skip_days, 1)).pack(side=tk.LEFT, padx=4)
-        ttk.Button(season_row, text="跳过7天", style="Primary.TButton",
+        RoundedButton(season_row, text="跳过7天", style="Primary.TButton",
                    command=lambda: self._run_async(self._adv_skip_days, 7)).pack(side=tk.LEFT, padx=4)
-        ttk.Button(season_row, text="跳过1月", style="Primary.TButton",
+        RoundedButton(season_row, text="跳过1月", style="Primary.TButton",
                    command=lambda: self._run_async(self._adv_skip_months, 1)).pack(side=tk.LEFT, padx=4)
-        ttk.Button(season_row, text="跳过3月", style="Primary.TButton",
+        RoundedButton(season_row, text="跳过3月", style="Primary.TButton",
                    command=lambda: self._run_async(self._adv_skip_months, 3)).pack(side=tk.LEFT, padx=4)
         ttk.Separator(season_row, orient=tk.VERTICAL).pack(side=tk.LEFT, fill=tk.Y, padx=8)
-        self._time_diag_btn = ttk.Button(season_row, text="🔍 时间诊断", style="Warning.TButton")
+        self._time_diag_btn = RoundedButton(season_row, text="🔍 时间诊断", style="Warning.TButton")
         self._time_diag_btn.pack(side=tk.LEFT, padx=4)
         # v0.3 新增：恢复季节
-        ttk.Button(season_row, text="↩ 恢复季节", style="Restore.TButton",
+        RoundedButton(season_row, text="↩ 恢复季节", style="Restore.TButton",
                    command=lambda: self._run_async(advanced_tools.restore_season)).pack(side=tk.LEFT, padx=4)
 
         # === 城市品阶（折叠面板，默认展开）===
@@ -135,14 +137,14 @@ class AdvancedTabMixin:
         boom_row = tk.Frame(boom_frame, bg=T("bg_card"))
         boom_row.pack(fill=tk.X, padx=4, pady=(0, 4))
 
-        self._boom_up_btn = ttk.Button(boom_row, text="⬆ 品阶 +1", style="Success.TButton",
+        self._boom_up_btn = RoundedButton(boom_row, text="⬆ 品阶 +1", style="Success.TButton",
                    command=lambda: self._adv_with_cooldown(self._boom_up_btn, advanced_tools.boom_level_up, "品阶+1"))
         self._boom_up_btn.pack(side=tk.LEFT, padx=4)
-        ttk.Button(boom_row, text="查看当前品阶", style="Primary.TButton",
+        RoundedButton(boom_row, text="查看当前品阶", style="Primary.TButton",
                    command=lambda: self._run_async(self._adv_boom_current)).pack(side=tk.LEFT, padx=4)
-        ttk.Button(boom_row, text="一键满级", style="Primary.TButton",
+        RoundedButton(boom_row, text="一键满级", style="Primary.TButton",
                    command=lambda: self._run_async(advanced_tools.complete_city_rank_conditions)).pack(side=tk.LEFT, padx=4)
-        ttk.Button(boom_row, text="🔍 品阶诊断", style="Warning.TButton",
+        RoundedButton(boom_row, text="🔍 品阶诊断", style="Warning.TButton",
                    command=lambda: self._run_async(self._adv_boom_diagnose)).pack(side=tk.LEFT, padx=4)
 
         # === NPC管理（折叠面板，默认展开）===
@@ -150,13 +152,13 @@ class AdvancedTabMixin:
         npc_row = tk.Frame(npc_frame, bg=T("bg_card"))
         npc_row.pack(fill=tk.X, padx=4, pady=(0, 4))
 
-        ttk.Button(npc_row, text="列出NPC", style="Primary.TButton",
+        RoundedButton(npc_row, text="列出NPC", style="Primary.TButton",
                    command=lambda: self._run_async(self._adv_list_npcs)).pack(side=tk.LEFT, padx=4)
-        ttk.Button(npc_row, text="添加名士", style="Success.TButton",
+        RoundedButton(npc_row, text="添加名士", style="Success.TButton",
                    command=lambda: self._run_async(lambda: advanced_tools.add_npc("celebrity"))).pack(side=tk.LEFT, padx=4)
-        ttk.Button(npc_row, text="添加幕僚", style="Success.TButton",
+        RoundedButton(npc_row, text="添加幕僚", style="Success.TButton",
                    command=lambda: self._run_async(lambda: advanced_tools.add_npc("adviser"))).pack(side=tk.LEFT, padx=4)
-        ttk.Button(npc_row, text="清除所有NPC", style="Danger.TButton",
+        RoundedButton(npc_row, text="清除所有NPC", style="Danger.TButton",
                    command=lambda: self._run_async(advanced_tools.remove_all_npcs)).pack(side=tk.LEFT, padx=4)
 
         # === 谋士管理（折叠面板，默认折叠）===
@@ -164,10 +166,10 @@ class AdvancedTabMixin:
         advisor_row = tk.Frame(advisor_frame, bg=T("bg_card"))
         advisor_row.pack(fill=tk.X, padx=4, pady=(0, 4))
 
-        self._advisor_btn = ttk.Button(advisor_row, text="⬆ 谋士升满级", style="Success.TButton",
+        self._advisor_btn = RoundedButton(advisor_row, text="⬆ 谋士升满级", style="Success.TButton",
                    command=lambda: self._adv_with_cooldown(self._advisor_btn, advanced_tools.max_all_advisors, "谋士升满级"))
         self._advisor_btn.pack(side=tk.LEFT, padx=4)
-        ttk.Button(advisor_row, text="🔍 谋士探查", style="Warning.TButton",
+        RoundedButton(advisor_row, text="🔍 谋士探查", style="Warning.TButton",
                    command=lambda: self._run_async(self._adv_probe_advisors)).pack(side=tk.LEFT, padx=4)
 
         # === 建造/升级控制（折叠面板，默认展开）===
@@ -175,17 +177,17 @@ class AdvancedTabMixin:
         build_row = tk.Frame(build_frame, bg=T("bg_card"))
         build_row.pack(fill=tk.X, padx=4, pady=(0, 4))
 
-        ttk.Button(build_row, text="列出建筑", style="Primary.TButton",
+        RoundedButton(build_row, text="列出建筑", style="Primary.TButton",
                    command=lambda: self._run_async(self._adv_list_buildings)).pack(side=tk.LEFT, padx=4)
-        self._adv_upgrade_btn = ttk.Button(build_row, text="升级全部", style="Success.TButton",
+        self._adv_upgrade_btn = RoundedButton(build_row, text="升级全部", style="Success.TButton",
                    command=lambda: self._adv_with_cooldown(self._adv_upgrade_btn, advanced_tools.upgrade_all_buildings, "升级全部"))
         self._adv_upgrade_btn.pack(side=tk.LEFT, padx=4)
-        self._adv_finish_btn = ttk.Button(build_row, text="立即完成", style="Success.TButton",
+        self._adv_finish_btn = RoundedButton(build_row, text="立即完成", style="Success.TButton",
                    command=lambda: self._adv_with_cooldown(self._adv_finish_btn, advanced_tools.finish_all_buildings, "立即完成"))
         self._adv_finish_btn.pack(side=tk.LEFT, padx=4)
-        ttk.Button(build_row, text="重算资源", style="Warning.TButton",
+        RoundedButton(build_row, text="重算资源", style="Warning.TButton",
                    command=lambda: self._run_async(advanced_tools.recalc_resources)).pack(side=tk.LEFT, padx=4)
-        ttk.Button(build_row, text="人口状态", style="Primary.TButton",
+        RoundedButton(build_row, text="人口状态", style="Primary.TButton",
                    command=lambda: self._run_async(self._adv_population_status)).pack(side=tk.LEFT, padx=4)
 
         # === 地块管理（折叠面板，默认折叠）===
@@ -193,10 +195,10 @@ class AdvancedTabMixin:
         plot_row = tk.Frame(plot_frame, bg=T("bg_card"))
         plot_row.pack(fill=tk.X, padx=4, pady=(0, 4))
 
-        self._plot_btn = ttk.Button(plot_row, text="🔓 全地块解锁", style="Success.TButton",
+        self._plot_btn = RoundedButton(plot_row, text="🔓 全地块解锁", style="Success.TButton",
                    command=lambda: self._adv_with_cooldown(self._plot_btn, advanced_tools.unlock_all_plots, "全地块解锁"))
         self._plot_btn.pack(side=tk.LEFT, padx=4)
-        ttk.Button(plot_row, text="🔍 地块探查", style="Warning.TButton",
+        RoundedButton(plot_row, text="🔍 地块探查", style="Warning.TButton",
                    command=lambda: self._run_async(self._adv_probe_plots)).pack(side=tk.LEFT, padx=4)
 
         # === Steam 成就（折叠面板，默认折叠）===
@@ -204,12 +206,12 @@ class AdvancedTabMixin:
         ach_row = tk.Frame(ach_frame, bg=T("bg_card"))
         ach_row.pack(fill=tk.X, padx=4, pady=(0, 4))
 
-        self._ach_btn = ttk.Button(ach_row, text="🏆 全成就解锁", style="Success.TButton",
+        self._ach_btn = RoundedButton(ach_row, text="🏆 全成就解锁", style="Success.TButton",
                    command=lambda: self._adv_with_cooldown(self._ach_btn, advanced_tools.unlock_all_steam_achievements, "全成就解锁"))
         self._ach_btn.pack(side=tk.LEFT, padx=4)
-        ttk.Button(ach_row, text="🔍 成就探查", style="Warning.TButton",
+        RoundedButton(ach_row, text="🔍 成就探查", style="Warning.TButton",
                    command=lambda: self._run_async(self._adv_probe_ach)).pack(side=tk.LEFT, padx=4)
-        self._ach_challenge_btn = ttk.Button(ach_row, text="🎯 月落峡挑战成就", style="Primary.TButton",
+        self._ach_challenge_btn = RoundedButton(ach_row, text="🎯 月落峡挑战成就", style="Primary.TButton",
                    command=lambda: self._adv_with_cooldown(self._ach_challenge_btn, advanced_tools.unlock_block_challenge_achievements, "月落峡挑战成就"))
         self._ach_challenge_btn.pack(side=tk.LEFT, padx=4)
 
@@ -218,14 +220,14 @@ class AdvancedTabMixin:
         sim_row = tk.Frame(sim_frame, bg=T("bg_card"))
         sim_row.pack(fill=tk.X, padx=4, pady=(0, 4))
 
-        ttk.Button(sim_row, text="世界状态", style="Primary.TButton",
+        RoundedButton(sim_row, text="世界状态", style="Primary.TButton",
                    command=lambda: self._run_async(self._adv_simworld_status)).pack(side=tk.LEFT, padx=4)
-        ttk.Button(sim_row, text="暂停游戏", style="Danger.TButton",
+        RoundedButton(sim_row, text="暂停游戏", style="Danger.TButton",
                    command=lambda: self._run_async(self._adv_pause_game)).pack(side=tk.LEFT, padx=4)
-        ttk.Button(sim_row, text="继续游戏", style="Success.TButton",
+        RoundedButton(sim_row, text="继续游戏", style="Success.TButton",
                    command=lambda: self._run_async(self._adv_resume_game)).pack(side=tk.LEFT, padx=4)
         # v0.3 新增：恢复游戏运行
-        ttk.Button(sim_row, text="↩ 恢复运行", style="Restore.TButton",
+        RoundedButton(sim_row, text="↩ 恢复运行", style="Restore.TButton",
                    command=lambda: self._run_async(advanced_tools.restore_game_speed)).pack(side=tk.LEFT, padx=4)
 
         # === 输出区域（优化：清空按钮 + 占位提示）===
@@ -236,7 +238,7 @@ class AdvancedTabMixin:
         out_header.pack(fill=tk.X, padx=15, pady=(10, 5))
         ttk.Label(out_header, text="执行输出", style="Card.TLabel",
                   font=FONT_SUB).pack(side=tk.LEFT)
-        ttk.Button(out_header, text="清空", style="Small.TButton",
+        RoundedButton(out_header, text="清空", style="Small.TButton",
                    command=self._clear_adv_output).pack(side=tk.RIGHT)
 
         # 输出区颜色从主题获取

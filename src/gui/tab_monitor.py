@@ -11,6 +11,7 @@ from src.game_monitor import game_monitor
 from src.logger import log_error, log_warning
 from .scrollable import ScrollableFrame
 from .widgets import T
+from .rounded import RoundedButton
 from .theme import FONT_MONO, FONT_TITLE, FONT_SUB, FONT_BOLD, FONT_TINY
 
 
@@ -136,7 +137,7 @@ class MonitorTabMixin:
         save_header.pack(fill=tk.X, padx=12, pady=(12, 4))
         ttk.Label(save_header, text="💾 存档状态", style="Card.TLabel",
                   font=FONT_SUB).pack(side=tk.LEFT)
-        ttk.Button(save_header, text="刷新", command=self.on_refresh_monitor_saves,
+        RoundedButton(save_header, text="刷新", command=self.on_refresh_monitor_saves,
                    style="Small.TButton").pack(side=tk.RIGHT)
 
         save_cols = ("name", "size", "status")
@@ -162,7 +163,7 @@ class MonitorTabMixin:
         crash_header.pack(fill=tk.X, padx=15, pady=(10, 5))
         ttk.Label(crash_header, text="💥 崩溃历史（自动分析崩溃原因）", style="Card.TLabel",
                   font=FONT_SUB).pack(side=tk.LEFT)
-        ttk.Button(crash_header, text="📋 复制错误信息", style="Warning.TButton",
+        RoundedButton(crash_header, text="📋 复制错误信息", style="Warning.TButton",
                    command=self._copy_crash_info).pack(side=tk.RIGHT, padx=5)
 
         self.mon_crash_text = scrolledtext.ScrolledText(crash_frame, height=5, bg=T("bg_surface"), fg=T("error"),
