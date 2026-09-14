@@ -2,6 +2,33 @@
 
 ## 2026-09-14
 
+### 新功能：城市品阶「逐级晋升（含解锁）」+ 任务激活/完成
+
+**根因**：旧「品阶 +1」只调 `g_camp.boom:setBoom(level)`——**只改数字**，
+既不派发 `BoomLevelChange`（工作坊/谋士/风水/声望监听），也不调
+`UI2S_BoomUpgradeCallback(level)`（按该级 `Rewards` 解锁 建筑卡/谋士卡/天赋/载具/功能/自定义功能，
+并触发剧情）。因此升级奖励与内容解锁被整体跳过——用户反馈「不完整」。
+
+**实机探查（只读，v0.3.1 存档）**
+- 品阶 `GetBoom()=2`，`CITY_MAX_LEVEL=14`，`GetBoomLevelCfg` 14 级
+- 每级配置字段：`BlockNum/BoomLevel/BoomScore/Conditions/DevelopmentRequirement/Happiness/…/Rewards/ResourceReward/Title/UIRewards`
+- 本级 Rewards 21 项、下一级 24 项（前 8 均为 `buildingCard`）
+- 任务桶：未开始 54 / 进行中 1 / 已接 0 / 已完成 0（共 55）
+
+**实现**
+- `advanced_tools.py`：`boom_upgrade_step(target)` / `boom_upgrade_to_max()`——从当前+1 逐级
+  `setBoom` → `BoomLevelChange` → `UI2S_BoomUpgradeCallback` → `UpdateHistoryMaxBoomLevel`，
+  最后 `UpdateBoom()/_syncUI()` 刷新；每级 pcall 保护并回报解锁项数
+- 任务：`probe_tasks()` / `unlock_all_tasks()`（逐任务 `UnlockPrecondition` 激活）/ `finish_all_tasks()`（`FinishAllTask`）
+- **注**：`task_mgr` 并不监听 `BOOM_LEVEL_CHANED`，任务与品阶无自动绑定，故任务单独提供按钮
+- GUI（高级工具页）：城市品阶区块改为「⬆ 逐级晋升（含解锁）」「⏩ 晋升到顶级」；新增「任务（解锁 / 完成）」区块
+
+**验证**：`compileall` / `verify.py` 全过；实机自检——晋升脚本以 target≤当前 走校验分支（**零改动**）
+返回提示；任务探查返回 `54/1/0/0` 与 55 条任务名。
+
+**待实机确认**：点「逐级晋升」后品阶 +1 且该级解锁项（建筑卡等）真的出现；
+`UI2S_BoomUpgradeCallback` 在个别奖励分支（依赖当前选中区块 / office）是否报错。
+
 ### v0.3.1 发布
 
 **版本**：`0.3.1`（新增唯一版本源 `APP_VERSION`，见 `src/constants.py`；

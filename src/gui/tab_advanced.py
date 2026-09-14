@@ -12,7 +12,7 @@ from src import advanced_tools
 from src.logger import log, log_error
 from .diagnostic_panel import attach_diag_to_button
 from .scrollable import ScrollableFrame
-from .theme import FONT_BOLD, FONT_MONO, FONT_SUB, ThemeManager
+from .theme import FONT_BOLD, FONT_MONO, FONT_SUB, FONT_TINY, ThemeManager
 from .widgets import T
 
 
@@ -135,15 +135,32 @@ class AdvancedTabMixin:
         boom_row = tk.Frame(boom_frame, bg=T("bg_card"))
         boom_row.pack(fill=tk.X, padx=4, pady=(0, 4))
 
-        self._boom_up_btn = ttk.Button(boom_row, text="⬆ 品阶 +1", style="Success.TButton",
-                   command=lambda: self._adv_with_cooldown(self._boom_up_btn, advanced_tools.boom_level_up, "品阶+1"))
+        # 「逐级晋升」= setBoom + BoomLevelChange + UI2S_BoomUpgradeCallback（发放该级全部解锁项）
+        self._boom_up_btn = ttk.Button(boom_row, text="⬆ 逐级晋升（含解锁）", style="Success.TButton",
+                   command=lambda: self._adv_with_cooldown(self._boom_up_btn, advanced_tools.boom_upgrade_step, "逐级晋升"))
         self._boom_up_btn.pack(side=tk.LEFT, padx=4)
-        ttk.Button(boom_row, text="查看当前品阶", style="Primary.TButton",
+        self._boom_max_btn = ttk.Button(boom_row, text="⏩ 晋升到顶级", style="Success.TButton",
+                   command=lambda: self._adv_with_cooldown(self._boom_max_btn, advanced_tools.boom_upgrade_to_max, "晋升到顶级"))
+        self._boom_max_btn.pack(side=tk.LEFT, padx=4)
+        ttk.Button(boom_row, text="当前品阶", style="Primary.TButton",
                    command=lambda: self._run_async(self._adv_boom_current)).pack(side=tk.LEFT, padx=4)
-        ttk.Button(boom_row, text="一键满级", style="Primary.TButton",
-                   command=lambda: self._run_async(advanced_tools.complete_city_rank_conditions)).pack(side=tk.LEFT, padx=4)
         ttk.Button(boom_row, text="🔍 品阶诊断", style="Warning.TButton",
                    command=lambda: self._run_async(self._adv_boom_diagnose)).pack(side=tk.LEFT, padx=4)
+
+        # === 任务（解锁 / 完成）===
+        task_container, task_frame = self._create_collapsible(scroll.inner, "任务（解锁 / 完成）", default_open=True)
+        task_row = tk.Frame(task_frame, bg=T("bg_card"))
+        task_row.pack(fill=tk.X, padx=4, pady=(0, 4))
+        ttk.Button(task_row, text="🔍 探查", style="Warning.TButton",
+                   command=lambda: self._run_async(self._adv_task_probe)).pack(side=tk.LEFT, padx=4)
+        self._task_unlock_btn = ttk.Button(task_row, text="🔓 激活全部任务", style="Success.TButton",
+                   command=lambda: self._adv_with_cooldown(self._task_unlock_btn, advanced_tools.unlock_all_tasks, "激活全部任务"))
+        self._task_unlock_btn.pack(side=tk.LEFT, padx=4)
+        self._task_finish_btn = ttk.Button(task_row, text="✅ 完成全部任务", style="Success.TButton",
+                   command=lambda: self._adv_with_cooldown(self._task_finish_btn, advanced_tools.finish_all_tasks, "完成全部任务"))
+        self._task_finish_btn.pack(side=tk.LEFT, padx=4)
+        ttk.Label(task_row, text="任务与品阶无自动绑定：激活=未开始→可接；完成=置为已完成并领奖",
+                  style="Card.TLabel", foreground=T("fg_muted"), font=FONT_TINY).pack(side=tk.LEFT, padx=8)
 
         # === NPC管理（折叠面板，默认展开）===
         npc_container, npc_frame = self._create_collapsible(scroll.inner, "NPC管理", default_open=True)
@@ -323,6 +340,12 @@ class AdvancedTabMixin:
         success, result = advanced_tools.measure_time_speed(2.0)
         self._report_probe("高级-时间流速实测", result)
         self.root.after(0, lambda: self._adv_append_output(f"[时间流速实测]\n{result}"))
+
+    def _adv_task_probe(self):
+        """任务状态探查"""
+        success, result = advanced_tools.probe_tasks()
+        self._report_probe("高级-任务", result)
+        self.root.after(0, lambda: self._adv_append_output(f"[任务探查]\n{result}"))
 
     def _adv_boom_diagnose(self):
         """品阶诊断"""

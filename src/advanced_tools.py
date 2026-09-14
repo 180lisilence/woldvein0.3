@@ -2172,3 +2172,198 @@ def measure_time_speed(interval=1.0, samples=5):
         lines.append("当前几乎静止（游戏暂停 / 未进入场景 / 窗口未激活？）")
     lines.append(f"游戏常量：SECONDS_PER_DAY={sec_per_day} DAY_TIME_REAL={day_real} DAY_TICK_COUNT={day_tick}")
     return True, "\n".join(lines)
+
+
+# ============================================================
+# 城市品阶：逐级晋升（含解锁流程）
+# ============================================================
+# 源码事实（camp_boom.lua）：
+#   setBoom(level)  只改数字；真正的「升级奖励/解锁」在
+#   UI2S_BoomUpgradeCallback(level)：按该级 Rewards 解锁 buildingCard / adviserCard /
+#   talent / vehicleCard / unlock(功能) / customFunc(AdviserSlot/Council)，并触发剧情(DemoStory 等)；
+#   BoomLevelChange(old,new) 派发 BOOM_LEVEL_CHANED（工作坊/谋士/风水/声望监听）。
+#   -> 旧的“品阶+1”只调 setBoom，故解锁项全被跳过。
+
+LUA_BOOM_UPGRADE_STEP = (r"""
+local ok, err = pcall(function()
+""" + _LUA_BOOM_RESOLVE + r"""
+    local cur = 0
+    if boom.GetBoom then cur = boom:GetBoom() or 0 end
+
+    local target = __TARGET__         -- 0 = 只升一级
+    local maxLevel = 14
+    if block_define and block_define.CITY_MAX_LEVEL then maxLevel = block_define.CITY_MAX_LEVEL end
+    if g_blocksLogicCfg and g_blocksLogicCfg.GetBoomLevelCfg then
+        local n = 0
+        for _ in pairs(g_blocksLogicCfg:GetBoomLevelCfg() or {}) do n = n + 1 end
+        if n > 0 then maxLevel = math.min(maxLevel, n) end
+    end
+    if target <= 0 then target = cur + 1 end
+    if target > maxLevel then target = maxLevel end
+    if target <= cur then
+        return string.format("[提示] 当前品阶 %d 已达目标 %d（上限 %d），无需晋升", cur, target, maxLevel)
+    end
+
+    local lines = {}
+    local totalRewards = 0
+    local failItems = 0
+    for lv = cur + 1, target do
+        boom:setBoom(lv)
+        pcall(function() boom:BoomLevelChange(lv - 1, lv) end)   -- 派发品阶变更事件
+
+        local cnt = 0
+        if g_blocksLogicCfg and g_blocksLogicCfg.GetBoomLevelCfgByBoomLevel then
+            local okc, cfg = pcall(function() return g_blocksLogicCfg:GetBoomLevelCfgByBoomLevel(lv) end)
+            if okc and type(cfg) == "table" and type(cfg.Rewards) == "table" then cnt = #cfg.Rewards end
+        end
+        -- 关键：走游戏自身的升级奖励流程
+        local okU, eU = pcall(function() boom:UI2S_BoomUpgradeCallback(lv) end)
+        if not okU then
+            failItems = failItems + 1
+            table.insert(lines, string.format("  Lv%d 奖励流程异常：%s", lv, tostring(eU)))
+        end
+        pcall(function() boom:UpdateHistoryMaxBoomLevel() end)
+        totalRewards = totalRewards + cnt
+        table.insert(lines, string.format("  Lv%d 晋升完成（该级解锁项 %d）", lv, cnt))
+    end
+
+    pcall(function() boom:UpdateBoom() end)
+    pcall(function() boom:_syncUI() end)
+
+    local tail = ""
+    if failItems > 0 then tail = string.format("，其中 %d 级奖励流程报错（见下方明细）", failItems) end
+    return string.format("[成功] 城市品阶 %d → %d（逐级晋升，含解锁，共处理奖励 %d 项%s）\n%s",
+        cur, target, totalRewards, tail, table.concat(lines, "\n"))
+end)
+if not ok then return "[错误] " .. tostring(err) end
+return err
+""")
+
+
+def boom_upgrade_step(target=0):
+    """逐级晋升城市品阶（含解锁流程）
+
+    target=0 表示只升一级；否则升到 target（上限取 block_define.CITY_MAX_LEVEL）。
+    每级都会调用 UI2S_BoomUpgradeCallback 发放该级解锁项（建筑卡/谋士/天赋/载具/功能/剧情）。
+    """
+    log("正在逐级晋升城市品阶（含解锁流程）...")
+    code = _boom_lua(LUA_BOOM_UPGRADE_STEP).replace("__TARGET__", str(int(target)))
+    success, result = execute_lua_safe(code, timeout=30.0)
+    return _log_result(success, result, "品阶晋升失败")
+
+
+def boom_upgrade_to_max():
+    """逐级晋升到顶级（含解锁）"""
+    return boom_upgrade_step(9999)
+
+
+# ============================================================
+# 任务（激活 / 完成）
+# ============================================================
+# 源码事实（task_mgr.lua）：任务按 GDPL 分桶 tbUnStartTasks / tbCurTasks / tbReceivedTasks / tbFinishedTasks；
+#   UnlockPrecondition(G,D,P,L) 把「未开始」激活为「进行中」；
+#   FinishAllTask() 逐个置 FINISHED + RecieveReward + OnFinished。
+#   注意：task_mgr 并不监听 BOOM_LEVEL_CHANED（品阶变更不会自动解锁任务）。
+
+LUA_TASK_PROBE = r"""
+local ok, err = pcall(function()
+    local lines = {"=== 任务状态 ==="}
+    local tm = g_LTaskManager
+    if not tm then
+        table.insert(lines, "[失败] g_LTaskManager 不存在（请先进入游戏场景）")
+        return table.concat(lines, "\n")
+    end
+    local function cnt(t)
+        local c = 0
+        if type(t) == "table" then for _ in pairs(t) do c = c + 1 end end
+        return c
+    end
+    table.insert(lines, string.format("未开始=%d 进行中=%d 已接=%d 已完成=%d",
+        cnt(tm.tbUnStartTasks), cnt(tm.tbCurTasks), cnt(tm.tbReceivedTasks), cnt(tm.tbFinishedTasks)))
+    local okA, all = pcall(function() return tm:GetAllTasks() end)
+    local total = 0
+    if okA and type(all) == "table" then for _ in pairs(all) do total = total + 1 end end
+    table.insert(lines, "任务总数 = " .. tostring(total))
+    table.insert(lines, "方法：FinishAllTask=" .. tostring(tm.FinishAllTask)
+        .. " / UnlockPrecondition=" .. tostring(tm.UnlockPrecondition)
+        .. " / FinishTaskByGDPL=" .. tostring(tm.FinishTaskByGDPL))
+    if okA and type(all) == "table" then
+        local shown = 0
+        for _, task in pairs(all) do
+            if shown >= 30 then break end
+            local okn, nm = pcall(function() return task.tabMateData and task.tabMateData.Name end)
+            local okS, st = pcall(function() return task:GetTaskStatus() end)
+            table.insert(lines, string.format("  %s | 状态=%s", tostring(okn and nm or "?"), tostring(okS and st or "?")))
+            shown = shown + 1
+        end
+    end
+    return table.concat(lines, "\n")
+end)
+if not ok then return "[错误] " .. tostring(err) end
+return err
+"""
+
+LUA_TASK_UNLOCK_ALL = r"""
+local ok, err = pcall(function()
+    local tm = g_LTaskManager
+    if not tm then return "[失败] g_LTaskManager 不存在（请先进入游戏场景）" end
+    if not tm.UnlockPrecondition then return "[失败] LTaskManager:UnlockPrecondition 不存在" end
+    local all = tm:GetAllTasks() or {}
+    local n, fail = 0, 0
+    for _, task in pairs(all) do
+        local okG, G, D, P, L = pcall(function() return task:GetGDPL() end)
+        if okG and G then
+            local okU = pcall(function() tm:UnlockPrecondition(G, D, P, L) end)
+            if okU then n = n + 1 else fail = fail + 1 end
+        else
+            fail = fail + 1
+        end
+    end
+    local function cnt(t)
+        local c = 0
+        if type(t) == "table" then for _ in pairs(t) do c = c + 1 end end
+        return c
+    end
+    return string.format("[成功] 已激活 %d 个任务（失败 %d）；现在 未开始=%d 进行中=%d",
+        n, fail, cnt(tm.tbUnStartTasks), cnt(tm.tbCurTasks))
+end)
+if not ok then return "[错误] " .. tostring(err) end
+return err
+"""
+
+LUA_TASK_FINISH_ALL = r"""
+local ok, err = pcall(function()
+    local tm = g_LTaskManager
+    if not tm then return "[失败] g_LTaskManager 不存在（请先进入游戏场景）" end
+    if not tm.FinishAllTask then return "[失败] LTaskManager:FinishAllTask 不存在" end
+    tm:FinishAllTask()
+    local function cnt(t)
+        local c = 0
+        if type(t) == "table" then for _ in pairs(t) do c = c + 1 end end
+        return c
+    end
+    return string.format("[成功] 已调用 FinishAllTask；现在 已完成=%d 进行中=%d 未开始=%d",
+        cnt(tm.tbFinishedTasks), cnt(tm.tbCurTasks), cnt(tm.tbUnStartTasks))
+end)
+if not ok then return "[错误] " .. tostring(err) end
+return err
+"""
+
+
+def probe_tasks():
+    """任务状态探查"""
+    return execute_lua_safe(LUA_TASK_PROBE, timeout=LUA_TIMEOUT)
+
+
+def unlock_all_tasks():
+    """激活全部未开始任务"""
+    log("正在激活全部任务 ...")
+    success, result = execute_lua_safe(LUA_TASK_UNLOCK_ALL, timeout=LUA_TIMEOUT_LONG)
+    return _log_result(success, result, "任务激活失败")
+
+
+def finish_all_tasks():
+    """完成全部任务"""
+    log("正在完成全部任务 ...")
+    success, result = execute_lua_safe(LUA_TASK_FINISH_ALL, timeout=30.0)
+    return _log_result(success, result, "任务完成失败")
