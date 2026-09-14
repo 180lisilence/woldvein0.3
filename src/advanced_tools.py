@@ -35,6 +35,7 @@ from src.lua_engine import execute_lua_safe
 from src.logger import log, log_success, log_error, log_warning
 
 from src.constants import (
+    APP_VERSION,
     BOOM_MAX_LEVEL,
     ACHIEVEMENT_ID_SCAN_LIMIT,
     LUA_TIMEOUT,
@@ -228,6 +229,26 @@ local ok, err = pcall(function()
             count = count + 1
             if count <= 50 then
                 local parts = {"id=" .. tostring(id)}
+                -- [FIX 2026-09-14] LNPC 的名字/性别/年龄在 tabMateData（实机实测确认）
+                do
+                    local md = nil
+                    if type(npc) == "table" then
+                        md = npc.tabMateData
+                        if md == nil and npc.GetMetaData then
+                            local okm, v = pcall(function() return npc:GetMetaData() end)
+                            if okm then md = v end
+                        end
+                    end
+                    if md == nil and g_LNPCManager and type(g_LNPCManager.NpcRes) == "table" then
+                        local res = g_LNPCManager.NpcRes[id]
+                        if type(res) == "table" then md = res.tabMateData end
+                    end
+                    if type(md) == "table" then
+                        if md.Name ~= nil then table.insert(parts, "name=" .. tostring(md.Name)) end
+                        if md.Gender ~= nil then table.insert(parts, "gender=" .. tostring(md.Gender)) end
+                        if md.Age ~= nil then table.insert(parts, "age=" .. tostring(md.Age)) end
+                    end
+                end
                 if type(npc) == "table" then
                     if npc.GetName then local okn, n = pcall(function() return npc:GetName() end); if okn then table.insert(parts, "name=" .. tostring(n)) end end
                     if npc.GetCareer then local okc2, ca = pcall(function() return npc:GetCareer() end); if okc2 then table.insert(parts, "career=" .. tostring(ca)) end end
@@ -2367,3 +2388,159 @@ def finish_all_tasks():
     log("正在完成全部任务 ...")
     success, result = execute_lua_safe(LUA_TASK_FINISH_ALL, timeout=30.0)
     return _log_result(success, result, "任务完成失败")
+
+
+# ============================================================
+# 游戏内折叠面板（ImGui）
+# ============================================================
+# 源码事实：游戏 UI 基于 Dear ImGui，Lua 侧直接暴露全局 ImGui / KLImGui / ImVec2；
+#   LUiPageManager:GameDraw(deltaTimeInSecs) 是逐帧绘制入口（页面由它画）。
+#   故只要「包装 g_LUiPageManager.GameDraw」，就能用 ImGui 在游戏内画自己的窗口 ——
+#   由引擎渲染，不开外部覆盖窗口，所以不像旧版外部悬浮窗那样卡。
+#   中文需 util.a2u8() 转 UTF-8。
+
+LUA_INGAME_PANEL_INSTALL = r"""
+local ok, err = pcall(function()
+    if not g_LUiPageManager or not g_LUiPageManager.GameDraw then
+        return "[失败] g_LUiPageManager.GameDraw 不存在（请先进入游戏场景）"
+    end
+    if type(ImGui) ~= "table" or not ImGui.Begin then
+        return "[失败] ImGui 全局不可用"
+    end
+    if not _G.g_wt_orig_GameDraw then
+        _G.g_wt_orig_GameDraw = g_LUiPageManager.GameDraw
+    end
+    _G.g_wt_panel_err = nil
+    _G.g_wt_draw_count = _G.g_wt_draw_count or 0
+    local function u(s) return util.a2u8(s) end
+
+    local function wt_set_speed(mult)
+        local d = _G.define
+        if d and d.DAY_TIME_REAL and d.DAY_TICK_COUNT and g_GameWorld then
+            g_GameWorld.TICK_DELTA_TIMES = (d.DAY_TIME_REAL / d.DAY_TICK_COUNT) / mult
+            _G.g_wt_speed = mult
+        end
+    end
+    local function wt_boom_up()
+        local b = g_camp and g_camp.boom
+        if not b then return end
+        local lv = (b:GetBoom() or 0) + 1
+        local mx = (block_define and block_define.CITY_MAX_LEVEL) or 14
+        if lv <= mx then
+            b:setBoom(lv)
+            pcall(function() b:BoomLevelChange(lv - 1, lv) end)
+            pcall(function() b:UI2S_BoomUpgradeCallback(lv) end)
+        end
+    end
+    local function wt_tax_toggle()
+        local tm = g_TaxManager
+        if not tm then return end
+        _G.g_wt_tax_auto = not _G.g_wt_tax_auto
+        if _G.g_wt_tax_auto then
+            if not _G.g_wt_orig_tax_SendTaxPage then
+                _G.g_wt_orig_tax_SendTaxPage = tm.SendTaxPage
+            end
+            tm.SendTaxPage = function(self)
+                if self.PayForTax then pcall(function() self:PayForTax() end) end
+            end
+        else
+            if _G.g_wt_orig_tax_SendTaxPage then
+                tm.SendTaxPage = _G.g_wt_orig_tax_SendTaxPage
+                _G.g_wt_orig_tax_SendTaxPage = nil
+            end
+        end
+    end
+
+    g_LUiPageManager.GameDraw = function(self, dt)
+        local ok1, e1 = pcall(_G.g_wt_orig_GameDraw, self, dt)
+        if not _G.g_wt_panel_open then return ok1, e1 end
+        _G.g_wt_draw_count = _G.g_wt_draw_count + 1
+        local ok2, e2 = pcall(function()
+            ImGui.SetNextWindowSize(ImVec2:new_local(330, 430), 4)
+            ImGui.SetNextWindowPos(ImVec2:new_local(28, 96), 4)
+            if ImGui.Begin(u("平野孤鸿修改器") .. "###wt_panel") then
+                ImGui.Text(u("woldvein Trainer __VER__  ·  游戏内面板"))
+                ImGui.Separator()
+                if ImGui.CollapsingHeader(u("状态")) then
+                    local b = g_camp and g_camp.boom
+                    ImGui.Text(u("城市品阶: " .. tostring(b and b:GetBoom() or -1)))
+                    local t = g_Time
+                    ImGui.Text(u("游戏天数: " .. tostring(t and t.GetDayStamp and t:GetDayStamp() or -1)))
+                    ImGui.Text(u("倍速档: " .. tostring(_G.g_wt_speed or 1) .. "x"))
+                    ImGui.Text(u("帧计数: " .. tostring(_G.g_wt_draw_count)))
+                end
+                if ImGui.CollapsingHeader(u("时间倍速")) then
+                    if ImGui.Button(u("1x")) then wt_set_speed(1) end
+                    ImGui.SameLine()
+                    if ImGui.Button(u("2x")) then wt_set_speed(2) end
+                    ImGui.SameLine()
+                    if ImGui.Button(u("4x")) then wt_set_speed(4) end
+                end
+                if ImGui.CollapsingHeader(u("快捷操作")) then
+                    if ImGui.Button(u("品阶+1(含解锁)")) then wt_boom_up() end
+                    ImGui.SameLine()
+                    if ImGui.Button(u("自动纳税 开/关")) then wt_tax_toggle() end
+                    ImGui.Text(u("自动纳税: " .. (_G.g_wt_tax_auto and "开" or "关")))
+                end
+                ImGui.Separator()
+                if ImGui.Button(u("隐藏面板")) then _G.g_wt_panel_open = false end
+                ImGui.SameLine()
+                ImGui.Text(u("(可用修改器再开)"))
+            end
+            ImGui.End()
+        end)
+        if not ok2 then
+            _G.g_wt_panel_err = tostring(e2)
+            _G.g_wt_panel_open = false
+        end
+        return ok1, e1
+    end
+    _G.g_wt_panel_open = true
+    return "[成功] 游戏内面板已注入（ImGui 引擎渲染，不占额外窗口）"
+end)
+if not ok then return "[错误] " .. tostring(err) end
+return err
+"""
+
+LUA_INGAME_PANEL_REMOVE = r"""
+local ok, err = pcall(function()
+    if _G.g_wt_orig_GameDraw and g_LUiPageManager then
+        g_LUiPageManager.GameDraw = _G.g_wt_orig_GameDraw
+        _G.g_wt_orig_GameDraw = nil
+    end
+    _G.g_wt_panel_open = false
+    return "[成功] 游戏内面板已移除（GameDraw 已还原）"
+end)
+if not ok then return "[错误] " .. tostring(err) end
+return err
+"""
+
+LUA_INGAME_PANEL_STATUS = r"""
+local ok, err = pcall(function()
+    return string.format("已注入=%s 显示中=%s 帧计数=%s 最近错误=%s",
+        tostring(_G.g_wt_orig_GameDraw ~= nil), tostring(_G.g_wt_panel_open),
+        tostring(_G.g_wt_draw_count), tostring(_G.g_wt_panel_err or "无"))
+end)
+if not ok then return "[错误] " .. tostring(err) end
+return err
+"""
+
+
+def install_ingame_panel():
+    """注入游戏内 ImGui 面板"""
+    log("正在注入游戏内面板 ...")
+    code = LUA_INGAME_PANEL_INSTALL.replace("__VER__", "v" + APP_VERSION)
+    success, result = execute_lua_safe(code, timeout=LUA_TIMEOUT_LONG)
+    return _log_result(success, result, "游戏内面板注入失败")
+
+
+def remove_ingame_panel():
+    """移除游戏内面板（还原 GameDraw）"""
+    log("正在移除游戏内面板 ...")
+    success, result = execute_lua_safe(LUA_INGAME_PANEL_REMOVE, timeout=LUA_TIMEOUT_LONG)
+    return _log_result(success, result, "游戏内面板移除失败")
+
+
+def get_ingame_panel_status():
+    """游戏内面板状态"""
+    return execute_lua_safe(LUA_INGAME_PANEL_STATUS, timeout=LUA_TIMEOUT)

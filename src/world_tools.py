@@ -273,6 +273,53 @@ return err
 LUA_BLUEPRINT_PROBE = r"""
 local ok, err = pcall(function()
     local lines = {"=== 蓝图系统探查 ==="}
+    -- [FIX 2026-09-14] 真·蓝图系统 = g_LBlueprintManager（图纸合成 / 谋士府研发），
+    --   旧探针找的是建筑上的 IsBlueprint 标记 -> 恒为 0（找错了对象）
+    local BM = g_LBlueprintManager
+    if BM then
+        local m = {}
+        for _, n in ipairs({"HasBlueprintSynthesis", "GetBlockWorkingBlueprintSynthesisNum",
+                            "GetWorkingBlueprintSynthesisLevelData", "GetBlueprintSynthesisLevelData",
+                            "CheckHaveValidBlueprintSynthesis", "GetBlueprintSynthesisByGDPL"}) do
+            if BM[n] then table.insert(m, n) end
+        end
+        table.insert(lines, "g_LBlueprintManager 方法: " .. table.concat(m, ", "))
+        local blocks = nil
+        pcall(function() blocks = g_blockMgr:GetAllBlocks() end)
+        local nBlk, nWork, nValid = 0, 0, 0
+        if type(blocks) == "table" then
+            for id, blk in pairs(blocks) do
+                nBlk = nBlk + 1
+                local bid = (type(blk) == "table" and blk.nId) or id
+                if BM.GetBlockWorkingBlueprintSynthesisNum then
+                    local okW, w = pcall(function() return BM:GetBlockWorkingBlueprintSynthesisNum(bid) end)
+                    if okW and tonumber(w) and tonumber(w) > 0 then
+                        nWork = nWork + tonumber(w)
+                        table.insert(lines, string.format("  地块%s 合成中=%d", tostring(bid), tonumber(w)))
+                    end
+                end
+                if BM.CheckHaveValidBlueprintSynthesis then
+                    local okV, v = pcall(function() return BM:CheckHaveValidBlueprintSynthesis(bid) end)
+                    if okV and v then nValid = nValid + 1 end
+                end
+            end
+        end
+        table.insert(lines, string.format("地块数=%d 合成中总数=%d 有可用合成的地块=%d", nBlk, nWork, nValid))
+        local off = nil
+        pcall(function() off = g_LOfficeManager:GetAdviserOfficeInCamp() end)
+        if off then
+            if off.IsBlueprintResearching then
+                local okR, r = pcall(function() return off:IsBlueprintResearching() end)
+                table.insert(lines, "谋士府 图纸研发中=" .. tostring(okR and r or "?"))
+            end
+            if off.GetBlueprintResearchCost then
+                local okC, c = pcall(function() return off:GetBlueprintResearchCost() end)
+                table.insert(lines, "  研发成本=" .. tostring(okC and c or "?"))
+            end
+        end
+        return table.concat(lines, "\n")
+    end
+    table.insert(lines, "（未找到 g_LBlueprintManager，回退建筑标记扫描）")
     local bm = g_BuildingWorldModule and g_BuildingWorldModule.BuildingMgr
     if not bm then return "[失败] BuildingMgr 不存在" end
     local list = nil

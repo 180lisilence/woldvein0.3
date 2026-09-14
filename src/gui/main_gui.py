@@ -248,13 +248,16 @@ class TrainerApp(ResourceTabMixin, CreativeTabMixin, HotkeyTabMixin, MonitorTabM
         win = self.config.get("window", {}) or {}
         w = win.get("width")
         h = win.get("height")
-        if not w or not h:
-            sw = self.root.winfo_screenwidth()
-            sh = self.root.winfo_screenheight()
-            w = min(int(sw * 0.8), 1280)
-            h = min(int(sh * 0.8), 800)
+        sw = self.root.winfo_screenwidth()
+        sh = self.root.winfo_screenheight()
+        # [FIX 2026-09-14] 旧版默认上限 1280x800，内容放不下 -> 必须最大化才能用全部。
+        #   改为默认占屏幕约 92%（上限 1680x1000）；保存尺寸过小(<1200x780)视为不可用，改用默认。
+        def_w = min(int(sw * 0.92), 1680)
+        def_h = min(int(sh * 0.92), 1000)
+        if not w or not h or int(w) < 1400 or int(h) < 860:
+            w, h = def_w, def_h
         self.root.geometry(f"{int(w)}x{int(h)}")
-        self.root.minsize(900, 620)
+        self.root.minsize(1020, 700)
         # 主题：从配置读取，默认深色
         self._theme_name = self.config.get("theme", "dark")
         ThemeManager.apply(ttk.Style(), self.root, self._theme_name)

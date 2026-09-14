@@ -162,6 +162,21 @@ class AdvancedTabMixin:
         ttk.Label(task_row, text="任务与品阶无自动绑定：激活=未开始→可接；完成=置为已完成并领奖",
                   style="Card.TLabel", foreground=T("fg_muted"), font=FONT_TINY).pack(side=tk.LEFT, padx=8)
 
+        # === 游戏内面板（ImGui，引擎渲染，不卡）===
+        panel_container, panel_frame = self._create_collapsible(scroll.inner, "游戏内面板（ImGui）", default_open=True)
+        panel_row = tk.Frame(panel_frame, bg=T("bg_card"))
+        panel_row.pack(fill=tk.X, padx=4, pady=(0, 4))
+        self._ingame_on_btn = ttk.Button(panel_row, text="🎮 注入游戏内面板", style="Success.TButton",
+                   command=lambda: self._adv_with_cooldown(self._ingame_on_btn, advanced_tools.install_ingame_panel, "注入面板"))
+        self._ingame_on_btn.pack(side=tk.LEFT, padx=4)
+        self._ingame_off_btn = ttk.Button(panel_row, text="🛑 移除面板", style="Restore.TButton",
+                   command=lambda: self._adv_with_cooldown(self._ingame_off_btn, advanced_tools.remove_ingame_panel, "移除面板"))
+        self._ingame_off_btn.pack(side=tk.LEFT, padx=4)
+        ttk.Button(panel_row, text="🔍 状态", style="Warning.TButton",
+                   command=lambda: self._run_async(self._adv_ingame_panel_status)).pack(side=tk.LEFT, padx=4)
+        ttk.Label(panel_row, text="在游戏画面内用 ImGui 画可折叠面板（引擎渲染，不开外部窗口 → 不卡）",
+                  style="Card.TLabel", foreground=T("fg_muted"), font=FONT_TINY).pack(side=tk.LEFT, padx=8)
+
         # === NPC管理（折叠面板，默认展开）===
         npc_container, npc_frame = self._create_collapsible(scroll.inner, "NPC管理", default_open=True)
         npc_row = tk.Frame(npc_frame, bg=T("bg_card"))
@@ -340,6 +355,12 @@ class AdvancedTabMixin:
         success, result = advanced_tools.measure_time_speed(2.0)
         self._report_probe("高级-时间流速实测", result)
         self.root.after(0, lambda: self._adv_append_output(f"[时间流速实测]\n{result}"))
+
+    def _adv_ingame_panel_status(self):
+        """游戏内面板状态"""
+        success, result = advanced_tools.get_ingame_panel_status()
+        self._report_probe("高级-游戏内面板", result)
+        self.root.after(0, lambda: self._adv_append_output(f"[游戏内面板]\n{result}"))
 
     def _adv_task_probe(self):
         """任务状态探查"""
