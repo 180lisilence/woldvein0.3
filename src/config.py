@@ -21,7 +21,7 @@ woldvein Trainer v0.3 - 配置管理模块
     window          窗口位置和大小
     auto_detect_game 是否自动检测游戏进程
     hotkeys_enabled 是否启用全局热键
-    theme           UI主题（"shenjian"深简 / "bento"Bento / "mojian"墨笺）
+    theme           UI主题（"dark"深色 / "light"浅色）
 """
 import json
 import os
@@ -73,8 +73,8 @@ DEFAULT_CONFIG = {
     "auto_detect_game": True,
     # 是否启用全局热键（需要管理员权限）
     "hotkeys_enabled": True,
-    # UI主题（v0.3 融合版三主题："shenjian"深简 / "bento"Bento / "mojian"墨笺）
-    "theme": "shenjian",
+    # UI主题（v0.3 新增："dark"深色 / "light"浅色）
+    "theme": "dark",
 }
 
 

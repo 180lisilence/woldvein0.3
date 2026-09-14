@@ -14,7 +14,6 @@ from src.logger import log, log_error
 from .diagnostic_panel import build_diagnostic_panel
 from .scrollable import ScrollableFrame
 from .widgets import T
-from .rounded import RoundedButton
 from .theme import FONT_MONO_BOLD, FONT_SUB, FONT_BODY, FONT_TINY
 
 
@@ -45,7 +44,7 @@ class CreativeTabMixin:
         btn_col = ttk.Frame(switch_inner, style="Card.TFrame")
         btn_col.pack(side=tk.RIGHT)
 
-        self.creative_btn = RoundedButton(btn_col, text="▶ 开启创造模式", style="Success.TButton",
+        self.creative_btn = ttk.Button(btn_col, text="▶ 开启创造模式", style="Success.TButton",
                                         command=self.on_toggle_creative, width=18)
         self.creative_btn.pack()
 
@@ -70,9 +69,9 @@ class CreativeTabMixin:
         ttk.Label(opt_header, text="⚙ 功能选项", style="Card.TLabel",
                   font=FONT_SUB).pack(side=tk.LEFT)
         # 全选/反选按钮
-        RoundedButton(opt_header, text="全选", style="Small.TButton",
+        ttk.Button(opt_header, text="全选", style="Small.TButton",
                    command=lambda: self._set_all_creative_opts(True)).pack(side=tk.RIGHT, padx=(5, 0))
-        RoundedButton(opt_header, text="全不选", style="Small.TButton",
+        ttk.Button(opt_header, text="全不选", style="Small.TButton",
                    command=lambda: self._set_all_creative_opts(False)).pack(side=tk.RIGHT)
         ttk.Label(options_card, text="创造模式开启时全部生效，可独立勾选",
                   style="Card.TLabel", foreground=T("fg_muted"),

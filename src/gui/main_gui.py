@@ -14,7 +14,7 @@ woldvein Trainer v0.3 - GUI 主界面
     热键设置已独立为单独工具：hotkey_configurator.py
 
 v0.3 新增：
-    - 三主题一键切换（深简 / Bento / 墨笺）
+    - 深色/浅色主题一键切换
     - 面板侧边滚动条（内容超出时可滚动）
     - 城市品阶逐级提升按钮
     - 反向恢复按钮组（每项功能旁加「恢复」）
@@ -57,7 +57,6 @@ from src.hotkey_manager import hotkey_manager
 from src.game_monitor import game_monitor, set_game_root
 from src.game_status import get_status_provider
 from .widgets import T, build_recolor_map, recolor_widget_tree
-from .rounded import RoundedButton, redraw_all
 
 # Mixin 标签页模块
 from .tab_resource import ResourceTabMixin
@@ -67,9 +66,7 @@ from .tab_monitor import MonitorTabMixin
 from .tab_advanced import AdvancedTabMixin
 from .tab_world import WorldTabMixin
 from .tab_settings import SettingsTabMixin
-from .theme import (FONT_BOLD, FONT_MONO, FONT_TINY, THEME_LABELS, THEME_ORDER,
-                    ThemeManager, get_theme, get_theme_name, next_theme)
-from .kpi_bar import KpiBar
+from .theme import FONT_BOLD, FONT_MONO, FONT_TINY, ThemeManager, get_theme, get_theme_name
 from .scrollable import ScrollableFrame
 from .toast import ToastManager
 from .tooltip import Tooltip, bind_tooltip
@@ -258,9 +255,7 @@ class TrainerApp(ResourceTabMixin, CreativeTabMixin, HotkeyTabMixin, MonitorTabM
         self.root.geometry(f"{int(w)}x{int(h)}")
         self.root.minsize(900, 620)
         # 主题：从配置读取，默认深色
-        self._theme_name = self.config.get("theme", "shenjian")
-        if self._theme_name not in THEME_ORDER:
-            self._theme_name = THEME_ORDER[0]
+        self._theme_name = self.config.get("theme", "dark")
         ThemeManager.apply(ttk.Style(), self.root, self._theme_name)
 
     def _setup_styles(self):
@@ -270,55 +265,31 @@ class TrainerApp(ResourceTabMixin, CreativeTabMixin, HotkeyTabMixin, MonitorTabM
         # 应用当前主题（_setup_window 中已设置）
         ThemeManager.apply(style, self.root, self._theme_name)
 
-    def set_theme(self, name):
-        """切换到指定主题（shenjian / bento / mojian）"""
-        if name not in THEME_ORDER:
-            return
+    def toggle_theme(self):
+        """切换深色/浅色主题"""
         # 切换前记录旧色板，用于重绘 tk 原生控件
         old_palette = dict(get_theme())
-        ThemeManager.apply(ttk.Style(), self.root, name)
-        self._theme_name = name
-        self.config["theme"] = name
+        new_theme = ThemeManager.toggle(ttk.Style(), self.root)
+        self._theme_name = new_theme
+        self.config["theme"] = new_theme
         save_config(self.config)
         # 重绘 tk 原生控件（tk 控件不随 ttk 样式自动变色）
         try:
             recolor_widget_tree(self.root, build_recolor_map(old_palette, dict(get_theme())))
         except Exception as e:
             log_warning(f"主题重绘失败: {e}")
-        # 重绘圆角组件（Canvas 不受 ttk 样式影响）
-        try:
-            redraw_all()
-        except Exception as e:
-            log_warning(f"圆角重绘失败: {e}")
-        # 更新各输出区颜色
+        # 更新日志区颜色
         bg, fg, insertbg = ThemeManager.get_log_colors()
-        for attr, with_insert in (("log_text", True), ("adv_output_text", False),
-                                  ("world_output_text", False)):
-            w = getattr(self, attr, None)
-            if w is None:
-                continue
-            try:
-                if with_insert:
-                    w.configure(bg=bg, fg=fg, insertbackground=insertbg)
-                else:
-                    w.configure(bg=bg, fg=fg)
-            except Exception:
-                pass
-        self._update_theme_buttons()
-        log(f"主题已切换为: {THEME_LABELS.get(name, name)}")
-
-    def toggle_theme(self):
-        """按 深简 → Bento → 墨笺 循环切换（兼容旧入口）"""
-        self.set_theme(next_theme())
-
-    def _update_theme_buttons(self):
-        """高亮当前主题芯片"""
-        for n, b in getattr(self, "_theme_btns", {}).items():
-            try:
-                b.configure(style="ThemeChipActive.TButton" if n == self._theme_name
-                            else "ThemeChip.TButton")
-            except Exception:
-                pass
+        if hasattr(self, "log_text"):
+            self.log_text.configure(bg=bg, fg=fg, insertbackground=insertbg)
+        # 更新高级工具输出区颜色
+        if hasattr(self, "adv_output_text"):
+            self.adv_output_text.configure(bg=bg, fg=fg)
+        # 更新主题切换按钮文字
+        if hasattr(self, "theme_btn"):
+            icon = "🌙" if new_theme == "dark" else "☀️"
+            self.theme_btn.config(text=icon)
+        log(f"主题已切换为: {new_theme}")
 
     def _build_ui(self):
         """构建UI：顶部栏 + 左侧导航 + 右侧内容 + 底部可折叠日志"""
@@ -340,10 +311,6 @@ class TrainerApp(ResourceTabMixin, CreativeTabMixin, HotkeyTabMixin, MonitorTabM
         self.content_frame = ttk.Frame(content_wrapper)
         self.content_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-        # 顶部 KPI 数据条（常驻显示核心实时数据，复用 GameStatusProvider）
-        self.kpi_bar = KpiBar(self.content_frame)
-        self.kpi_bar.pack(fill=tk.X, pady=(0, 6))
-
         self._pages = {}
         self._nav_buttons = {}
         self._current_page = None
@@ -361,13 +328,12 @@ class TrainerApp(ResourceTabMixin, CreativeTabMixin, HotkeyTabMixin, MonitorTabM
 
         # 默认显示第一页
         self._show_page("resource")
-        self._update_theme_buttons()
 
     def _make_page(self, key, label):
         """创建内容页 Frame + 左侧导航按钮，返回该页 Frame"""
         page = ttk.Frame(self.content_frame)
         self._pages[key] = page
-        btn = RoundedButton(self.nav_frame, text=label, style="Nav.TButton",
+        btn = ttk.Button(self.nav_frame, text=label, style="Nav.TButton",
                          command=lambda k=key: self._show_page(k))
         btn.pack(fill=tk.X, padx=8, pady=1)
         self._nav_buttons[key] = btn
@@ -404,15 +370,12 @@ class TrainerApp(ResourceTabMixin, CreativeTabMixin, HotkeyTabMixin, MonitorTabM
         right_frame = ttk.Frame(topbar, style="Card.TFrame")
         right_frame.pack(side=tk.RIGHT, padx=15, pady=10)
 
-        # 三主题切换芯片（深简 / Bento / 墨笺）
-        self._theme_btns = {}
-        for _name in THEME_ORDER:
-            _b = RoundedButton(right_frame, text=THEME_LABELS[_name], style="ThemeChip.TButton",
-                            command=lambda n=_name: self.set_theme(n))
-            _b.pack(side=tk.LEFT, padx=(0, 4))
-            bind_tooltip(_b, f"切换主题：{THEME_LABELS[_name]}")
-            self._theme_btns[_name] = _b
-        ttk.Label(right_frame, text="  ", style="Card.TLabel").pack(side=tk.LEFT)
+        # 主题切换按钮
+        theme_icon = "☀️" if self._theme_name == "light" else "🌙"
+        self.theme_btn = ttk.Button(right_frame, text=theme_icon, style="Small.TButton",
+                                    command=self.toggle_theme, width=3)
+        self.theme_btn.pack(side=tk.LEFT, padx=(0, 10))
+        bind_tooltip(self.theme_btn, "切换深色/浅色主题")
 
         # 统一状态指示灯（游戏状态 + DLL状态合并）
         self.status_indicator = ttk.Label(right_frame, text="● 未检测到游戏", style="StatusWarning.TLabel")
@@ -420,13 +383,13 @@ class TrainerApp(ResourceTabMixin, CreativeTabMixin, HotkeyTabMixin, MonitorTabM
         bind_tooltip(self.status_indicator, "游戏进程和DLL注入状态")
 
         # 启动游戏按钮（主操作=蓝色）
-        self.launch_btn = RoundedButton(right_frame, text="启动游戏", style="Primary.TButton",
+        self.launch_btn = ttk.Button(right_frame, text="启动游戏", style="Primary.TButton",
                                       command=self.on_launch_game)
         self.launch_btn.pack(side=tk.LEFT, padx=(0, 8))
         bind_tooltip(self.launch_btn, "通过Steam启动游戏")
 
         # 注入按钮（主操作=蓝色，未注入时可点击）
-        self.inject_btn = RoundedButton(right_frame, text="注入DLL", style="Primary.TButton",
+        self.inject_btn = ttk.Button(right_frame, text="注入DLL", style="Primary.TButton",
                                       command=self.on_inject_dll, state=tk.DISABLED)
         self.inject_btn.pack(side=tk.LEFT)
         bind_tooltip(self.inject_btn, "注入修改器DLL到游戏进程")
@@ -444,7 +407,7 @@ class TrainerApp(ResourceTabMixin, CreativeTabMixin, HotkeyTabMixin, MonitorTabM
                                           font=FONT_BOLD)
         self.log_toggle_label.pack(side=tk.LEFT)
         self.log_toggle_label.bind("<Button-1>", lambda e: self._toggle_log_panel())
-        RoundedButton(header, text="清空", command=self.on_clear_log).pack(side=tk.RIGHT)
+        ttk.Button(header, text="清空", command=self.on_clear_log).pack(side=tk.RIGHT)
 
         # 日志颜色从主题获取
         log_bg, log_fg, log_insert = ThemeManager.get_log_colors()

@@ -2,6 +2,28 @@
 
 ## 2026-09-14
 
+### 回档：撤销融合版 UI（三主题 / KPI 数据条 / 圆角）
+
+**原因**：用户认为该 UI 不好看，要求回档。仅回退 UI，功能修复保留。
+
+**回退内容**
+- 恢复到 `2e43762` 的界面实现：`theme.py`（深/浅双主题）、`main_gui.py`（单按钮切换、无 KPI 条）、
+  `config.py`、`lua_engine.py`（去掉为 KPI 新增的状态字段）、`tooltip.py`、
+  `tab_resource.py` / `tab_creative.py` / `tab_monitor.py` / `diagnostic_panel.py`
+- 删除新增组件 `src/gui/kpi_bar.py`、`src/gui/rounded.py`
+- `tab_advanced.py` / `tab_world.py` / `tab_settings.py`：圆角按钮回退 `ttk.Button`、
+  折叠面板容器回退 `tk.Frame`、移除 `.rounded` 导入
+- 文档（README / AGENTS / 用户手册 / PRD）主题与目录树描述回退
+- 运行配置 `theme` 回滚为 `dark`（本项目 `config.json` 曾为 `bento`）
+
+**保留（功能修复，未回退）**
+- 自动纳税（世界系统页「税收」卡片）、实测倍率（高级工具页，5 点回归）
+- `m_nDayStamp` 累计语义修复、探查纯文本（去 cjson）、`g_TimeDefine`、人口口径、NPC 列表多来源
+- 一键全量探查清单补齐（世界-税收 / 高级-时间流速实测）
+
+**验证**：`compileall` / `verify.py` 全过；GUI 冒烟 BUILD OK、`theme=dark`、无 `kpi_bar`、深浅切换正常、
+税收卡片与实测处理函数仍在；截图确认恢复原始深色外观。
+
 ### 修复：人口口径 / 实测倍率精度 / g_TimeDefine（实机验证）
 
 **来源**：2026-09-14 全量探查报告 + 直连 Lua 通道复测。

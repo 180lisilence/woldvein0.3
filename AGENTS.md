@@ -53,9 +53,7 @@ woldvein_trainer\
 │       ├── tab_advanced.py      # 高级工具标签页Mixin
 │       ├── tab_world.py         # 世界系统标签页Mixin
 │       ├── tab_settings.py      # 应用设置标签页Mixin
-│       ├── theme.py             # 三主题色板（深简/Bento/墨笺）
-│       ├── kpi_bar.py           # 顶部 KPI 数据条（常驻核心数据）
-│       ├── rounded.py           # 圆角容器/按钮（Canvas 绘制）
+│       ├── theme.py             # 深/浅主题色板
 │       ├── scrollable.py        # 侧边滚动条
 │       ├── widgets.py           # 控件工厂 + 颜色取用
 │       ├── async_helper.py      # 异步执行 + 按钮冷却

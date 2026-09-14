@@ -4,7 +4,7 @@
 
 > 专为西山居城建经营游戏《平野孤鸿》(BalladsOfHongye, Steam AppID 2656540) 开发的游戏修改工具。
 >
-> 纯内存操作 · DLL 注入 · Lua 执行引擎 · 左侧导航 + 6 个页面 · 12 个全局热键 · 三主题 GUI（深简/Bento/墨笺）
+> 纯内存操作 · DLL 注入 · Lua 执行引擎 · 左侧导航 + 6 个页面 · 12 个全局热键 · 深/浅主题 GUI
 
 ---
 
@@ -54,7 +54,7 @@
 
 | 层级 | 技术 | 说明 |
 |------|------|------|
-| GUI 层 | Python 3 + tkinter + ttk | 三主题（深简/Bento/墨笺），6 个页面 |
+| GUI 层 | Python 3 + tkinter + ttk | 深/浅主题，6 个页面 |
 | 注入层 | Python ctypes + Win32 API | OpenProcess / VirtualAllocEx / CreateRemoteThread |
 | Hook 层 | C (MinGW-w64) + Inline-Hook | 14 字节绝对跳转框架 + 自研指令长度解码器 |
 | 执行层 | Lua 5.1 (Lua5X64.dll) | 在游戏主线程 lua_pcall hook 中执行 |
@@ -652,9 +652,7 @@ woldvein_trainer/
 │   │   ├── tab_advanced.py  # 高级工具标签页 Mixin
 │   │   ├── tab_world.py     # 世界系统标签页 Mixin
 │   │   ├── tab_settings.py  # 应用设置标签页 Mixin
-│   │   ├── theme.py         # 三主题色板（深简/Bento/墨笺）
-│   │   ├── kpi_bar.py       # 顶部 KPI 数据条（常驻核心数据）
-│   │   ├── rounded.py       # 圆角容器/按钮（Canvas 绘制）
+│   │   ├── theme.py         # 深/浅主题色板
 │   │   ├── scrollable.py    # 侧边滚动条
 │   │   ├── widgets.py       # 控件工厂 + 颜色取用
 │   │   ├── async_helper.py  # 异步执行 + 按钮冷却
@@ -849,7 +847,7 @@ dist/
   },
   "auto_detect_game": true,
   "hotkeys_enabled": true,
-  "theme": "shenjian"
+  "theme": "dark"
 }
 ```
 
