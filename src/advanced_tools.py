@@ -2208,10 +2208,11 @@ def measure_time_speed(interval=1.0, samples=5):
 LUA_BOOM_UPGRADE_STEP = (r"""
 local ok, err = pcall(function()
 """ + _LUA_BOOM_RESOLVE + r"""
+    local function step(target)
     local cur = 0
     if boom.GetBoom then cur = boom:GetBoom() or 0 end
 
-    local target = __TARGET__         -- 0 = 只升一级
+    target = target or 0              -- 0 = 只升一级
     local maxLevel = 14
     if block_define and block_define.CITY_MAX_LEVEL then maxLevel = block_define.CITY_MAX_LEVEL end
     if g_blocksLogicCfg and g_blocksLogicCfg.GetBoomLevelCfg then
@@ -2255,6 +2256,9 @@ local ok, err = pcall(function()
     if failItems > 0 then tail = string.format("，其中 %d 级奖励流程报错（见下方明细）", failItems) end
     return string.format("[成功] 城市品阶 %d → %d（逐级晋升，含解锁，共处理奖励 %d 项%s）\n%s",
         cur, target, totalRewards, tail, table.concat(lines, "\n"))
+    end
+    _G.g_trainer_boom_step = step
+    return step(__TARGET__)
 end)
 if not ok then return "[错误] " .. tostring(err) end
 return err
@@ -2393,11 +2397,23 @@ def finish_all_tasks():
 # ============================================================
 # 游戏内折叠面板（ImGui）
 # ============================================================
-# 源码事实：游戏 UI 基于 Dear ImGui，Lua 侧直接暴露全局 ImGui / KLImGui / ImVec2；
-#   LUiPageManager:GameDraw(deltaTimeInSecs) 是逐帧绘制入口（页面由它画）。
-#   故只要「包装 g_LUiPageManager.GameDraw」，就能用 ImGui 在游戏内画自己的窗口 ——
-#   由引擎渲染，不开外部覆盖窗口，所以不像旧版外部悬浮窗那样卡。
-#   中文需 util.a2u8() 转 UTF-8。
+# 源码事实：游戏 UI 基于 Dear ImGui，Lua 侧直接暴露全局 ImGui / ImVec2 / KLImGui；
+#   game_base.lua:96 里 g_LUiPageManager:GameDraw(dt) 由 LGameBase:GameDraw 每帧调用一次，
+#   所以只要「包装 g_LUiPageManager.GameDraw」，就能在游戏画面内画自己的窗口 ——
+#   引擎渲染，不开外部覆盖窗口，所以不像旧版外部悬浮窗那样卡。
+#
+# 【文字编码 —— 上一版乱码的根因】
+#   注入的 Lua 代码本身是 UTF-8（Python 端 lua_cmd.txt 用 utf-8 写入），ImGui 也直接吃 UTF-8，
+#   所以字符串必须「原样直传」。绝不能再调 util.a2u8：
+#     util.a2u8 = ANSI/GBK → UTF-8（游戏自己的 .lua 是 GBK，才需要它转换）。
+#     对已经是 UTF-8 的中文再转一次 = 乱码；且该函数对非法输入每帧可能产出不同字节，
+#     会让 ImGui 控件 ID 每帧变化 → 折叠头永远展不开、面板内容一直闪。
+#
+# 【每帧只画一次】同一个 ImGui 帧里重复 Begin/End 同一个窗口，窗口状态（含折叠状态）
+#   会被反复重置，表现也是「展不开 + 一直刷新」，故用 ImGui.GetFrameCount() 去重。
+#
+# 【默认展开】折叠头一律带 ImGuiTreeNodeFlags_DefaultOpen —— 万一鼠标被游戏抢走点不动，
+#   内容也能直接看见。
 
 LUA_INGAME_PANEL_INSTALL = r"""
 local ok, err = pcall(function()
@@ -2410,93 +2426,229 @@ local ok, err = pcall(function()
     if not _G.g_wt_orig_GameDraw then
         _G.g_wt_orig_GameDraw = g_LUiPageManager.GameDraw
     end
-    _G.g_wt_panel_err = nil
-    _G.g_wt_draw_count = _G.g_wt_draw_count or 0
-    local function u(s) return util.a2u8(s) end
+    _G.g_wt_panel_open  = true
+    _G.g_wt_panel_err   = nil
+    _G.g_wt_panel_err_n = 0
+    _G.g_wt_draw_count  = 0
+    _G.g_wt_last_frame  = nil
+    _G.g_wt_last_msg    = nil
 
-    local function wt_set_speed(mult)
+    -- 文字：原样直传（不要再走 util.a2u8，见文件头说明）
+    local function T(s) return tostring(s) end
+
+    -- 折叠头：优先带 DefaultOpen；签名不兼容时逐级降级
+    local function Section(label)
+        local f = ImGuiTreeNodeFlags_ and ImGuiTreeNodeFlags_.ImGuiTreeNodeFlags_DefaultOpen
+        if f then
+            local okH, ret = pcall(ImGui.CollapsingHeader, label, f)
+            if okH and ret ~= nil then return ret end
+        end
+        local ok2, ret2 = pcall(ImGui.CollapsingHeader, label)
+        if ok2 and ret2 ~= nil then return ret2 end
+        ImGui.Text(label)
+        ImGui.Separator()
+        return true
+    end
+
+    local function SetupWindow()
+        local pos  = ImVec2:new_local(24, 92)
+        local size = ImVec2:new_local(380, 470)
+        local cond = ImGuiCond_ and ImGuiCond_.ImGuiCond_FirstUseEver
+        if cond then
+            pcall(ImGui.SetNextWindowPos, pos, cond)
+            pcall(ImGui.SetNextWindowSize, size, cond)
+        else
+            pcall(ImGui.SetNextWindowPos, pos, 4)
+            pcall(ImGui.SetNextWindowSize, size, 4)
+        end
+    end
+
+    local M = {}
+
+    function M.set_speed(mult)
         local d = _G.define
         if d and d.DAY_TIME_REAL and d.DAY_TICK_COUNT and g_GameWorld then
             g_GameWorld.TICK_DELTA_TIMES = (d.DAY_TIME_REAL / d.DAY_TICK_COUNT) / mult
             _G.g_wt_speed = mult
-        end
-    end
-    local function wt_boom_up()
-        local b = g_camp and g_camp.boom
-        if not b then return end
-        local lv = (b:GetBoom() or 0) + 1
-        local mx = (block_define and block_define.CITY_MAX_LEVEL) or 14
-        if lv <= mx then
-            b:setBoom(lv)
-            pcall(function() b:BoomLevelChange(lv - 1, lv) end)
-            pcall(function() b:UI2S_BoomUpgradeCallback(lv) end)
-        end
-    end
-    local function wt_tax_toggle()
-        local tm = g_TaxManager
-        if not tm then return end
-        _G.g_wt_tax_auto = not _G.g_wt_tax_auto
-        if _G.g_wt_tax_auto then
-            if not _G.g_wt_orig_tax_SendTaxPage then
-                _G.g_wt_orig_tax_SendTaxPage = tm.SendTaxPage
-            end
-            tm.SendTaxPage = function(self)
-                if self.PayForTax then pcall(function() self:PayForTax() end) end
-            end
+            _G.g_wt_last_msg = "时间倍速 → " .. tostring(mult) .. "x"
         else
-            if _G.g_wt_orig_tax_SendTaxPage then
-                tm.SendTaxPage = _G.g_wt_orig_tax_SendTaxPage
-                _G.g_wt_orig_tax_SendTaxPage = nil
+            _G.g_wt_last_msg = "倍速设置失败（define / g_GameWorld 不可用）"
+        end
+    end
+
+    function M.boom_up()
+        -- 优先复用 Python 侧「逐级晋升」注册的全局函数（同一套解锁流程）
+        if type(_G.g_trainer_boom_step) == "function" then
+            local okS, ret = pcall(_G.g_trainer_boom_step, 0)
+            _G.g_wt_last_msg = okS and tostring(ret) or ("品阶晋升异常: " .. tostring(ret))
+            return
+        end
+        local b = (g_camp and g_camp.boom) or _G.boom
+        if not b or not b.setBoom then
+            _G.g_wt_last_msg = "找不到城市品阶对象（请先进入游戏场景）"
+            return
+        end
+        local cur = (b.GetBoom and b:GetBoom()) or 0
+        local mx  = (block_define and block_define.CITY_MAX_LEVEL) or 14
+        if cur + 1 > mx then
+            _G.g_wt_last_msg = "已达最高品阶 " .. tostring(mx)
+            return
+        end
+        local lv = cur + 1
+        b:setBoom(lv)
+        pcall(function() b:BoomLevelChange(cur, lv) end)          -- 派发 BOOM_LEVEL_CHANED
+        pcall(function() b:UI2S_BoomUpgradeCallback(lv) end)      -- 真正发放该级解锁项
+        pcall(function() b:UpdateHistoryMaxBoomLevel() end)
+        pcall(function() b:UpdateBoom() end)
+        pcall(function() b:_syncUI() end)
+        _G.g_wt_last_msg = string.format("品阶 %d → %d（含解锁）", cur, lv)
+    end
+
+    local function TaxClass()
+        local tm = g_TaxManager
+        if not tm then return nil, nil end
+        local mt = getmetatable(tm)
+        local C = _G.g_trainer_tax_cls
+        if not C and type(mt) == "table" and type(mt.__index) == "table" then C = mt.__index end
+        if not C or C.SendTaxPage == nil then return tm, nil end
+        return tm, C
+    end
+
+    function M.tax_toggle()
+        local tm, C = TaxClass()
+        if not tm then _G.g_wt_last_msg = "g_TaxManager 不存在" return end
+        if not C then _G.g_wt_last_msg = "无法定位纳税类方法表" return end
+        if not _G.g_trainer_tax_orig_SendTaxPage then
+            _G.g_trainer_tax_cls = C
+            _G.g_trainer_tax_orig_SendTaxPage = C.SendTaxPage
+            _G.g_trainer_tax_orig_OnDay = C.OnDay
+        end
+        if not _G.g_trainer_tax_auto_pay then
+            local function auto_pay(self)
+                if self.PayForTax then pcall(function() self:PayForTax() end) end
+                return 1
+            end
+            _G.g_trainer_tax_auto_pay = auto_pay
+            C.SendTaxPage = auto_pay
+            tm.SendTaxPage = auto_pay
+            _G.g_wt_last_msg = "自动纳税：已开启（不弹面板，到期自动扣款）"
+        else
+            if _G.g_trainer_tax_orig_SendTaxPage then
+                C.SendTaxPage = _G.g_trainer_tax_orig_SendTaxPage
+                tm.SendTaxPage = _G.g_trainer_tax_orig_SendTaxPage
+            end
+            if _G.g_trainer_tax_orig_OnDay then
+                C.OnDay = _G.g_trainer_tax_orig_OnDay
+                tm.OnDay = _G.g_trainer_tax_orig_OnDay
+            end
+            _G.g_trainer_tax_auto_pay = nil
+            _G.g_trainer_tax_ours_OnDay = nil
+            _G.g_trainer_tax_cls = nil
+            _G.g_wt_last_msg = "自动纳税：已关闭（恢复原版弹窗）"
+        end
+    end
+
+    function M.tax_pay_now()
+        local tm = g_TaxManager
+        if not tm or not tm.PayForTax then
+            _G.g_wt_last_msg = "g_TaxManager:PayForTax 不可用"
+            return
+        end
+        local okP, eP = pcall(function() tm:PayForTax() end)
+        if okP then
+            _G.g_wt_last_msg = "已按当前税率缴一次（累计 " .. tostring(tm.taxCount) .. "）"
+        else
+            _G.g_wt_last_msg = "缴税异常: " .. tostring(eP)
+        end
+    end
+
+    local function DrawPanel()
+        SetupWindow()
+        -- 标题用 ASCII（避免字体风险），### 后的 ID 恒定，折叠/移动状态才稳定
+        local open = ImGui.Begin("woldvein Trainer " .. __VER__ .. "###wt_panel")
+        if not open then
+            ImGui.End()
+            return
+        end
+
+        local b = g_camp and g_camp.boom
+        if Section(T("状态")) then
+            local mx = (block_define and block_define.CITY_MAX_LEVEL) or 14
+            ImGui.Text(T("城市品阶: " .. tostring((b and b.GetBoom and b:GetBoom()) or -1)
+                .. " / " .. tostring(mx)))
+            local gt = g_Time
+            ImGui.Text(T("游戏天数: " .. tostring((gt and gt.GetDayStamp and gt:GetDayStamp()) or -1)))
+            ImGui.Text(T("时间倍速: " .. tostring(_G.g_wt_speed or 1) .. "x"))
+            ImGui.Text(T("自动纳税: " .. (_G.g_trainer_tax_auto_pay and "开" or "关")))
+            ImGui.Text(T("绘制次数: " .. tostring(_G.g_wt_draw_count)))
+        end
+
+        if Section(T("快捷操作")) then
+            if ImGui.Button(T("品阶+1（含解锁）")) then M.boom_up() end
+            ImGui.SameLine()
+            if ImGui.Button(T("自动纳税 开/关")) then M.tax_toggle() end
+            ImGui.SameLine()
+            if ImGui.Button(T("立即缴税")) then M.tax_pay_now() end
+        end
+
+        if Section(T("时间倍速")) then
+            if ImGui.Button(T("1x")) then M.set_speed(1) end
+            ImGui.SameLine()
+            if ImGui.Button(T("2x")) then M.set_speed(2) end
+            ImGui.SameLine()
+            if ImGui.Button(T("4x")) then M.set_speed(4) end
+        end
+
+        if Section(T("诊断 / 字体测试")) then
+            ImGui.Text(T("字体直传测试：中文 ABC 123 平野孤鸿修改器"))
+            local io = ImGui.GetIO and ImGui.GetIO() or nil
+            if io then
+                local mp = io.MousePos
+                ImGui.Text(T(string.format("鼠标 %.0f,%.0f   捕获鼠标=%s   悬停本面板=%s",
+                    (mp and mp.x) or -1, (mp and mp.y) or -1,
+                    tostring(io.WantCaptureMouse), tostring(ImGui.IsWindowHovered()))))
+            end
+            if _G.g_wt_last_msg then
+                ImGui.Text(T("最近操作: " .. _G.g_wt_last_msg))
+            end
+            if _G.g_wt_panel_err then
+                ImGui.Text(T("最近错误: " .. _G.g_wt_panel_err))
             end
         end
+
+        ImGui.Separator()
+        if ImGui.Button(T("隐藏面板")) then _G.g_wt_panel_open = false end
+        ImGui.SameLine()
+        ImGui.Text(T("（用修改器可重新注入）"))
+
+        ImGui.End()
     end
 
     g_LUiPageManager.GameDraw = function(self, dt)
         local ok1, e1 = pcall(_G.g_wt_orig_GameDraw, self, dt)
         if not _G.g_wt_panel_open then return ok1, e1 end
         _G.g_wt_draw_count = _G.g_wt_draw_count + 1
-        local ok2, e2 = pcall(function()
-            ImGui.SetNextWindowSize(ImVec2:new_local(330, 430), 4)
-            ImGui.SetNextWindowPos(ImVec2:new_local(28, 96), 4)
-            if ImGui.Begin(u("平野孤鸿修改器") .. "###wt_panel") then
-                ImGui.Text(u("woldvein Trainer __VER__  ·  游戏内面板"))
-                ImGui.Separator()
-                if ImGui.CollapsingHeader(u("状态")) then
-                    local b = g_camp and g_camp.boom
-                    ImGui.Text(u("城市品阶: " .. tostring(b and b:GetBoom() or -1)))
-                    local t = g_Time
-                    ImGui.Text(u("游戏天数: " .. tostring(t and t.GetDayStamp and t:GetDayStamp() or -1)))
-                    ImGui.Text(u("倍速档: " .. tostring(_G.g_wt_speed or 1) .. "x"))
-                    ImGui.Text(u("帧计数: " .. tostring(_G.g_wt_draw_count)))
-                end
-                if ImGui.CollapsingHeader(u("时间倍速")) then
-                    if ImGui.Button(u("1x")) then wt_set_speed(1) end
-                    ImGui.SameLine()
-                    if ImGui.Button(u("2x")) then wt_set_speed(2) end
-                    ImGui.SameLine()
-                    if ImGui.Button(u("4x")) then wt_set_speed(4) end
-                end
-                if ImGui.CollapsingHeader(u("快捷操作")) then
-                    if ImGui.Button(u("品阶+1(含解锁)")) then wt_boom_up() end
-                    ImGui.SameLine()
-                    if ImGui.Button(u("自动纳税 开/关")) then wt_tax_toggle() end
-                    ImGui.Text(u("自动纳税: " .. (_G.g_wt_tax_auto and "开" or "关")))
-                end
-                ImGui.Separator()
-                if ImGui.Button(u("隐藏面板")) then _G.g_wt_panel_open = false end
-                ImGui.SameLine()
-                ImGui.Text(u("(可用修改器再开)"))
-            end
-            ImGui.End()
-        end)
+
+        -- 同一个 ImGui 帧只画一次（重复画同窗口会重置折叠状态 -> 展不开 / 闪）
+        local fc = ImGui.GetFrameCount and ImGui.GetFrameCount() or nil
+        if fc ~= nil then
+            if fc == _G.g_wt_last_frame then return ok1, e1 end
+            _G.g_wt_last_frame = fc
+        end
+
+        local ok2, e2 = pcall(DrawPanel)
         if not ok2 then
             _G.g_wt_panel_err = tostring(e2)
-            _G.g_wt_panel_open = false
+            _G.g_wt_panel_err_n = (_G.g_wt_panel_err_n or 0) + 1
+            if _G.g_wt_panel_err_n >= 5 then
+                _G.g_wt_panel_open = false     -- 连续 5 帧报错才自动关闭，避免刷屏
+            end
+        else
+            _G.g_wt_panel_err_n = 0
         end
         return ok1, e1
     end
-    _G.g_wt_panel_open = true
-    return "[成功] 游戏内面板已注入（ImGui 引擎渲染，不占额外窗口）"
+    return "[成功] 游戏内面板已注入（UTF-8 直传 / 默认展开 / 每帧只画一次）"
 end)
 if not ok then return "[错误] " .. tostring(err) end
 return err
@@ -2508,7 +2660,10 @@ local ok, err = pcall(function()
         g_LUiPageManager.GameDraw = _G.g_wt_orig_GameDraw
         _G.g_wt_orig_GameDraw = nil
     end
-    _G.g_wt_panel_open = false
+    _G.g_wt_panel_open  = false
+    _G.g_wt_panel_err   = nil
+    _G.g_wt_panel_err_n = 0
+    _G.g_wt_last_frame  = nil
     return "[成功] 游戏内面板已移除（GameDraw 已还原）"
 end)
 if not ok then return "[错误] " .. tostring(err) end
@@ -2517,9 +2672,10 @@ return err
 
 LUA_INGAME_PANEL_STATUS = r"""
 local ok, err = pcall(function()
-    return string.format("已注入=%s 显示中=%s 帧计数=%s 最近错误=%s",
+    return string.format("已注入=%s 显示中=%s 绘制次数=%s 最近错误=%s 最近操作=%s",
         tostring(_G.g_wt_orig_GameDraw ~= nil), tostring(_G.g_wt_panel_open),
-        tostring(_G.g_wt_draw_count), tostring(_G.g_wt_panel_err or "无"))
+        tostring(_G.g_wt_draw_count), tostring(_G.g_wt_panel_err or "无"),
+        tostring(_G.g_wt_last_msg or "无"))
 end)
 if not ok then return "[错误] " .. tostring(err) end
 return err
@@ -2544,3 +2700,4 @@ def remove_ingame_panel():
 def get_ingame_panel_status():
     """游戏内面板状态"""
     return execute_lua_safe(LUA_INGAME_PANEL_STATUS, timeout=LUA_TIMEOUT)
+

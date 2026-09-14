@@ -2,6 +2,31 @@
 
 ## 2026-09-14
 
+### 修复：游戏内面板中文乱码 / 折叠展不开 / 面板一直闪
+
+**用户反馈**：游戏内面板「字体乱、一直刷新、展不开、看不懂」。
+
+**根因（源码级确定）**
+- **中文乱码**：注入的 Lua 代码是 **UTF-8**（Python 端 `lua_cmd.txt` 用 utf-8 写入，DLL 原样交给 `luaL_loadstring`），
+  而 `util.a2u8` 是 **ANSI/GBK → UTF-8**（游戏自己的 `.lua` 是 GBK 才需要它，见 `ui_base_case.lua:58`
+  的 `self.m_strTable[str] or util.a2u8(str)` 带缓存写法）。对已经是 UTF-8 的中文再转一次 = 乱码
+- **折叠加不开 + 一直闪**：同一根因的连带效应——对非法输入每帧可能产出不同字节，
+  使 `ImGui.CollapsingHeader` 的标签（即控件 ID）每帧变化 → 折叠状态每帧被重置，永远展不开、画面持续刷新
+
+**修复（`src/advanced_tools.py`）**
+- **去掉 `util.a2u8`**，字符串 UTF-8 原样直传（文件头写明原因，防止以后又加回去）
+- 折叠头统一带 `ImGuiTreeNodeFlags_.ImGuiTreeNodeFlags_DefaultOpen` → **默认展开**，
+  即使鼠标点击被游戏抢走也能看见内容；签名不兼容时自动降级 `CollapsingHeader(label)` → `Text`
+- **同一 ImGui 帧只画一次**：用 `ImGui.GetFrameCount()` 去重（重复 `Begin/End` 同一窗口会重置折叠状态）
+- 窗口标题改 ASCII（`woldvein Trainer vX.Y.Z###wt_panel`），`###` 后的 ID 恒定 → 移动/折叠状态稳定
+- `SetNextWindowPos/Size` 用 `ImGuiCond_.ImGuiCond_FirstUseEver`（原来写死数字 4）
+- 错误处理：连续 5 帧报错才自动关闭（原为一次报错即卸载）；新增诊断区块
+  （`GetIO()` 鼠标坐标 / WantCaptureMouse / IsWindowHovered + 字体直传测试行 + 最近操作与最近错误）
+- 面板内「品阶+1（含解锁）」优先调用 Python 侧注册的 `_G.g_trainer_boom_step`（同一套解锁流程），
+  fallback 补齐 `BoomLevelChange / UI2S_BoomUpgradeCallback / UpdateHistoryMaxBoomLevel / UpdateBoom / _syncUI`；
+  新增「立即缴税」按钮；自动纳税开关复用 Python 侧同一批状态全局（`g_trainer_tax_*`），不再各自为政
+- `LUA_BOOM_UPGRADE_STEP` 核心循环抽出为 `_G.g_trainer_boom_step(target)` 供面板复用
+
 ### 修复/新增：窗口默认尺寸、蓝图与 NPC 探查、游戏内 ImGui 面板
 
 **1. 窗口默认尺寸（用户反馈「必须最大化才能用全部」）**

@@ -174,7 +174,7 @@ class AdvancedTabMixin:
         self._ingame_off_btn.pack(side=tk.LEFT, padx=4)
         ttk.Button(panel_row, text="🔍 状态", style="Warning.TButton",
                    command=lambda: self._run_async(self._adv_ingame_panel_status)).pack(side=tk.LEFT, padx=4)
-        ttk.Label(panel_row, text="在游戏画面内用 ImGui 画可折叠面板（引擎渲染，不开外部窗口 → 不卡）",
+        ttk.Label(panel_row, text="在游戏画面内用 ImGui 画可折叠面板（引擎渲染，不开外部窗口 → 不卡）；中文为 UTF-8 直传，折叠头默认展开。若仍异常请先「移除面板」再重新「注入」",
                   style="Card.TLabel", foreground=T("fg_muted"), font=FONT_TINY).pack(side=tk.LEFT, padx=8)
 
         # === NPC管理（折叠面板，默认展开）===
