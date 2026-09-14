@@ -800,10 +800,16 @@ def clear_manmade_disaster():
 # 9. 税收（自动纳税）
 # ============================================================
 # 游戏机制（源码 pak_lua_dump/sim_common/script/gameplay/tax/tax_mgr.lua）：
-#   g_TaxManager:OnDay() 监听 NEW_DAY，CheckTimeToPay(year,month,day) = (year>1 and month==1 and day==1)
-#     -> SendTaxPage()：g_LHBUIProvider:EmitTo("LBlockProvider", S2UI_SendPayTax, data) 弹出「纳税」面板
+#   LTaxManager:OnDay(tbTime) 监听 NEW_DAY；CheckTimeToPay(y,m,d) = (year>1 and month==1 and day==1)
+#     -> SendTaxPage()（全项目唯一调用点）
+#        g_LHBUIProvider:EmitTo("LBlockProvider", S2UI_SendPayTax, data) 弹出「纳税」面板
 #     -> 玩家点确认 -> LBlockProvider:UI2S_ConfirmPayTax() -> g_TaxManager:PayForTax()
-# 用户诉求：不想手动点、也不想跳过（仍要照缴）-> 把 SendTaxPage 换成直接 PayForTax（不弹窗、不弹对话）
+#   【关键】tax_mgr.lua 的 __onload__ 每次都执行 `_G.g_TaxManager = LTaxManager:new()`——
+#     读档 / 切场景 / 重开都会重建实例，所以只替换「实例方法」会在换档后失效（实测复现）。
+#     正确做法：替换「类方法」。实测该框架的方法挂在
+#     getmetatable(g_TaxManager).__index 上（类表），替换它对新实例同样生效。
+# 用户诉求：照缴，但不要弹窗、不要手动点。
+# 注意：PayForTax 按 curMoney * taxFactor% 扣款，所以 OnDay 必须保留「到期才缴」判定，不能每日都缴。
 
 LUA_TAX_PROBE = r"""
 local ok, err = pcall(function()
@@ -813,20 +819,26 @@ local ok, err = pcall(function()
         table.insert(lines, "[失败] g_TaxManager 不存在（请先进入游戏场景）")
         return table.concat(lines, "\n")
     end
-    table.insert(lines, "自动纳税已挂钩 = " .. tostring(_G.g_trainer_orig_tax_SendTaxPage ~= nil))
-    table.insert(lines, "taxCount（累计缴税） = " .. tostring(tm.taxCount))
-    table.insert(lines, "curPaytax（上次缴税） = " .. tostring(tm.curPaytax))
-    table.insert(lines, "sendHistory（已弹过提示对话） = " .. tostring(tm.sendHistory))
-    if tm.DumpTaxInfo then
-        local ok2, info = pcall(function() return tm:DumpTaxInfo() end)
-        if ok2 and type(info) == "table" then
-            table.insert(lines, "当前品阶 boomLevel = " .. tostring(info.boomLevel))
-            table.insert(lines, "税率 taxFactor = " .. tostring(info.taxFactor))
-            table.insert(lines, "当前金钱 curMoney = " .. tostring(info.curMoney))
-            table.insert(lines, "按现值预计缴税 tax = " .. tostring(info.tax))
-        end
+    local mt = getmetatable(tm)
+    local idx = (type(mt) == "table" and type(mt.__index) == "table") and mt.__index or mt
+    table.insert(lines, "类方法表已定位 = " .. tostring(type(idx) == "table"))
+    table.insert(lines, "类上 SendTaxPage 已替换 = " ..
+        tostring(_G.g_trainer_tax_auto_pay ~= nil and idx.SendTaxPage == _G.g_trainer_tax_auto_pay))
+    table.insert(lines, "类上 OnDay 已替换 = " ..
+        tostring(_G.g_trainer_tax_ours_OnDay ~= nil and idx.OnDay == _G.g_trainer_tax_ours_OnDay))
+    table.insert(lines, "实例上 SendTaxPage 已替换 = " ..
+        tostring(_G.g_trainer_tax_auto_pay ~= nil and tm.SendTaxPage == _G.g_trainer_tax_auto_pay))
+    table.insert(lines, "taxCount（累计缴税） = " .. tostring(tm.taxCount)
+        .. " / curPaytax（上次缴税） = " .. tostring(tm.curPaytax))
+    local okI, info = pcall(function() return tm:DumpTaxInfo() end)
+    if okI and type(info) == "table" then
+        table.insert(lines, string.format("品阶 boomLevel=%s 税率=%s%% 现值预计缴税=%s 当前金钱=%s",
+            tostring(info.boomLevel), tostring(info.taxFactor), tostring(info.tax), tostring(info.curMoney)))
     end
-    table.insert(lines, "缴税时点 = 每年 1 月 1 日（year > 1）")
+    if g_Time then
+        table.insert(lines, string.format("当前日期 %s/%s/%s（缴税时点 = 每年 1 月 1 日，year>1）",
+            tostring(g_Time:GetYear()), tostring(g_Time:GetMonth()), tostring(g_Time:GetDay())))
+    end
     return table.concat(lines, "\n")
 end)
 if not ok then return "[错误] " .. tostring(err) end
@@ -837,21 +849,40 @@ LUA_TAX_AUTO_ENABLE = r"""
 local ok, err = pcall(function()
     local tm = g_TaxManager
     if not tm then return "[失败] g_TaxManager 不存在（请先进入游戏场景）" end
-    if not tm.SendTaxPage then return "[失败] g_TaxManager:SendTaxPage 不存在" end
-    if not _G.g_trainer_orig_tax_SendTaxPage then
-        _G.g_trainer_orig_tax_SendTaxPage = tm.SendTaxPage
+    local mt = getmetatable(tm)
+    local idx = (type(mt) == "table" and type(mt.__index) == "table") and mt.__index or mt
+    if type(idx) ~= "table" or idx.SendTaxPage == nil then
+        return "[失败] 无法定位 LTaxManager 类方法表（getmetatable(g_TaxManager).__index）"
     end
-    -- [FIX 2026-09-14] 自动纳税：跳过纳税面板与提示对话，直接扣款
-    tm.SendTaxPage = function(self)
-        if self.PayForTax then
-            local ok2, e2 = pcall(function() self:PayForTax() end)
-            if not ok2 then
-                return "[自动纳税] PayForTax 异常: " .. tostring(e2)
-            end
-        end
+    if not _G.g_trainer_tax_cls then
+        _G.g_trainer_tax_cls = idx
+        _G.g_trainer_tax_orig_SendTaxPage = idx.SendTaxPage
+        _G.g_trainer_tax_orig_OnDay = idx.OnDay
+    end
+    local C = _G.g_trainer_tax_cls
+
+    -- 自动缴税版（不弹面板、不弹对话）
+    local function auto_pay(self)
+        if self.PayForTax then pcall(function() self:PayForTax() end) end
         return 1
     end
-    return "[成功] 已开启自动纳税（不再弹「纳税」面板，改为自动扣款；累计缴税仍正常累加）"
+    _G.g_trainer_tax_auto_pay = auto_pay
+
+    -- 保留「到期才缴」的定时判定，并顺带自愈 SendTaxPage
+    local function our_on_day(self, tbTime)
+        if C.SendTaxPage ~= auto_pay then C.SendTaxPage = auto_pay end
+        local year, month, day = table.unpack(tbTime or {})
+        if year == nil then return end
+        local okC, due = pcall(function() return self:CheckTimeToPay(year, month, day) end)
+        if okC and due then pcall(function() self:PayForTax() end) end
+    end
+    _G.g_trainer_tax_ours_OnDay = our_on_day
+
+    C.SendTaxPage = auto_pay
+    if _G.g_trainer_tax_orig_OnDay then C.OnDay = our_on_day end
+    tm.SendTaxPage = auto_pay
+    if _G.g_trainer_tax_orig_OnDay then tm.OnDay = our_on_day end
+    return "[成功] 自动纳税已挂钩 LTaxManager『类』（读档重建实例仍生效；不弹面板）"
 end)
 if not ok then return "[错误] " .. tostring(err) end
 return err
@@ -859,14 +890,20 @@ return err
 
 LUA_TAX_AUTO_DISABLE = r"""
 local ok, err = pcall(function()
-    local tm = g_TaxManager
-    if not tm then return "[失败] g_TaxManager 不存在" end
-    if _G.g_trainer_orig_tax_SendTaxPage then
-        tm.SendTaxPage = _G.g_trainer_orig_tax_SendTaxPage
-        _G.g_trainer_orig_tax_SendTaxPage = nil
-        return "[成功] 已恢复原版纳税弹窗"
+    local C = _G.g_trainer_tax_cls
+    if C then
+        if _G.g_trainer_tax_orig_SendTaxPage then C.SendTaxPage = _G.g_trainer_tax_orig_SendTaxPage end
+        if _G.g_trainer_tax_orig_OnDay then C.OnDay = _G.g_trainer_tax_orig_OnDay end
     end
-    return "[提示] 当前未开启自动纳税，无需恢复"
+    local tm = g_TaxManager
+    if tm then
+        if _G.g_trainer_tax_orig_SendTaxPage then tm.SendTaxPage = _G.g_trainer_tax_orig_SendTaxPage end
+        if _G.g_trainer_tax_orig_OnDay then tm.OnDay = _G.g_trainer_tax_orig_OnDay end
+    end
+    _G.g_trainer_tax_cls = nil
+    _G.g_trainer_tax_auto_pay = nil
+    _G.g_trainer_tax_ours_OnDay = nil
+    return "[成功] 已恢复原版纳税弹窗（类 + 实例均已还原）"
 end)
 if not ok then return "[错误] " .. tostring(err) end
 return err
@@ -886,13 +923,13 @@ return err
 
 
 def probe_tax():
-    """税收状态探查（诊断用）"""
+    """税收状态探查"""
     return execute_lua_safe(LUA_TAX_PROBE, timeout=8.0)
 
 
 def enable_auto_tax():
-    """开启自动纳税：跳过弹窗/对话，直接扣款"""
-    log("正在开启自动纳税 ...")
+    """开启自动纳税（钩类；读档重建实例仍生效）"""
+    log("正在开启自动纳税（类级挂钩）...")
     success, result = execute_lua_safe(LUA_TAX_AUTO_ENABLE, timeout=8.0)
     if success and isinstance(result, str) and result.startswith("[成功]"):
         log_success(result)

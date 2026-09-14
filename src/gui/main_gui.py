@@ -251,7 +251,7 @@ class TrainerApp(ResourceTabMixin, CreativeTabMixin, HotkeyTabMixin, MonitorTabM
         sw = self.root.winfo_screenwidth()
         sh = self.root.winfo_screenheight()
         # [FIX 2026-09-14] 旧版默认上限 1280x800，内容放不下 -> 必须最大化才能用全部。
-        #   改为默认占屏幕约 92%（上限 1680x1000）；保存尺寸过小(<1200x780)视为不可用，改用默认。
+        #   改为默认占屏幕约 92%（上限 1680x1000）；保存尺寸过小(<1400x860)视为不可用，改用默认。
         def_w = min(int(sw * 0.92), 1680)
         def_h = min(int(sh * 0.92), 1000)
         if not w or not h or int(w) < 1400 or int(h) < 860:
