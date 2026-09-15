@@ -54,17 +54,25 @@
 
 | 层级 | 技术 | 说明 |
 |------|------|------|
-| GUI 层 | Python 3 + tkinter + ttk | 深/浅主题，6 个页面 |
+| GUI 层 | Python 3 + tkinter | 微信三栏布局（左侧导航+中间功能列表+右侧操作面板），搜索功能 |
 | 注入层 | Python ctypes + Win32 API | OpenProcess / VirtualAllocEx / CreateRemoteThread |
 | Hook 层 | C (MinGW-w64) + Inline-Hook | 14 字节绝对跳转框架 + 自研指令长度解码器 |
 | 执行层 | Lua 5.1 (Lua5X64.dll) | 在游戏主线程 lua_pcall hook 中执行 |
-| 通信层 | 文件轮询 (lua_cmd.txt / lua_result.txt) | Python ↔ DLL 双向通信 |
+| 通信层 | 文件轮询 (lua_cmd.txt / lua_result.txt) | Python ↔ DLL 双向通信，原子写入+跨进程锁+重试 |
 
 ---
 
 ## 功能大全
 
-修改器共 **6 个页面**（左侧导航切换，内容超出可滚动），覆盖从基础资源修改到高级游戏控制的完整功能矩阵。
+修改器采用 **微信电脑客户端三栏布局**（左侧导航 + 中间功能列表 + 右侧操作面板），共 **7 个导航分类**，覆盖从基础资源修改到高级游戏控制的完整功能矩阵。
+
+### UI 布局说明
+
+- **左侧导航栏**（70px）：图标按钮，7个分类（主页/进程/资源/创造/工具/存档/设置），选中微信绿 #07C160 高亮
+- **中间功能列表**（260px）：搜索框 + 功能项（图标+名称+描述+状态红点），支持跨分类实时搜索
+- **右侧操作面板**：顶部标题栏 + 中间滚动操作区 + 底部日志区
+- **配色**：主色 #07C160（微信绿），正文纯黑，次要文字 #999999，分割线 #e6e6e6
+- **字体**：微软雅黑
 
 ### 1. 资源修改
 
@@ -606,7 +614,8 @@ Hook `CheckCanUpgradeBuilding`：
 
 ```
 woldvein_trainer/
-├── main.py                  # 主程序入口（初始化日志、启动GUI）
+├── main.py                  # 主程序入口（单实例保护+异常捕获）
+├── trainer_ui_tk.py         # 微信三栏布局主界面（tkinter实现，全功能集成）
 ├── config.json              # 用户配置（自动生成，保存游戏路径/DLL路径等）
 ├── WORK_CONVENTIONS.md      # 工作约定 v2（开发规范）
 ├── AGENTS.md                # Agent 分工说明（多人协作参考）
@@ -630,6 +639,7 @@ woldvein_trainer/
 │   ├── lua_engine.py        # Lua 执行引擎（命令文件机制 + 8个 Lua 脚本模板，其余在 advanced_tools.py）
 │   ├── resource_editor.py   # 资源修改（10种资源 + 幸福度 + 知名度）
 │   ├── creative_mode.py     # 创造模式（启用/禁用/选项/状态/诊断）
+│   ├── cheat_tools.py       # 一键作弊工具（天赋/成就/灾害/时间/天气/节日/城市/风水/核心数值）
 │   ├── hotkey_defs.py       # 热键唯一定义源
 │   ├── resource_defs.py     # 资源唯一定义源
 │   ├── lua_lib.py           # Lua辅助库（统一UI事件 + hook保存/还原）
