@@ -70,38 +70,36 @@ class AdvancedTabMixin:
             content_frame.pack(fill=tk.X, padx=8, pady=(8, 8))
             arrow_label.config(text="▼")
 
-    def _build_advanced_tab(self, parent):
+    def _build_advanced_tab(self, parent, use_scroll=True):
         """高级工具标签页"""
         tab = parent
-
-        # === 可滚动内容区 ===
-        scroll = ScrollableFrame(tab)
-        scroll.pack(fill=tk.BOTH, expand=True, padx=2, pady=2)
+        if use_scroll:
+            scroll = ScrollableFrame(tab)
+            scroll.pack(fill=tk.BOTH, expand=True, padx=2, pady=2)
+            content_frame = content_frame
+        else:
+            content_frame = tab
 
         # === 时间/天气控制（折叠面板，默认展开）===
-        time_container, time_frame = self._create_collapsible(scroll.inner, "时间/天气控制", default_open=True)
+        time_container, time_frame = self._create_collapsible(content_frame, "时间/天气控制", default_open=True)
         time_row = tk.Frame(time_frame, bg=T("bg_card"))
         time_row.pack(fill=tk.X, padx=4, pady=(0, 4))
 
-        ttk.Button(time_row, text="获取时间", style="Primary.TButton",
-                   command=lambda: self._run_async(self._adv_get_time)).pack(side=tk.LEFT, padx=4)
-        ttk.Button(time_row, text="暂停(0x)", style="Warning.TButton",
-                   command=lambda: self._run_async(self._adv_set_time_speed, 0)).pack(side=tk.LEFT, padx=4)
-        ttk.Button(time_row, text="1x", style="Primary.TButton",
-                   command=lambda: self._run_async(self._adv_set_time_speed, 1)).pack(side=tk.LEFT, padx=4)
-        ttk.Button(time_row, text="2x", style="Primary.TButton",
-                   command=lambda: self._run_async(self._adv_set_time_speed, 2)).pack(side=tk.LEFT, padx=4)
-        ttk.Button(time_row, text="3x", style="Primary.TButton",
-                   command=lambda: self._run_async(self._adv_set_time_speed, 3)).pack(side=tk.LEFT, padx=4)
-        ttk.Button(time_row, text="4x", style="Primary.TButton",
-                   command=lambda: self._run_async(self._adv_set_time_speed, 4)).pack(side=tk.LEFT, padx=4)
-        # v0.3 新增：恢复时间速度
-        ttk.Button(time_row, text="↩ 恢复速度", style="Restore.TButton",
-                   command=lambda: self._run_async(advanced_tools.restore_time_speed)).pack(side=tk.LEFT, padx=4)
-        ttk.Button(time_row, text="🔍 速度状态", style="Warning.TButton",
-                   command=lambda: self._run_async(self._adv_time_speed_status)).pack(side=tk.LEFT, padx=4)
-        ttk.Button(time_row, text="📏 实测倍率", style="Warning.TButton",
-                   command=lambda: self._run_async(self._adv_measure_time_speed)).pack(side=tk.LEFT, padx=4)
+        # 教室座位式网格布局：每行5个按钮
+        _time_btns = [
+            ("获取时间", "Primary.TButton", lambda: self._run_async(self._adv_get_time)),
+            ("暂停(0x)", "Warning.TButton", lambda: self._run_async(self._adv_set_time_speed, 0)),
+            ("1x", "Primary.TButton", lambda: self._run_async(self._adv_set_time_speed, 1)),
+            ("2x", "Primary.TButton", lambda: self._run_async(self._adv_set_time_speed, 2)),
+            ("3x", "Primary.TButton", lambda: self._run_async(self._adv_set_time_speed, 3)),
+            ("4x", "Primary.TButton", lambda: self._run_async(self._adv_set_time_speed, 4)),
+            ("↩ 恢复速度", "Restore.TButton", lambda: self._run_async(advanced_tools.restore_time_speed)),
+            ("🔍 速度状态", "Warning.TButton", lambda: self._run_async(self._adv_time_speed_status)),
+            ("📏 实测倍率", "Warning.TButton", lambda: self._run_async(self._adv_measure_time_speed)),
+        ]
+        for _i, (_text, _style, _cmd) in enumerate(_time_btns):
+            _r, _c = divmod(_i, 5)
+            ttk.Button(time_row, text=_text, style=_style, command=_cmd, width=12).grid(row=_r, column=_c, padx=4, pady=4, sticky="w")
 
         season_row = tk.Frame(time_frame, bg=T("bg_card"))
         season_row.pack(fill=tk.X, padx=4, pady=(0, 4))
@@ -131,7 +129,7 @@ class AdvancedTabMixin:
                    command=lambda: self._run_async(advanced_tools.restore_season)).pack(side=tk.LEFT, padx=4)
 
         # === 城市品阶（折叠面板，默认展开）===
-        boom_container, boom_frame = self._create_collapsible(scroll.inner, "城市品阶", default_open=True)
+        boom_container, boom_frame = self._create_collapsible(content_frame, "城市品阶", default_open=True)
         boom_row = tk.Frame(boom_frame, bg=T("bg_card"))
         boom_row.pack(fill=tk.X, padx=4, pady=(0, 4))
 
@@ -148,7 +146,7 @@ class AdvancedTabMixin:
                    command=lambda: self._run_async(self._adv_boom_diagnose)).pack(side=tk.LEFT, padx=4)
 
         # === 任务（解锁 / 完成）===
-        task_container, task_frame = self._create_collapsible(scroll.inner, "任务（解锁 / 完成）", default_open=True)
+        task_container, task_frame = self._create_collapsible(content_frame, "任务（解锁 / 完成）", default_open=True)
         task_row = tk.Frame(task_frame, bg=T("bg_card"))
         task_row.pack(fill=tk.X, padx=4, pady=(0, 4))
         ttk.Button(task_row, text="🔍 探查", style="Warning.TButton",
@@ -170,7 +168,7 @@ class AdvancedTabMixin:
                   style="Card.TLabel", foreground=T("fg_muted"), font=FONT_TINY).pack(side=tk.LEFT, padx=8)
 
         # === 游戏内面板（ImGui，引擎渲染，不卡）===
-        panel_container, panel_frame = self._create_collapsible(scroll.inner, "游戏内面板（ImGui）", default_open=True)
+        panel_container, panel_frame = self._create_collapsible(content_frame, "游戏内面板（ImGui）", default_open=True)
         panel_row = tk.Frame(panel_frame, bg=T("bg_card"))
         panel_row.pack(fill=tk.X, padx=4, pady=(0, 4))
         self._ingame_on_btn = ttk.Button(panel_row, text="🎮 注入游戏内面板", style="Success.TButton",
@@ -185,7 +183,7 @@ class AdvancedTabMixin:
                   style="Card.TLabel", foreground=T("fg_muted"), font=FONT_TINY).pack(side=tk.LEFT, padx=8)
 
         # === NPC管理（折叠面板，默认展开）===
-        npc_container, npc_frame = self._create_collapsible(scroll.inner, "NPC管理", default_open=True)
+        npc_container, npc_frame = self._create_collapsible(content_frame, "NPC管理", default_open=True)
         npc_row = tk.Frame(npc_frame, bg=T("bg_card"))
         npc_row.pack(fill=tk.X, padx=4, pady=(0, 4))
 
@@ -199,7 +197,7 @@ class AdvancedTabMixin:
                    command=lambda: self._run_async(advanced_tools.remove_all_npcs)).pack(side=tk.LEFT, padx=4)
 
         # === 谋士管理（折叠面板，默认折叠）===
-        advisor_container, advisor_frame = self._create_collapsible(scroll.inner, "谋士管理（忠诚/能力/薪资）", default_open=False)
+        advisor_container, advisor_frame = self._create_collapsible(content_frame, "谋士管理（忠诚/能力/薪资）", default_open=False)
         advisor_row = tk.Frame(advisor_frame, bg=T("bg_card"))
         advisor_row.pack(fill=tk.X, padx=4, pady=(0, 4))
 
@@ -210,7 +208,7 @@ class AdvancedTabMixin:
                    command=lambda: self._run_async(self._adv_probe_advisors)).pack(side=tk.LEFT, padx=4)
 
         # === 建造/升级控制（折叠面板，默认展开）===
-        build_container, build_frame = self._create_collapsible(scroll.inner, "建造/升级控制", default_open=True)
+        build_container, build_frame = self._create_collapsible(content_frame, "建造/升级控制", default_open=True)
         build_row = tk.Frame(build_frame, bg=T("bg_card"))
         build_row.pack(fill=tk.X, padx=4, pady=(0, 4))
 
@@ -228,7 +226,7 @@ class AdvancedTabMixin:
                    command=lambda: self._run_async(self._adv_population_status)).pack(side=tk.LEFT, padx=4)
 
         # === 地块管理（折叠面板，默认折叠）===
-        plot_container, plot_frame = self._create_collapsible(scroll.inner, "地块管理", default_open=False)
+        plot_container, plot_frame = self._create_collapsible(content_frame, "地块管理", default_open=False)
         plot_row = tk.Frame(plot_frame, bg=T("bg_card"))
         plot_row.pack(fill=tk.X, padx=4, pady=(0, 4))
 
@@ -239,7 +237,7 @@ class AdvancedTabMixin:
                    command=lambda: self._run_async(self._adv_probe_plots)).pack(side=tk.LEFT, padx=4)
 
         # === Steam 成就（折叠面板，默认折叠）===
-        ach_container, ach_frame = self._create_collapsible(scroll.inner, "Steam 成就", default_open=False)
+        ach_container, ach_frame = self._create_collapsible(content_frame, "Steam 成就", default_open=False)
         ach_row = tk.Frame(ach_frame, bg=T("bg_card"))
         ach_row.pack(fill=tk.X, padx=4, pady=(0, 4))
 
@@ -253,7 +251,7 @@ class AdvancedTabMixin:
         self._ach_challenge_btn.pack(side=tk.LEFT, padx=4)
 
         # === SimWorld 控制（折叠面板，默认折叠）===
-        sim_container, sim_frame = self._create_collapsible(scroll.inner, "SimWorld 控制", default_open=False)
+        sim_container, sim_frame = self._create_collapsible(content_frame, "SimWorld 控制", default_open=False)
         sim_row = tk.Frame(sim_frame, bg=T("bg_card"))
         sim_row.pack(fill=tk.X, padx=4, pady=(0, 4))
 

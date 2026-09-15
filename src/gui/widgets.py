@@ -96,3 +96,67 @@ def recolor_widget_tree(widget, mapping):
         return
     for child in children:
         recolor_widget_tree(child, mapping)
+
+
+# ============================================================
+# 教室座位式网格布局（按钮矩阵）
+# ============================================================
+
+def button_grid(parent, buttons, per_row=4, btn_width=12, padx=4, pady=4,
+                default_style="Primary.TButton"):
+    """创建教室座位式网格布局的按钮组（每行固定 N 个，整齐排列）
+
+    像教室座位一样，每行固定 per_row 个按钮，填满一行自动换行，
+    所有按钮大小一致，间距统一，视觉整齐划一。
+
+    Args:
+        parent: 父容器
+        buttons: 按钮配置列表，每个元素可以是：
+                 - 元组 (text, command)
+                 - 元组 (text, command, style)
+                 - 字典 {"text": ..., "command": ..., "style": ..., "width": ...}
+        per_row: 每行按钮数（教室每排座位数），默认 4
+        btn_width: 按钮默认宽度（字符数），默认 12
+        padx: 按钮水平间距，默认 4
+        pady: 按钮垂直间距，默认 4
+        default_style: 默认按钮样式，默认 "Primary.TButton"
+
+    Returns:
+        包含按钮网格的 tk.Frame
+    """
+    from tkinter import ttk
+
+    container = tk.Frame(parent, bg=T("bg_card"))
+
+    for i, btn_config in enumerate(buttons):
+        row = i // per_row
+        col = i % per_row
+
+        # 解析按钮配置
+        if isinstance(btn_config, dict):
+            text = btn_config.get("text", "")
+            command = btn_config.get("command", None)
+            style = btn_config.get("style", default_style)
+            width = btn_config.get("width", btn_width)
+        elif isinstance(btn_config, (tuple, list)):
+            if len(btn_config) >= 3:
+                text, command, style = btn_config[0], btn_config[1], btn_config[2]
+            elif len(btn_config) == 2:
+                text, command = btn_config[0], btn_config[1]
+                style = default_style
+            else:
+                text = str(btn_config[0]) if btn_config else ""
+                command = None
+                style = default_style
+            width = btn_width
+        else:
+            text = str(btn_config)
+            command = None
+            style = default_style
+            width = btn_width
+
+        # 创建按钮（左对齐，保持原始大小，避免拉伸导致点击异常）
+        btn = ttk.Button(container, text=text, style=style, command=command, width=width)
+        btn.grid(row=row, column=col, padx=padx, pady=pady, sticky="w")
+
+    return container

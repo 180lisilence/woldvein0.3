@@ -66,6 +66,8 @@ from .tab_hotkey import HotkeyTabMixin
 from .tab_monitor import MonitorTabMixin
 from .tab_advanced import AdvancedTabMixin
 from .tab_world import WorldTabMixin
+from .tab_cheat import CheatTabMixin
+from .tab_all_tools import AllToolsTabMixin
 from .tab_settings import SettingsTabMixin
 from .theme import FONT_BOLD, FONT_MONO, FONT_TINY, ThemeManager, get_theme, get_theme_name
 from .scrollable import ScrollableFrame
@@ -104,7 +106,7 @@ def _find_dll_path(config_dll_path=""):
     return candidates[-1]  # 都不存在时返回最后一个，让后续报错提示显示
 
 
-class TrainerApp(ResourceTabMixin, CreativeTabMixin, HotkeyTabMixin, MonitorTabMixin, AdvancedTabMixin, WorldTabMixin, SettingsTabMixin):
+class TrainerApp(ResourceTabMixin, CreativeTabMixin, HotkeyTabMixin, MonitorTabMixin, AdvancedTabMixin, WorldTabMixin, CheatTabMixin, AllToolsTabMixin, SettingsTabMixin):
     """
     修改器主应用类。
 
@@ -259,7 +261,7 @@ class TrainerApp(ResourceTabMixin, CreativeTabMixin, HotkeyTabMixin, MonitorTabM
         self.root.geometry(f"{int(w)}x{int(h)}")
         self.root.minsize(1020, 700)
         # 主题：从配置读取，默认深色
-        self._theme_name = self.config.get("theme", "dark")
+        self._theme_name = self.config.get("theme", "wechat")
         ThemeManager.apply(ttk.Style(), self.root, self._theme_name)
 
     def _setup_styles(self):
@@ -296,55 +298,327 @@ class TrainerApp(ResourceTabMixin, CreativeTabMixin, HotkeyTabMixin, MonitorTabM
         log(f"主题已切换为: {new_theme}")
 
     def _build_ui(self):
-        """构建UI：顶部栏 + 左侧导航 + 右侧内容 + 底部可折叠日志"""
-        # 顶部栏
-        self._build_topbar()
+        """构建UI：微信三栏布局（左侧导航 + 中间列表 + 右侧功能）"""
+        # 主容器
+        main_container = tk.Frame(self.root, bg=T("bg"))
+        main_container.pack(fill=tk.BOTH, expand=True)
 
-        # 主内容区
-        content_wrapper = ttk.Frame(self.root)
-        content_wrapper.pack(fill=tk.BOTH, expand=True, padx=12, pady=(0, 8))
+        # === 左侧导航栏（60px，深灰背景）===
+        self._build_sidebar(main_container)
 
-        # 左侧导航（固定宽度 140px）
-        self.nav_frame = ttk.Frame(content_wrapper, width=140)
-        self.nav_frame.pack(side=tk.LEFT, fill=tk.Y, padx=(0, 8))
-        self.nav_frame.pack_propagate(False)
-        ttk.Label(self.nav_frame, text="导航", style="Card.TLabel",
-                  font=FONT_TINY).pack(anchor=tk.W, padx=12, pady=(8, 6))
+        # === 中间列表面板（260px，白色背景）===
+        self._build_middle_panel(main_container)
 
-        # 右侧内容区（每页一个 Frame，用 pack / pack_forget 切换）
-        self.content_frame = ttk.Frame(content_wrapper)
-        self.content_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        # === 右侧主功能面板（剩余宽度）===
+        self._build_right_panel(main_container)
 
-        self._pages = {}
+        # 默认显示主页
+        self.root.after(100, lambda: self._switch_nav("home"))
+
+    def _build_sidebar(self, parent):
+        """左侧导航栏：深灰背景，图标按钮垂直排列"""
+        self.sidebar = tk.Frame(parent, bg=T("bg_sidebar"), width=60)
+        self.sidebar.pack(side=tk.LEFT, fill=tk.Y)
+        self.sidebar.pack_propagate(False)
+
+        # 导航按钮配置：(key, icon, tooltip)
+        nav_items = [
+            ("home", "🏠", "主页"),
+            ("process", "🎮", "进程"),
+            ("modify", "⚡", "修改"),
+            ("tools", "🔧", "工具"),
+            ("save", "💾", "存档"),
+            ("settings", "⚙️", "设置"),
+        ]
+
         self._nav_buttons = {}
+        for key, icon, label in nav_items:
+            btn = tk.Button(self.sidebar, text=icon, bg=T("bg_sidebar"), fg=T("fg_sidebar"),
+                           font=("微软雅黑", 18), bd=0, relief=tk.FLAT,
+                           command=lambda k=key: self._switch_nav(k),
+                           activebackground=T("bg_sidebar_sel"), activeforeground="white",
+                           cursor="hand2")
+            btn.pack(fill=tk.X, pady=3)
+            try:
+                bind_tooltip(btn, label)
+            except Exception:
+                pass
+            self._nav_buttons[key] = btn
+
+        # 底部 logo
+        logo_frame = tk.Frame(self.sidebar, bg=T("bg_sidebar"))
+        logo_frame.pack(side=tk.BOTTOM, fill=tk.X, pady=15)
+        tk.Label(logo_frame, text="🌿", bg=T("bg_sidebar"), fg=T("fg_sidebar_muted"),
+                font=("微软雅黑", 22)).pack()
+
+    def _build_middle_panel(self, parent):
+        """中间列表面板：搜索框 + 功能列表"""
+        self.middle_panel = tk.Frame(parent, bg="white", width=260)
+        self.middle_panel.pack(side=tk.LEFT, fill=tk.Y)
+        self.middle_panel.pack_propagate(False)
+
+        # 搜索框
+        search_frame = tk.Frame(self.middle_panel, bg="white")
+        search_frame.pack(fill=tk.X, padx=12, pady=12)
+        self.search_entry = tk.Entry(search_frame, font=("微软雅黑", 10), bd=0,
+                                    relief=tk.FLAT, bg=T("bg_surface"), fg=T("fg"))
+        self.search_entry.pack(fill=tk.X, ipady=7, padx=8, pady=2)
+        self.search_entry.insert(0, "🔍 搜索功能...")
+        self.search_entry.bind("<FocusIn>", self._on_search_focus)
+        self.search_entry.bind("<FocusOut>", self._on_search_blur)
+
+        # 分割线
+        tk.Frame(self.middle_panel, bg=T("border"), height=1).pack(fill=tk.X)
+
+        # 功能列表容器
+        self.list_container = tk.Frame(self.middle_panel, bg="white")
+        self.list_container.pack(fill=tk.BOTH, expand=True)
+
+        self._list_items = {}
+        self._current_list_key = None
+
+    def _build_right_panel(self, parent):
+        """右侧主功能面板：标题栏 + 功能控件 + 底部日志"""
+        self.right_panel = tk.Frame(parent, bg=T("bg"))
+        self.right_panel.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        # 顶部标题栏
+        self.title_bar = tk.Frame(self.right_panel, bg="white", height=56)
+        self.title_bar.pack(fill=tk.X)
+        self.title_bar.pack_propagate(False)
+        self.title_label = tk.Label(self.title_bar, text="主页", font=("微软雅黑", 15, "bold"),
+                                   bg="white", fg=T("fg"))
+        self.title_label.pack(side=tk.LEFT, padx=24)
+
+        # 右侧：主题切换按钮 + 状态指示灯
+        self.theme_btn = tk.Button(self.title_bar, text="🌙", font=("微软雅黑", 12),
+                                   bg="white", fg=T("fg_muted"), bd=0, relief=tk.FLAT,
+                                   command=self.toggle_theme, cursor="hand2")
+        self.theme_btn.pack(side=tk.RIGHT, padx=(0, 15))
+        # 右侧状态指示灯
+        self.status_indicator = tk.Label(self.title_bar, text="● 未检测到游戏",
+                                         font=("微软雅黑", 9), bg="white", fg=T("fg_muted"))
+        self.status_indicator.pack(side=tk.RIGHT, padx=24)
+
+        # 分割线
+        tk.Frame(self.right_panel, bg=T("border"), height=1).pack(fill=tk.X)
+
+        # 功能内容区
+        self.content_area = tk.Frame(self.right_panel, bg=T("bg"))
+        self.content_area.pack(fill=tk.BOTH, expand=True)
+
+        # 内容页容器
+        self._pages = {}
         self._current_page = None
 
-        # 6 个页面
-        self._build_resource_tab(self._make_page("resource", "资源"))
-        self._build_creative_tab(self._make_page("creative", "创造"))
-        self._build_monitor_tab(self._make_page("monitor", "监控"))
-        self._build_advanced_tab(self._make_page("advanced", "高级"))
-        self._build_world_tab(self._make_page("world", "世界"))
-        self._build_settings_tab(self._make_page("settings", "设置"))
+        # 构建所有功能页
+        self._build_all_pages()
 
         # 底部日志区
         self._build_log_panel()
 
-        # 默认显示第一页
-        self._show_page("resource")
+    def _build_all_pages(self):
+        """构建所有功能页面"""
+        # 主页
+        home_page = tk.Frame(self.content_area, bg=T("bg"))
+        self._pages["home"] = home_page
+        self._build_home_page(home_page)
 
-    def _make_page(self, key, label):
-        """创建内容页 Frame + 左侧导航按钮，返回该页 Frame"""
-        page = ttk.Frame(self.content_frame)
-        self._pages[key] = page
-        btn = ttk.Button(self.nav_frame, text=label, style="Nav.TButton",
-                         command=lambda k=key: self._show_page(k))
-        btn.pack(fill=tk.X, padx=8, pady=1)
-        self._nav_buttons[key] = btn
-        return page
+        # 进程页
+        process_page = tk.Frame(self.content_area, bg=T("bg"))
+        self._pages["process"] = process_page
+        self._build_process_page(process_page)
+
+        # 修改页（资源+创造模式）
+        modify_page = tk.Frame(self.content_area, bg=T("bg"))
+        self._pages["modify"] = modify_page
+        self._build_resource_tab(modify_page)
+
+        # 工具页（高级+世界+作弊合并）
+        tools_page = tk.Frame(self.content_area, bg=T("bg"))
+        self._pages["tools"] = tools_page
+        try:
+            self._build_all_tools_tab(tools_page)
+        except Exception as e:
+            tk.Label(tools_page, text=f"工具页加载失败: {e}", bg=T("bg"), fg=T("error")).pack(pady=20)
+
+        # 存档页
+        save_page = tk.Frame(self.content_area, bg=T("bg"))
+        self._pages["save"] = save_page
+        self._build_save_page(save_page)
+
+        # 设置页
+        settings_page = tk.Frame(self.content_area, bg=T("bg"))
+        self._pages["settings"] = settings_page
+        self._build_settings_tab(settings_page)
+
+    def _build_home_page(self, parent):
+        """主页：概览 + 快速操作"""
+        # 欢迎区
+        welcome = tk.Frame(parent, bg=T("bg"))
+        welcome.pack(pady=40)
+        tk.Label(welcome, text="平野孤鸿 全能修改器", font=("微软雅黑", 22, "bold"),
+                bg=T("bg"), fg=T("fg")).pack()
+        tk.Label(welcome, text=f"v{APP_VERSION}", font=("微软雅黑", 11),
+                bg=T("bg"), fg=T("fg_muted")).pack(pady=5)
+
+        # 状态卡片
+        status_frame = tk.Frame(parent, bg=T("bg"))
+        status_frame.pack(pady=20)
+
+        cards = [
+            ("游戏状态", "未运行", T("fg_muted")),
+            ("DLL状态", "未注入", T("fg_muted")),
+            ("Lua通道", "未连接", T("fg_muted")),
+        ]
+        for i, (title, value, color) in enumerate(cards):
+            card = tk.Frame(status_frame, bg="white", width=180, height=100,
+                           highlightbackground=T("border"), highlightthickness=1)
+            card.pack(side=tk.LEFT, padx=10)
+            card.pack_propagate(False)
+            tk.Label(card, text=title, font=("微软雅黑", 10), bg="white",
+                    fg=T("fg_muted")).pack(pady=(15, 5))
+            tk.Label(card, text=value, font=("微软雅黑", 14, "bold"), bg="white",
+                    fg=color).pack()
+
+        # 快速操作按钮
+        btn_frame = tk.Frame(parent, bg=T("bg"))
+        btn_frame.pack(pady=30)
+        tk.Button(btn_frame, text="🚀 启动游戏", font=("微软雅黑", 11, "bold"),
+                 bg=T("accent"), fg="white", bd=0, relief=tk.FLAT,
+                 command=self.on_launch_game, width=16, height=2,
+                 cursor="hand2", activebackground=T("accent_hover")).pack(side=tk.LEFT, padx=10)
+        tk.Button(btn_frame, text="🔌 注入DLL", font=("微软雅黑", 11, "bold"),
+                 bg=T("accent"), fg="white", bd=0, relief=tk.FLAT,
+                 command=self.on_inject_dll, width=16, height=2,
+                 cursor="hand2", activebackground=T("accent_hover")).pack(side=tk.LEFT, padx=10)
+
+    def _build_process_page(self, parent):
+        """进程页：进程检测 + 启动 + 注入"""
+        tk.Label(parent, text="进程管理", font=("微软雅黑", 16, "bold"),
+                bg=T("bg"), fg=T("fg")).pack(anchor=tk.W, padx=20, pady=(20, 10))
+
+        # 操作按钮区
+        btn_frame = tk.Frame(parent, bg=T("bg"))
+        btn_frame.pack(fill=tk.X, padx=20, pady=10)
+        tk.Button(btn_frame, text="🔍 检测游戏进程", font=("微软雅黑", 10),
+                 bg="white", fg=T("fg"), bd=1, relief=tk.SOLID,
+                 command=self.auto_detect_game, width=15, height=2,
+                 cursor="hand2").pack(side=tk.LEFT, padx=5)
+        self.launch_btn = tk.Button(btn_frame, text="🚀 启动游戏", font=("微软雅黑", 10),
+                 bg=T("accent"), fg="white", bd=0, relief=tk.FLAT,
+                 command=self.on_launch_game, width=15, height=2,
+                 cursor="hand2")
+        self.launch_btn.pack(side=tk.LEFT, padx=5)
+        self.inject_btn = tk.Button(btn_frame, text="🔌 注入DLL", font=("微软雅黑", 10),
+                 bg=T("accent"), fg="white", bd=0, relief=tk.FLAT,
+                 command=self.on_inject_dll, width=15, height=2,
+                 cursor="hand2", state=tk.DISABLED)
+        self.inject_btn.pack(side=tk.LEFT, padx=5)
+
+        # 进程信息区
+        info_frame = tk.Frame(parent, bg="white", highlightbackground=T("border"),
+                             highlightthickness=1)
+        info_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
+        tk.Label(info_frame, text="进程信息", font=("微软雅黑", 12, "bold"),
+                bg="white", fg=T("fg")).pack(anchor=tk.W, padx=15, pady=10)
+        self.process_info_label = tk.Label(info_frame, text="未检测到游戏进程",
+                                          font=("微软雅黑", 10), bg="white", fg=T("fg_muted"),
+                                          justify=tk.LEFT)
+        self.process_info_label.pack(anchor=tk.W, padx=15, pady=10)
+
+    def _build_save_page(self, parent):
+        """存档页"""
+        tk.Label(parent, text="存档管理", font=("微软雅黑", 16, "bold"),
+                bg=T("bg"), fg=T("fg")).pack(anchor=tk.W, padx=20, pady=(20, 10))
+        tk.Label(parent, text="存档功能开发中...", font=("微软雅黑", 11),
+                bg=T("bg"), fg=T("fg_muted")).pack(pady=40)
+
+    def _switch_nav(self, key):
+        """切换左侧导航，更新中间列表和右侧内容"""
+        # 更新导航按钮选中态
+        for k, btn in self._nav_buttons.items():
+            if k == key:
+                btn.config(bg=T("bg_sidebar_sel"))
+            else:
+                btn.config(bg=T("bg_sidebar"))
+
+        # 更新中间列表
+        self._update_middle_list(key)
+
+        # 更新右侧标题
+        titles = {"home": "主页", "process": "进程管理", "modify": "修改功能",
+                  "tools": "高级工具", "save": "存档管理", "settings": "设置"}
+        self.title_label.config(text=titles.get(key, key))
+
+        # 显示对应页面
+        self._show_page(key)
+
+    def _update_middle_list(self, nav_key):
+        """更新中间功能列表"""
+        # 清空列表
+        for widget in self.list_container.winfo_children():
+            widget.destroy()
+
+        # 各导航对应的功能列表
+        lists = {
+            "home": ["游戏概览", "快速操作", "状态监控"],
+            "process": ["游戏进程", "DLL注入", "启动游戏"],
+            "modify": ["资源修改", "创造模式", "数值调整"],
+            "tools": ["高级工具", "世界系统", "一键作弊"],
+            "save": ["存档列表", "存档备份", "存档恢复"],
+            "settings": ["通用设置", "主题设置", "关于"],
+        }
+
+        items = lists.get(nav_key, [])
+        self._list_items = {}
+        for i, item in enumerate(items):
+            item_frame = tk.Frame(self.list_container, bg="white", cursor="hand2")
+            item_frame.pack(fill=tk.X, padx=8, pady=1)
+
+            label = tk.Label(item_frame, text=item, font=("微软雅黑", 10),
+                           bg="white", fg=T("fg"))
+            label.pack(side=tk.LEFT, padx=15, pady=10)
+
+            # 状态红点（进程页第一个显示）
+            if nav_key == "process" and i == 0:
+                dot = tk.Label(item_frame, text="●", font=("微软雅黑", 7),
+                              bg="white", fg=T("error"))
+                dot.pack(side=tk.RIGHT, padx=10)
+
+            # 悬停效果
+            def on_enter(e, f=item_frame, l=label):
+                f.config(bg=T("bg_elevated"))
+                l.config(bg=T("bg_elevated"))
+            def on_leave(e, f=item_frame, l=label):
+                f.config(bg="white")
+                l.config(bg="white")
+            item_frame.bind("<Enter>", on_enter)
+            item_frame.bind("<Leave>", on_leave)
+            label.bind("<Enter>", on_enter)
+            label.bind("<Leave>", on_leave)
+
+            # 点击
+            def on_click(e, k=nav_key, idx=i, f=item_frame, l=label):
+                self._on_list_item_click(k, idx, f, l)
+            item_frame.bind("<Button-1>", on_click)
+            label.bind("<Button-1>", on_click)
+
+            self._list_items[i] = (item_frame, label)
+
+    def _on_list_item_click(self, nav_key, index, frame, label):
+        """中间列表项点击"""
+        # 更新选中态
+        for i, (f, l) in self._list_items.items():
+            if i == index:
+                f.config(bg=T("bg_selected"))
+                l.config(bg=T("bg_selected"), fg=T("accent"))
+            else:
+                f.config(bg="white")
+                l.config(bg="white", fg=T("fg"))
 
     def _show_page(self, key):
-        """切换内容页并更新导航选中态"""
+        """显示指定页面"""
         if key == self._current_page:
             return
         for k, page in self._pages.items():
@@ -352,84 +626,111 @@ class TrainerApp(ResourceTabMixin, CreativeTabMixin, HotkeyTabMixin, MonitorTabM
                 page.pack(fill=tk.BOTH, expand=True)
             else:
                 page.pack_forget()
-        for k, btn in self._nav_buttons.items():
-            btn.configure(style="NavActive.TButton" if k == key else "Nav.TButton")
         self._current_page = key
 
+    def _on_search_focus(self, event):
+        if self.search_entry.get() == "🔍 搜索功能...":
+            self.search_entry.delete(0, tk.END)
+
+    def _on_search_blur(self, event):
+        if not self.search_entry.get():
+            self.search_entry.insert(0, "🔍 搜索功能...")
+
     def _build_topbar(self):
-        """顶部栏"""
-        topbar = ttk.Frame(self.root, style="Card.TFrame")
-        topbar.pack(fill=tk.X, padx=12, pady=(12, 8))
+        """顶部栏（三栏布局下不再需要，保留空方法兼容）"""
+        pass
 
-        # 标题（主标题大且粗）
-        title = ttk.Label(topbar, text="平野孤鸿 全能修改器", style="Title.TLabel")
-        title.pack(side=tk.LEFT, padx=(20, 8), pady=12)
-
-        # 版本号（弱化：小号灰色，不与标题争焦点）
-        version = ttk.Label(topbar, text=f"v{APP_VERSION}", style="Card.TLabel",
-                            font=("微软雅黑", 8), foreground=T("fg_muted"))
-        version.pack(side=tk.LEFT, pady=14)
-
-        # 右侧状态和按钮
-        right_frame = ttk.Frame(topbar, style="Card.TFrame")
-        right_frame.pack(side=tk.RIGHT, padx=15, pady=10)
-
-        # 主题切换按钮
-        theme_icon = "☀️" if self._theme_name == "light" else "🌙"
-        self.theme_btn = ttk.Button(right_frame, text=theme_icon, style="Small.TButton",
-                                    command=self.toggle_theme, width=3)
-        self.theme_btn.pack(side=tk.LEFT, padx=(0, 10))
-        bind_tooltip(self.theme_btn, "切换深色/浅色主题")
-
-        # 统一状态指示灯（游戏状态 + DLL状态合并）
-        self.status_indicator = ttk.Label(right_frame, text="● 未检测到游戏", style="StatusWarning.TLabel")
-        self.status_indicator.pack(side=tk.LEFT, padx=(0, 15))
-        bind_tooltip(self.status_indicator, "游戏进程和DLL注入状态")
-
-        # 启动游戏按钮（主操作=蓝色）
-        self.launch_btn = ttk.Button(right_frame, text="启动游戏", style="Primary.TButton",
-                                      command=self.on_launch_game)
-        self.launch_btn.pack(side=tk.LEFT, padx=(0, 8))
-        bind_tooltip(self.launch_btn, "通过Steam启动游戏")
-
-        # 注入按钮（主操作=蓝色，未注入时可点击）
-        self.inject_btn = ttk.Button(right_frame, text="注入DLL", style="Primary.TButton",
-                                      command=self.on_inject_dll, state=tk.DISABLED)
-        self.inject_btn.pack(side=tk.LEFT)
-        bind_tooltip(self.inject_btn, "注入修改器DLL到游戏进程")
+    def _make_page(self, key, label):
+        """创建内容页（兼容旧代码，三栏布局下不使用）"""
+        page = tk.Frame(self.content_area, bg=T("bg"))
+        self._pages[key] = page
+        return page
 
     def _build_log_panel(self):
-        """底部日志面板（默认收起，点击标题栏展开/收起）"""
-        log_frame = ttk.Frame(self.root, style="Card.TFrame")
-        log_frame.pack(fill=tk.X, padx=12, pady=(0, 12))
+        """底部日志面板：可拖拽调整高度、可展开/收起"""
+        self._log_expanded = True
+        self._log_height = 160  # 默认高度
+        self._log_min_height = 32  # 最小高度（收起时）
 
-        header = ttk.Frame(log_frame, style="Card.TFrame")
-        header.pack(fill=tk.X, padx=10, pady=(6, 6))
-        header.bind("<Button-1>", lambda e: self._toggle_log_panel())
+        # 日志主容器
+        self.log_frame = tk.Frame(self.right_panel, bg="white", height=self._log_height)
+        self.log_frame.pack(fill=tk.X, side=tk.BOTTOM)
+        self.log_frame.pack_propagate(False)
 
-        self.log_toggle_label = ttk.Label(header, text="▶ 操作日志", style="Card.TLabel",
-                                          font=FONT_BOLD)
-        self.log_toggle_label.pack(side=tk.LEFT)
-        self.log_toggle_label.bind("<Button-1>", lambda e: self._toggle_log_panel())
-        ttk.Button(header, text="清空", command=self.on_clear_log).pack(side=tk.RIGHT)
+        # === 顶部可拖拽分隔条 ===
+        self.log_splitter = tk.Frame(self.log_frame, bg=T("border"), height=4, cursor="sb_v_double_arrow")
+        self.log_splitter.pack(fill=tk.X, side=tk.TOP)
+        # 拖拽事件
+        self.log_splitter.bind("<Button-1>", self._on_log_splitter_press)
+        self.log_splitter.bind("<B1-Motion>", self._on_log_splitter_drag)
+        self.log_splitter.bind("<Enter>", lambda e: self.log_splitter.config(bg=T("accent")))
+        self.log_splitter.bind("<Leave>", lambda e: self.log_splitter.config(bg=T("border")))
 
-        # 日志颜色从主题获取
+        # === 标题栏 ===
+        self.log_header = tk.Frame(self.log_frame, bg="white", height=28)
+        self.log_header.pack(fill=tk.X, side=tk.TOP)
+        self.log_header.pack_propagate(False)
+
+        # 展开/收起箭头
+        self.log_toggle_btn = tk.Label(self.log_header, text="▼", font=("微软雅黑", 9),
+                                      bg="white", fg=T("fg_muted"), cursor="hand2")
+        self.log_toggle_btn.pack(side=tk.LEFT, padx=(12, 6))
+        self.log_toggle_btn.bind("<Button-1>", lambda e: self._toggle_log_panel())
+
+        # 标题
+        tk.Label(self.log_header, text="📋 操作日志", font=("微软雅黑", 10, "bold"),
+                bg="white", fg=T("fg")).pack(side=tk.LEFT)
+        # 点击标题栏也能收起
+        self.log_header.bind("<Button-1>", lambda e: self._toggle_log_panel())
+
+        # 右侧按钮
+        btn_frame = tk.Frame(self.log_header, bg="white")
+        btn_frame.pack(side=tk.RIGHT, padx=10)
+        tk.Button(btn_frame, text="清空", font=("微软雅黑", 9),
+                 bg="white", fg=T("fg_muted"), bd=0, relief=tk.FLAT,
+                 command=self.on_clear_log, cursor="hand2").pack(side=tk.RIGHT, padx=5)
+
+        # === 日志内容区 ===
+        self.log_content = tk.Frame(self.log_frame, bg="white")
+        self.log_content.pack(fill=tk.BOTH, expand=True, side=tk.TOP)
+
         log_bg, log_fg, log_insert = ThemeManager.get_log_colors()
-        self.log_text = scrolledtext.ScrolledText(log_frame, height=8, bg=log_bg, fg=log_fg,
+        self.log_text = scrolledtext.ScrolledText(self.log_content, bg=log_bg, fg=log_fg,
                                                      font=FONT_MONO, insertbackground=log_insert,
                                                      borderwidth=0)
+        self.log_text.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
         self.log_text.configure(state=tk.DISABLED)
-        self._log_expanded = False
+
+    def _on_log_splitter_press(self, event):
+        """拖拽分隔条：记录起始位置"""
+        self._splitter_start_y = event.y_root
+        self._splitter_start_height = self.log_frame.winfo_height()
+
+    def _on_log_splitter_drag(self, event):
+        """拖拽分隔条：调整日志高度"""
+        if not hasattr(self, '_splitter_start_y'):
+            return
+        delta = self._splitter_start_y - event.y_root  # 向上拖=增大高度
+        new_height = self._splitter_start_height + delta
+        # 限制高度范围
+        new_height = max(80, min(new_height, 500))
+        self._log_height = new_height
+        if self._log_expanded:
+            self.log_frame.config(height=new_height)
 
     def _toggle_log_panel(self):
-        """展开/收起底部日志面板"""
+        """展开/收起日志面板"""
         if self._log_expanded:
-            self.log_text.pack_forget()
-            self.log_toggle_label.config(text="▶ 操作日志")
+            # 收起：只显示标题栏
+            self.log_content.pack_forget()
+            self.log_frame.config(height=32)
+            self.log_toggle_btn.config(text="▶")
             self._log_expanded = False
         else:
-            self.log_text.pack(fill=tk.X, padx=10, pady=(0, 8))
-            self.log_toggle_label.config(text="▼ 操作日志")
+            # 展开：恢复内容
+            self.log_content.pack(fill=tk.BOTH, expand=True, side=tk.TOP)
+            self.log_frame.config(height=self._log_height)
+            self.log_toggle_btn.config(text="▼")
             self._log_expanded = True
 
     def _setup_log_callback(self):
@@ -519,20 +820,20 @@ class TrainerApp(ResourceTabMixin, CreativeTabMixin, HotkeyTabMixin, MonitorTabM
                 self.dll_injected = False
                 self._dll_verified = False
                 get_status_provider().set_dll_ready(False)
-                self.status_indicator.config(text=f"● 僵尸进程 (PID: {pid})", style="StatusError.TLabel")
+                self.status_indicator.config(text=f"● 僵尸进程 (PID: {pid})", fg="#fa5151", bg="white")
                 pass  # 状态已合并到status_indicator
                 self.inject_btn.config(text="注入DLL", state=tk.DISABLED)
                 if self._last_logged_pid != pid:
                     log_warning(f"检测到僵尸进程 PID={pid}（内存<50MB无窗口），建议重启电脑后清理")
                     self._last_logged_pid = pid
             else:
-                self.status_indicator.config(text=f"● 游戏运行中 (PID: {pid})", style="StatusSuccess.TLabel")
+                self.status_indicator.config(text=f"● 游戏运行中 (PID: {pid})", fg="#07C160", bg="white")
                 # 检查DLL是否已注入
                 dll_name = os.path.basename(self.dll_path)
                 if is_dll_injected(pid, dll_name):
                     was_injected = self.dll_injected
                     self.dll_injected = True
-                    self.status_indicator.config(text=f"● 游戏运行中 | DLL已注入", style="StatusSuccess.TLabel")
+                    self.status_indicator.config(text=f"● 游戏运行中 | DLL已注入", fg="#07C160", bg="white")
                     self.inject_btn.config(text="已注入", state=tk.DISABLED)
                     # 首次检测到DLL已注入（修改器后打开的情况），先标记已验证再异步确认hook
                     # [FIX 2026-09-14] 原顺序把置位放在 update 之后，导致按钮要多等5秒才可用
@@ -545,7 +846,7 @@ class TrainerApp(ResourceTabMixin, CreativeTabMixin, HotkeyTabMixin, MonitorTabM
                     self._dll_verified = False
                     # DLL未注入，通知GameStatusProvider停止Lua查询（避免超时刷屏）
                     get_status_provider().set_dll_ready(False)
-                    self.status_indicator.config(text=f"● 游戏运行中 | DLL未注入", style="StatusWarning.TLabel")
+                    self.status_indicator.config(text=f"● 游戏运行中 | DLL未注入", fg="#fa9d3b", bg="white")
                     self.inject_btn.config(text="注入DLL", state=tk.NORMAL)
                     self.update_modify_buttons_state()
                 if self._last_logged_pid != pid:
@@ -560,7 +861,7 @@ class TrainerApp(ResourceTabMixin, CreativeTabMixin, HotkeyTabMixin, MonitorTabM
             self._dll_verified = False
             # 游戏未运行，通知GameStatusProvider停止Lua查询
             get_status_provider().set_dll_ready(False)
-            self.status_indicator.config(text="● 未检测到游戏", style="StatusWarning.TLabel")
+            self.status_indicator.config(text="● 未检测到游戏", fg="#fa9d3b", bg="white")
             pass  # 状态已合并到status_indicator
             self.inject_btn.config(text="注入DLL", state=tk.DISABLED)
             self.update_modify_buttons_state()
@@ -636,7 +937,7 @@ class TrainerApp(ResourceTabMixin, CreativeTabMixin, HotkeyTabMixin, MonitorTabM
 
         if success:
             self.dll_injected = True
-            self.status_indicator.config(text=f"● 游戏运行中 | DLL已注入", style="StatusSuccess.TLabel")
+            self.status_indicator.config(text=f"● 游戏运行中 | DLL已注入", fg="#07C160", bg="white")
             self.inject_btn.config(text="已注入", state=tk.DISABLED)
             log_success("DLL注入成功，正在等待Hook就绪...")
             self.update_modify_buttons_state()

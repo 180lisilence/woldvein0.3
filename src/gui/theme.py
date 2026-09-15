@@ -71,9 +71,34 @@ LIGHT = {
     "info":        "#1e66f5",   # 信息
 }
 
+# 微信风格浅色主题（WeChat Light）
+WECHAT = {
+    "name": "wechat",
+    "bg":          "#f5f5f5",
+    "bg_surface":  "#ebebeb",
+    "bg_card":     "#ffffff",
+    "bg_elevated": "#f0f0f0",
+    "bg_selected": "#e8f5e9",
+    "bg_sidebar":  "#f7f7f7",
+    "bg_sidebar_sel": "#07C160",
+    "fg":          "#000000",
+    "fg_muted":    "#999999",
+    "fg_bright":   "#07C160",
+    "fg_sidebar":  "#000000",
+    "fg_sidebar_muted": "#666666",
+    "accent":      "#07C160",
+    "accent_hover":"#06ad56",
+    "success":     "#07C160",
+    "warning":     "#fa9d3b",
+    "error":       "#fa5151",
+    "info":        "#10aeff",
+    "border":      "#e6e6e6",
+}
+
+
 # 主题映射
-THEMES = {"dark": DARK, "light": LIGHT}
-_current = "dark"
+THEMES = {"dark": DARK, "light": LIGHT, "wechat": WECHAT}
+_current = "wechat"
 
 
 def get_theme():
@@ -137,17 +162,17 @@ class ThemeManager:
                   background=[("active", t["bg_selected"]), ("hover", t["bg_selected"])],
                   foreground=[("active", t["fg_bright"]), ("hover", t["fg_bright"])])
 
-        style.configure("Primary.TButton", background=t["accent"], foreground=t["bg"],
+        style.configure("Primary.TButton", background=t["accent"], foreground="white",
                         font=FONT_BOLD, padding=[16, 8], borderwidth=0)
         style.map("Primary.TButton",
                   background=[("active", t["accent_hover"]), ("hover", t["accent_hover"])])
 
-        style.configure("Success.TButton", background=t["success"], foreground=t["bg"],
+        style.configure("Success.TButton", background=t["success"], foreground="white",
                         font=FONT_BOLD, padding=[16, 8], borderwidth=0)
         style.map("Success.TButton",
                   background=[("active", "#94d38f"), ("hover", "#94d38f")])
 
-        style.configure("Danger.TButton", background=t["error"], foreground=t["bg"],
+        style.configure("Danger.TButton", background=t["error"], foreground="white",
                         font=FONT_BOLD, padding=[16, 8], borderwidth=0)
         style.map("Danger.TButton",
                   background=[("active", "#e07088"), ("hover", "#e07088")])
@@ -171,7 +196,7 @@ class ThemeManager:
                   foreground=[("active", t["accent"]), ("hover", t["accent"])])
 
         # 恢复按钮样式（v0.3 新增）
-        style.configure("Restore.TButton", background=t["warning"], foreground=t["bg"],
+        style.configure("Restore.TButton", background=t["warning"], foreground="white",
                         font=("微软雅黑", 9, "bold"), padding=[8, 3], borderwidth=0)
         style.map("Restore.TButton",
                   background=[("active", t["bg_selected"])])

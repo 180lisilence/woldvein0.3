@@ -20,15 +20,18 @@ from .widgets import T
 class WorldTabMixin:
     """世界系统标签页 Mixin"""
 
-    def _build_world_tab(self, parent):
+    def _build_world_tab(self, parent, use_scroll=True):
         """世界系统标签页"""
         tab = parent
-
-        scroll = ScrollableFrame(tab)
-        scroll.pack(fill=tk.BOTH, expand=True, padx=2, pady=2)
+        if use_scroll:
+            scroll = ScrollableFrame(tab)
+            scroll.pack(fill=tk.BOTH, expand=True, padx=2, pady=2)
+            content_frame = content_frame
+        else:
+            content_frame = tab
 
         # === 市场物价 ===
-        _, market_frame = self._create_collapsible(scroll.inner, "市场物价", default_open=True)
+        _, market_frame = self._create_collapsible(content_frame, "市场物价", default_open=True)
         row = tk.Frame(market_frame, bg=T("bg_card"))
         row.pack(fill=tk.X, padx=4, pady=(0, 4))
         ttk.Button(row, text="🔍 探查", style="Warning.TButton",
@@ -43,7 +46,7 @@ class WorldTabMixin:
                    command=lambda: self._run_async(world_tools.market_price_restore)).pack(side=tk.LEFT, padx=4)
 
         # === 产业链 ===
-        _, chain_frame = self._create_collapsible(scroll.inner, "产业链", default_open=True)
+        _, chain_frame = self._create_collapsible(content_frame, "产业链", default_open=True)
         row = tk.Frame(chain_frame, bg=T("bg_card"))
         row.pack(fill=tk.X, padx=4, pady=(0, 4))
         ttk.Button(row, text="🔍 探查", style="Warning.TButton",
@@ -53,7 +56,7 @@ class WorldTabMixin:
         self._chain_btn.pack(side=tk.LEFT, padx=4)
 
         # === 流民灾害 ===
-        _, refugee_frame = self._create_collapsible(scroll.inner, "流民灾害", default_open=True)
+        _, refugee_frame = self._create_collapsible(content_frame, "流民灾害", default_open=True)
         row = tk.Frame(refugee_frame, bg=T("bg_card"))
         row.pack(fill=tk.X, padx=4, pady=(0, 4))
         ttk.Button(row, text="🔍 探查", style="Warning.TButton",
@@ -63,7 +66,7 @@ class WorldTabMixin:
         self._refugee_btn.pack(side=tk.LEFT, padx=4)
 
         # === 灾害控制（天灾 / 人祸）===
-        _, disaster_frame = self._create_collapsible(scroll.inner, "灾害控制（天灾 / 人祸）", default_open=True)
+        _, disaster_frame = self._create_collapsible(content_frame, "灾害控制（天灾 / 人祸）", default_open=True)
         row = tk.Frame(disaster_frame, bg=T("bg_card"))
         row.pack(fill=tk.X, padx=4, pady=(0, 4))
         ttk.Button(row, text="🔍 探查", style="Warning.TButton",
@@ -76,7 +79,7 @@ class WorldTabMixin:
         self._man_btn.pack(side=tk.LEFT, padx=4)
 
         # === 知名度 ===
-        _, rep_frame = self._create_collapsible(scroll.inner, "知名度（双存储）", default_open=True)
+        _, rep_frame = self._create_collapsible(content_frame, "知名度（双存储）", default_open=True)
         row = tk.Frame(rep_frame, bg=T("bg_card"))
         row.pack(fill=tk.X, padx=4, pady=(0, 4))
         ttk.Button(row, text="🔍 探查", style="Warning.TButton",
@@ -89,7 +92,7 @@ class WorldTabMixin:
         self._rep100k_btn.pack(side=tk.LEFT, padx=4)
 
         # === 建筑精细操作 ===
-        _, bld_frame = self._create_collapsible(scroll.inner, "建筑精细操作", default_open=True)
+        _, bld_frame = self._create_collapsible(content_frame, "建筑精细操作", default_open=True)
         row = tk.Frame(bld_frame, bg=T("bg_card"))
         row.pack(fill=tk.X, padx=4, pady=(0, 4))
         ttk.Button(row, text="📋 建筑明细", style="Primary.TButton",
@@ -102,7 +105,7 @@ class WorldTabMixin:
         self._bld_pop_btn.pack(side=tk.LEFT, padx=4)
 
         # === 税收（自动纳税）===
-        _, tax_frame = self._create_collapsible(scroll.inner, "税收（自动纳税）", default_open=True)
+        _, tax_frame = self._create_collapsible(content_frame, "税收（自动纳税）", default_open=True)
         row = tk.Frame(tax_frame, bg=T("bg_card"))
         row.pack(fill=tk.X, padx=4, pady=(0, 4))
         ttk.Button(row, text="🔍 探查", style="Warning.TButton",
@@ -120,7 +123,7 @@ class WorldTabMixin:
                   style="Card.TLabel", foreground=T("fg_muted"), font=FONT_TINY).pack(side=tk.LEFT, padx=8)
 
         # === 蓝图（仅探查）===
-        _, bp_frame = self._create_collapsible(scroll.inner, "蓝图（仅探查）", default_open=False)
+        _, bp_frame = self._create_collapsible(content_frame, "蓝图（仅探查）", default_open=False)
         row = tk.Frame(bp_frame, bg=T("bg_card"))
         row.pack(fill=tk.X, padx=4, pady=(0, 4))
         ttk.Button(row, text="🔍 蓝图探查", style="Warning.TButton",
@@ -129,7 +132,7 @@ class WorldTabMixin:
                   foreground=T("fg_muted"), font=FONT_TINY).pack(side=tk.LEFT, padx=8)
 
         # === NPC 详情（仅探查）===
-        _, npc_frame = self._create_collapsible(scroll.inner, "NPC 详情（仅探查）", default_open=False)
+        _, npc_frame = self._create_collapsible(content_frame, "NPC 详情（仅探查）", default_open=False)
         row = tk.Frame(npc_frame, bg=T("bg_card"))
         row.pack(fill=tk.X, padx=4, pady=(0, 4))
         ttk.Button(row, text="🔍 NPC 详情探查", style="Warning.TButton",
