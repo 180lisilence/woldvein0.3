@@ -1,5 +1,9 @@
 ﻿# 平野孤鸿项目变更日志
 
+> 当前版本：**v0.3.7**（2026-09-15）— 搜索功能 + main.py启动 + 文字左对齐
+
+---
+
 ## 2026-09-15
 
 ### v0.3.7 - 微信三栏布局全功能版 + 搜索功能
@@ -1345,3 +1349,4 @@ if fLastDeltaTime >= TICK_DELTA_TIMES + nNum then
 ### 新增文件
 - src/gui/toast.py
 - src/gui/tooltip.py
+
