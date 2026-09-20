@@ -967,6 +967,15 @@ DLL 注入技术可能被部分杀毒软件误报为威胁。这是**正常现�
 
 ---
 
+## 推送到GitHub
+
+```bash
+cd D:\pingye_pack\woldvein_trainer0.4.1
+git add .
+git commit -m "v0.4.1 更新"
+git push origin main
+```
+
 ## 版本历史
 
 ### v0.4.1 (2026-09-20) — 当前版本
