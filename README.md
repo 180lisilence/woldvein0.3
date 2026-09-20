@@ -1,4 +1,4 @@
-﻿# 平野孤鸿 全能修改器 woldvein Trainer v0.4.1
+﻿# 平野孤鸿 全能修改器 woldvein Trainer v0.4.2
 
 > 📌 **版本沿革**：本版本承接自 **[woldvein Trainer v0.2](https://github.com/180lisilence/woldvein0.2)**（已归档，仅供查阅历史）
 
@@ -972,13 +972,13 @@ DLL 注入技术可能被部分杀毒软件误报为威胁。这是**正常现�
 ```bash
 cd D:\pingye_pack\woldvein_trainer0.4.1
 git add .
-git commit -m "v0.4.1 更新"
+git commit -m "v0.4.2 更新"
 git push origin main
 ```
 
 ## 版本历史
 
-### v0.4.1 (2026-09-20) — 当前版本
+### v0.4.2 (2026-09-20) — 当前版本
 
 - **新增**：DLL Hook自动扫描（找不到lua_pcall导出时自动特征码扫描）
 - **新增**：通信路径优化（统一到程序目录，不写C盘）
