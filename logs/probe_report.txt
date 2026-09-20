@@ -1,0 +1,723 @@
+
+======================================================================
+[2026-09-15 00:05:20] 高级-任务
+======================================================================
+=== 任务状态 ===
+未开始=54 进行中=1 已接=0 已完成=0
+任务总数 = 55
+方法：FinishAllTask=function: 0000000106B18270 / UnlockPrecondition=function: 0000000398A8C590 / FinishTaskByGDPL=function: 0000000106B181F0
+  姜寡妇所托 | 状态=1
+  一枣一棒 | 状态=1
+  引月 | 状态=1
+  望天郎 | 状态=1
+  寻人 | 状态=1
+  “黑子” | 状态=1
+  戏班子 | 状态=1
+  又见羽帮 | 状态=1
+  杜老大 | 状态=1
+  必先利其器 | 状态=1
+  天机门初选 | 状态=1
+  究竟是谁 | 状态=1
+  半山腰-暂废弃 | 状态=1
+  棋盘野趣 | 状态=1
+  鄂人医馆 | 状态=1
+  歪脖子枯树 | 状态=1
+  荷花池 | 状态=1
+  姜寡妇酒馆 | 状态=1
+  晏之敖 | 状态=1
+  寻书 | 状态=1
+  鸡飞蛋打 | 状态=1
+  流窜犯 | 状态=1
+  终极望天郎 | 状态=1
+  天机门复试 | 状态=1
+  又见鄂人兄 | 状态=1
+  鄂人弟 | 状态=1
+  酒客二 | 状态=1
+  白马武馆 | 状态=1
+  鄂人兄 | 状态=1
+  好事多磨 | 状态=1
+
+======================================================================
+[2026-09-15 00:05:29] 市场探查
+======================================================================
+=== 市场管理器探查 ===
+当前节气 m_solarTerm = 1
+  m_prices[1] = {190, 150, 100, 130, 90}
+  m_prices[2] = {190, 150, 110, 130, 170}
+  m_prices[3] = {210, 160, 110, 150, 100}
+  m_prices[4] = {210, 160, 110, 130, 170}
+  m_prices[5] = {180, 160, 100, 120, 80}
+  m_prices[6] = {170, 140, 100, 130, 190}
+m_prices 条目数 = 50
+
+=== 对象导出 ===
+  type=table
+  m_totalDays = 64
+  m_marketUUID (table)
+  m_tbFirstOpened (table)
+  m_records (table)
+  class (table)
+  m_isNewSolorTerm = false
+  m_daysLeft = 55
+  m_nextSolarTerm = 2
+  isNewDay = false
+  m_nCollectingPriority = 0
+  super (table)
+  userdata: 000000010760A548 = true
+  m_marketInfo (table)
+  m_isAutoOpen = true
+  m_solarTerm = 1
+  m_prices (table)
+  m_trand (table)
+  m_uso (table)
+  m_tbCountedMarketUUID (table)
+  m_openMarketUUID (table)
+  m_curOpenDays = 0
+  m_markets (table)
+  m_isOpening = false
+  m_figures (table)
+  绑定方法: __gc, _CalculateMarketInventory, _InitTrands, _syncUI, BuildMarket, CheckBlockAllMarketBuildingIsRuin, CheckOpenFirstMarket, CheckOpenMarketDay, CleanMarketBlockRecords, ClearTrandIDs, CountValidMarket, CountValidOpenedMarket, ctor, DestroyMarket, dtor, DumpTimeInfo, GetClassName, GetCollectingPriority, GetCollectorKey, GetCurrentSolarTerm, GetMarket, GetMarketByGDPL, GetMarketByGDPLString, GetMarketCount, GetMarketMoneyRecord, GetMarketResourceRecord, GetMarketUUIDList, GetNewsPaperCost, GetNextSolarTerm, GetOpenMarketDayLeft, GetPrices, GetPricesByType, GetPublicityInfo, GetTrandIDs, HasMarket, HasMarketBuilding, HasMarketFinished, HasValidMarket, HasValidOpenMarket, Init, isA, IsAutoOpen, IsAutoOpenMarketUI, IsOpeningMarket, MergeMarket, new, NextTrands, OnCollectingSerializableObjects, OnNewDay, OnOpenMarket, OnOpenMarketNight, OnPreviewMarket, OnUnserializingObject, PreviewMarketData, RecordMoney, RecordOpenMarketBuilding, RecordPublicity, RecordResource, ResetOpenMarketBuilding, SerializeTrand, SetAutoOpen, SetCollectingPriority, SetMarketData, SetMarketNightData, TickLeave, TimeLog, UnInit, UnSerializeTrand, UpdateNewOpenMarket, UpdateTime
+  绑定字段: __cname=LMarketManager, BUY=2, SELL=1
+  class 方法: __gc, _CalculateMarketInventory, _InitTrands, _syncUI, BuildMarket, CheckBlockAllMarketBuildingIsRuin, CheckOpenFirstMarket, CheckOpenMarketDay, CleanMarketBlockRecords, ClearTrandIDs, CountValidMarket, CountValidOpenedMarket, ctor, DestroyMarket, dtor, DumpTimeInfo, GetClassName, GetCollectingPriority, GetCollectorKey, GetCurrentSolarTerm, GetMarket, GetMarketByGDPL, GetMarketByGDPLString, GetMarketCount, GetMarketMoneyRecord, GetMarketResourceRecord, GetMarketUUIDList, GetNewsPaperCost, GetNextSolarTerm, GetOpenMarketDayLeft, GetPrices, GetPricesByType, GetPublicityInfo, GetTrandIDs, HasMarket, HasMarketBuilding, HasMarketFinished, HasValidMarket, HasValidOpenMarket, Init, isA, IsAutoOpen, IsAutoOpenMarketUI, IsOpeningMarket, MergeMarket, new, NextTrands, OnCollectingSerializableObjects, OnNewDay, OnOpenMarket, OnOpenMarketNight, OnPreviewMarket, OnUnserializingObject, PreviewMarketData, RecordMoney, RecordOpenMarketBuilding, RecordPublicity, RecordResource, ResetOpenMarketBuilding, SerializeTrand, SetAutoOpen, SetCollectingPriority, SetMarketData, SetMarketNightData, TickLeave, TimeLog, UnInit, UnSerializeTrand, UpdateNewOpenMarket, UpdateTime
+
+======================================================================
+[2026-09-15 00:05:31] 知名度探查
+======================================================================
+=== 知名度探查 ===
+当前知名度 GetReputation() = 110000
+方法:
+
+======================================================================
+[2026-09-15 00:05:31] 知名度探查
+======================================================================
+=== 知名度探查 ===
+当前知名度 GetReputation() = 110000
+方法:
+
+======================================================================
+[2026-09-15 00:05:32] 税收探查
+======================================================================
+=== 税收状态 ===
+类方法表已定位 = true
+类上 SendTaxPage 已替换 = false
+类上 OnDay 已替换 = false
+实例上 SendTaxPage 已替换 = false
+taxCount（累计缴税） = 0 / curPaytax（上次缴税） = 0
+品阶 boomLevel=1 税率=0% 现值预计缴税=0 当前金钱=510566
+当前日期 1/12/30（缴税时点 = 每年 1 月 1 日，year>1）
+
+======================================================================
+[2026-09-15 00:05:41] NPC详情探查
+======================================================================
+=== NPC/城市管理器探查 ===
+g_CityManager: table
+  type=table
+  userdata: 00000003A7A85208 = true
+  m_mapCityCode2Info (table)
+  class (table)
+  m_lsCityInfo (table)
+  绑定方法: __gc, ctor, dtor, GetActiveCity, GetActiveCityByCode, GetCityInfoByCode, GetCityInfoList, GetClassName, isA, IsCityTileUsable, IsValidCityInfo, load_city_info, LoadCity, new, RandomCareer, Tick, UnLoadActiveCity
+  绑定字段: __cname=LCityManager
+  class 方法: __gc, ctor, dtor, GetActiveCity, GetActiveCityByCode, GetCityInfoByCode, GetCityInfoList, GetClassName, isA, IsCityTileUsable, IsValidCityInfo, load_city_info, LoadCity, new, RandomCareer, Tick, UnLoadActiveCity
+
+GetActiveCity(): nil
+GetCityInfoList(): table
+-- [城市信息] 1
+  type=table
+  Name = 情缘山庄
+  Code = demo_village
+城市信息条数 = 1
+-- [m_lsCityInfo] 1
+  type=table
+  Name = 情缘山庄
+  Code = demo_village
+
+=== 含 Npc/NPC 的全局 ===
+  g_CityNpcLifGenerator (table)
+  g_CityNpcNameGenerator (table)
+  g_NpcReactionConversationCfg (table)
+  g_LSightSeeingNPCMgr (table)
+      type=table
+      m_tbToRemoveRoleID (table)
+      m_nMaxNum = 50
+      m_nOnFrameLeftNum = 0
+      tbRoles (table)
+      userdata: 0000000399513268 = true
+      class (table)
+      绑定方法: __gc, _isCurveNodeValified, BatchGenerateTourNPC, BatchRecycleTourNPC, BatchRemoveTourNPC, CreateNPC, ctor, dtor, FindNextCurveNodeIndex, FrameMove, GenBirthPos, GetClassName, GetNPCRoutesByCurveBulk, GetPathPoint, GetTourNPCNum, isA, new, RecycleTourNPC
+      绑定字段: __cname=LSightSeeingNPCMgr, BIRTH_PAVILION_RATE=30, CARDINAL_NUMBER=100, HALF_RATE=50, VIEW_LIMIT_DISTANCE=5, VIEW_NUM_PER_SCOPE=50
+      class 方法: __gc, _isCurveNodeValified, BatchGenerateTourNPC, BatchRecycleTourNPC, BatchRemoveTourNPC, CreateNPC, ctor, dtor, FindNextCurveNodeIndex, FrameMove, GenBirthPos, GetClassName, GetNPCRoutesByCurveBulk, GetPathPoint, GetTourNPCNum, isA, new, RecycleTourNPC
+  g_RoadNpcFactory (table)
+  g_RoadNpcPath (table)
+  g_LNPCManager (table)
+      type=table
+      NpcRes (table)
+      class (table)
+      userdata: 00000000943B2348 = true
+      npcs (table)
+      绑定方法: __gc, _LoadNpc, _LoadNpcRes, _ParseAudio, _ParseAudioEventName, ctor, dtor, GetClassName, GetGenderRPText, GetNPC, GetNpcEmotionAudio, GetNpcHappinessSound, GetNpcRes, Init, isA, new, UnInit
+      绑定字段: __cname=LNPCManager
+      class 方法: __gc, _LoadNpc, _LoadNpcRes, _ParseAudio, _ParseAudioEventName, ctor, dtor, GetClassName, GetGenderRPText, GetNPC, GetNpcEmotionAudio, GetNpcHappinessSound, GetNpcRes, Init, isA, new, UnInit
+  g_ConverseNpcType (table)
+
+======================================================================
+[2026-09-15 00:05:43] 蓝图探查
+======================================================================
+=== 蓝图系统探查 ===
+g_LBlueprintManager 方法: HasBlueprintSynthesis, GetBlockWorkingBlueprintSynthesisNum, GetWorkingBlueprintSynthesisLevelData, GetBlueprintSynthesisLevelData, CheckHaveValidBlueprintSynthesis, GetBlueprintSynthesisByGDPL
+地块数=57 合成中总数=0 有可用合成的地块=0
+谋士府 图纸研发中=?
+  研发成本=4900
+
+======================================================================
+[2026-09-15 00:05:58] 灾害探查
+======================================================================
+=== 灾害探查 ===
+DisasterType: DT_COLDWINTER=12, DT_CRIME=8, DT_DELUGE=17, DT_DISEASE=3, DT_DROUGHT=11, DT_EARTHQUAKE=6, DT_FAMINE=7, DT_FIRE=1, DT_FLOOD=13, DT_INSECT=2, DT_NONE=0, DT_NUM=19, DT_PLAGUE=4, DT_REFUGEE=16, DT_RIOT=9, DT_SALT=18, DT_SANDSTORM=19, DT_SEVEREFROST=14, DT_SPRINGRAIN=15, DT_THUNDER=10, DT_TORNADO=5
+激活灾害数 = 0
+（当前没有进行中的灾害）
+
+======================================================================
+[2026-09-15 00:05:58] 流民探查
+======================================================================
+=== 流民灾害探查 ===
+DT_REFUGEE = 16
+（未发现进行中的流民灾害）
+
+======================================================================
+[2026-09-15 00:05:59] 灾害探查
+======================================================================
+=== 灾害探查 ===
+DisasterType: DT_COLDWINTER=12, DT_CRIME=8, DT_DELUGE=17, DT_DISEASE=3, DT_DROUGHT=11, DT_EARTHQUAKE=6, DT_FAMINE=7, DT_FIRE=1, DT_FLOOD=13, DT_INSECT=2, DT_NONE=0, DT_NUM=19, DT_PLAGUE=4, DT_REFUGEE=16, DT_RIOT=9, DT_SALT=18, DT_SANDSTORM=19, DT_SEVEREFROST=14, DT_SPRINGRAIN=15, DT_THUNDER=10, DT_TORNADO=5
+激活灾害数 = 0
+（当前没有进行中的灾害）
+
+======================================================================
+[2026-09-15 00:05:59] 灾害探查
+======================================================================
+=== 灾害探查 ===
+DisasterType: DT_COLDWINTER=12, DT_CRIME=8, DT_DELUGE=17, DT_DISEASE=3, DT_DROUGHT=11, DT_EARTHQUAKE=6, DT_FAMINE=7, DT_FIRE=1, DT_FLOOD=13, DT_INSECT=2, DT_NONE=0, DT_NUM=19, DT_PLAGUE=4, DT_REFUGEE=16, DT_RIOT=9, DT_SALT=18, DT_SANDSTORM=19, DT_SEVEREFROST=14, DT_SPRINGRAIN=15, DT_THUNDER=10, DT_TORNADO=5
+激活灾害数 = 0
+（当前没有进行中的灾害）
+
+======================================================================
+[2026-09-15 00:11:00] 高级-速度状态
+======================================================================
+=== 速度状态 ===
+当前 TICK_DELTA_TIMES = 0.625
+游戏权威原始值 = 2.5（DAY_TIME_REAL=5 / DAY_TICK_COUNT=2）
+记录基准 g_trainer_base_delta = 2.5
+上次写入 g_trainer_last_delta = 0.625
+推导倍率 = 4x
+m_nTimeSpeed = 1
+
+======================================================================
+[2026-09-15 00:11:09] 高级-品阶诊断
+======================================================================
+=== Boom 模块方法列表 ===
+  __gc
+  _initConditionFunc
+  _syncUI
+  AddUpdateNumber
+  BoomLevelChange
+  CanContinueUpdate
+  CheckMissingReward
+  CheckProsperityLevelUpdate
+  CheckUnlockedAdviser
+  ConstrcutUI
+  ConstructNewApplyUI
+  ctor
+  DecreaseApplyCount
+  dtor
+  dumpAdviserCard
+  dumpAdviserSkills
+  DumpMissonConditions
+  DumpTipsCondition
+  DumpUpgradeReward
+  FilterCampBoomReward
+  GetBestTitle
+  GetBoom
+  GetBoomLevelFromBoom
+  GetBuildingProsperityByType
+  GetCheckListByType
+  GetCheckUpdateNumber
+  GetClassName
+  GetConverse
+  GetCurTitle
+  GetDonateProps
+  GetDonationAddProps
+  GetHistoryMaxBoom
+  GetHistoryMaxProsperityLevel
+  GetLastYearBoomLevel
+  GetNextLevelBoomScore
+  GetNextLevelReputation
+  GetPassProps
+  GetProsperityByType
+  GetProsperityLevel
+  GetProsperityLevelByScore
+  GetProsperityScore
+  GetProsperityScoreValue
+  GetSandboxData
+  GetScandalProps
+  GetUnLockNumber
+  GetUpgradeLock
+  IncreaseApplyCount
+  Init
+  InitProsperityList
+  isA
+  IsSatisfied
+  LoadProsperityConfig
+  MergeBlock
+  new
+  NewDay
+  onYear
+  ProsperityScoreChange
+  ResetUpdateNumber
+  Serialize
+  setBoom
+  setHistoryMaxBoomLevel
+  setHistoryMaxProsperityLevel
+  SetProsperityLevel
+  SetProsperityScore
+  SetUpgradeLock
+  Test
+  Tick
+  UI2S_BoomUpgradeCallback
+  UI2S_CityStageUpgradeCallback
+  UI2S_FireApplyResTalk
+  UI2S_MergeBlockFinished
+  UI2S_UpgradeCity
+  Uninit
+  UnLockAdviserCard
+  UnLockBoomReward
+  UnLockBuildingCard
+  UnLockMissingAdviserCard
+  UnlockMissingBuildingCard
+  UnlockMissingFunction
+  UnLockMissingVehicle
+  UnLockReward
+  UnLockTalent
+  UnLockVehicle
+  UnSerialize
+  UpdateBoom
+  UpdateCheckFrequency
+  UpdateHistoryMaxBoomLevel
+  UpdateHistoryMaxProsperityLevel
+  UpdateProsperityScoreByBuilding
+  UpdateProsperityScoreByStaticEntity
+  UpdateTotalProsperityScore
+  UpgradeCityStage
+  UpgradeStage
+
+=== Boom 模块字段 ===
+  bUnlockAdviser = true (boolean)
+  class = table: 000000009879AA90 (table)
+  prosperityLevel = 3 (number)
+  checkProsperity = false (boolean)
+  remainTime = -1 (number)
+  tbConditionFunc = table: 00000003E5EAB770 (table)
+  nUpdateNumPerSec = 1 (number)
+  unLockBlockIdList = table: 00000003E5EAA780 (table)
+  historyMaxBoomLevel = 14 (number)
+  block = table: 00000003E5EA9A60 (table)
+  boomLevel = 14 (number)
+  applying = false (boolean)
+  userdata: 0000000E073223B8 = true (boolean)
+  applyCount = 1 (number)
+  LevelConfig = table: 00000003E5EAB4A0 (table)
+  curApplyInfo = table: 00000003E5EAA690 (table)
+  bUpgradeLock = false (boolean)
+  isFirstApply = true (boolean)
+  tbProsperityList = table: 00000003A15B6C90 (table)
+  prosperity = 182 (number)
+  historyMaxBoom = 0 (number)
+  LevelConfig_Sandbox = table: 00000003E5EAB1D0 (table)
+  historyMaxProsperityLevel = 3 (number)
+  unlockNum = 0 (number)
+  tbCheckList = table: 0000000EEB205E40 (table)
+  isSyncUIed = true (boolean)
+  sceneryValue = 0 (number)
+  lastYearBoomLevel = 1 (number)
+
+=== 条件管理器状态 ===
+  条件配置数: 1
+
+======================================================================
+[2026-09-15 00:11:11] 高级-任务
+======================================================================
+=== 任务状态 ===
+未开始=0 进行中=0 已接=0 已完成=55
+任务总数 = 55
+方法：FinishAllTask=function: 0000000106B18270 / UnlockPrecondition=function: 0000000398A8C590 / FinishTaskByGDPL=function: 0000000106B181F0
+  姜寡妇所托 | 状态=4
+  一枣一棒 | 状态=4
+  引月 | 状态=4
+  望天郎 | 状态=4
+  寻人 | 状态=4
+  “黑子” | 状态=4
+  戏班子 | 状态=4
+  又见羽帮 | 状态=4
+  杜老大 | 状态=4
+  必先利其器 | 状态=4
+  天机门初选 | 状态=4
+  究竟是谁 | 状态=4
+  半山腰-暂废弃 | 状态=4
+  棋盘野趣 | 状态=4
+  鄂人医馆 | 状态=4
+  歪脖子枯树 | 状态=4
+  荷花池 | 状态=4
+  姜寡妇酒馆 | 状态=4
+  晏之敖 | 状态=4
+  寻书 | 状态=4
+  鸡飞蛋打 | 状态=4
+  流窜犯 | 状态=4
+  终极望天郎 | 状态=4
+  天机门复试 | 状态=4
+  又见鄂人兄 | 状态=4
+  鄂人弟 | 状态=4
+  酒客二 | 状态=4
+  白马武馆 | 状态=4
+  鄂人兄 | 状态=4
+  好事多磨 | 状态=4
+
+======================================================================
+[2026-09-15 00:11:11] 高级-游戏内面板
+======================================================================
+已注入=false 显示中=false 绘制次数=nil 最近错误=无 最近操作=无
+
+======================================================================
+[2026-09-15 00:11:14] 高级-时间流速实测
+======================================================================
+=== 时间流速实测（多点回归）===
+采样 5 点，窗口 12.68 实时秒；模拟时间前进 11059212.00 秒
+实测流速 619824.111 模拟秒 / 实时秒（回归斜率）
+实测 1 游戏日 ≈ 0.0 实时秒
+原版 1 游戏日 = 5.0 实时秒 -> 实测等效倍率 ≈ 1549560.28x
+游戏常量：SECONDS_PER_DAY=2.0 DAY_TIME_REAL=5.0 DAY_TICK_COUNT=2.0
+
+======================================================================
+[2026-09-15 00:13:29] 税收探查
+======================================================================
+=== 税收状态 ===
+类方法表已定位 = true
+类上 SendTaxPage 已替换 = true
+类上 OnDay 已替换 = true
+实例上 SendTaxPage 已替换 = true
+taxCount（累计缴税） = 0 / curPaytax（上次缴税） = 0
+品阶 boomLevel=14 税率=0.4% 现值预计缴税=35251 当前金钱=8812733
+当前日期 2/3/2（缴税时点 = 每年 1 月 1 日，year>1）
+
+======================================================================
+[2026-09-15 00:13:30] 蓝图探查
+======================================================================
+=== 蓝图系统探查 ===
+g_LBlueprintManager 方法: HasBlueprintSynthesis, GetBlockWorkingBlueprintSynthesisNum, GetWorkingBlueprintSynthesisLevelData, GetBlueprintSynthesisLevelData, CheckHaveValidBlueprintSynthesis, GetBlueprintSynthesisByGDPL
+地块数=57 合成中总数=0 有可用合成的地块=0
+谋士府 图纸研发中=?
+  研发成本=4900
+
+======================================================================
+[2026-09-15 00:13:31] NPC详情探查
+======================================================================
+=== NPC/城市管理器探查 ===
+g_CityManager: table
+  type=table
+  userdata: 00000003A7A85208 = true
+  m_mapCityCode2Info (table)
+  class (table)
+  m_lsCityInfo (table)
+  绑定方法: __gc, ctor, dtor, GetActiveCity, GetActiveCityByCode, GetCityInfoByCode, GetCityInfoList, GetClassName, isA, IsCityTileUsable, IsValidCityInfo, load_city_info, LoadCity, new, RandomCareer, Tick, UnLoadActiveCity
+  绑定字段: __cname=LCityManager
+  class 方法: __gc, ctor, dtor, GetActiveCity, GetActiveCityByCode, GetCityInfoByCode, GetCityInfoList, GetClassName, isA, IsCityTileUsable, IsValidCityInfo, load_city_info, LoadCity, new, RandomCareer, Tick, UnLoadActiveCity
+
+GetActiveCity(): nil
+GetCityInfoList(): table
+-- [城市信息] 1
+  type=table
+  Name = 情缘山庄
+  Code = demo_village
+城市信息条数 = 1
+-- [m_lsCityInfo] 1
+  type=table
+  Name = 情缘山庄
+  Code = demo_village
+
+=== 含 Npc/NPC 的全局 ===
+  g_CityNpcLifGenerator (table)
+  g_CityNpcNameGenerator (table)
+  g_NpcReactionConversationCfg (table)
+  g_LSightSeeingNPCMgr (table)
+      type=table
+      m_tbToRemoveRoleID (table)
+      m_nMaxNum = 50
+      m_nOnFrameLeftNum = 0
+      tbRoles (table)
+      userdata: 0000000399513268 = true
+      class (table)
+      绑定方法: __gc, _isCurveNodeValified, BatchGenerateTourNPC, BatchRecycleTourNPC, BatchRemoveTourNPC, CreateNPC, ctor, dtor, FindNextCurveNodeIndex, FrameMove, GenBirthPos, GetClassName, GetNPCRoutesByCurveBulk, GetPathPoint, GetTourNPCNum, isA, new, RecycleTourNPC
+      绑定字段: __cname=LSightSeeingNPCMgr, BIRTH_PAVILION_RATE=30, CARDINAL_NUMBER=100, HALF_RATE=50, VIEW_LIMIT_DISTANCE=5, VIEW_NUM_PER_SCOPE=50
+      class 方法: __gc, _isCurveNodeValified, BatchGenerateTourNPC, BatchRecycleTourNPC, BatchRemoveTourNPC, CreateNPC, ctor, dtor, FindNextCurveNodeIndex, FrameMove, GenBirthPos, GetClassName, GetNPCRoutesByCurveBulk, GetPathPoint, GetTourNPCNum, isA, new, RecycleTourNPC
+  g_RoadNpcFactory (table)
+  g_RoadNpcPath (table)
+  g_LNPCManager (table)
+      type=table
+      NpcRes (table)
+      class (table)
+      userdata: 00000000943B2348 = true
+      npcs (table)
+      绑定方法: __gc, _LoadNpc, _LoadNpcRes, _ParseAudio, _ParseAudioEventName, ctor, dtor, GetClassName, GetGenderRPText, GetNPC, GetNpcEmotionAudio, GetNpcHappinessSound, GetNpcRes, Init, isA, new, UnInit
+      绑定字段: __cname=LNPCManager
+      class 方法: __gc, _LoadNpc, _LoadNpcRes, _ParseAudio, _ParseAudioEventName, ctor, dtor, GetClassName, GetGenderRPText, GetNPC, GetNpcEmotionAudio, GetNpcHappinessSound, GetNpcRes, Init, isA, new, UnInit
+  g_ConverseNpcType (table)
+
+======================================================================
+[2026-09-15 00:52:17] 高级-地块
+======================================================================
+=== 地块对象探查 ===
+
+=== 全局变量搜索 ===
+  KG3D_TERRAIN_OPTION (type=table)
+  ImGuiPlotType (type=table)
+  g_blockMgr (type=table)
+  KG3D_LAND_SCAPE_OPTION (type=table)
+  g_blocksLogicCfg (type=table)
+  g_blockGuide (type=table)
+  KLLandscapeProxy (type=table)
+  g_KmscPlotPool (type=table)
+  g_BlockSerializationCollector (type=table)
+  g_blockEstimator (type=table)
+  g_blockEventDefine (type=table)
+  block_define (type=table)
+  g_BuildingRoadBlockTriggerStatus (type=table)
+  KG3D_LAND_SCAPE_NOD_LOD_PARAM (type=table)
+  g_BlockEventType (type=table)
+  KLLandscapeMaterialPool (type=table)
+
+=== g_blockMgr 导出 ===
+  type=table
+  m_tbResourceType2AttributeType (table)
+  m_tbBlockStatus (table)
+  m_nMinRadius = 3500
+  m_nRayCastDistance = 200000
+  m_tbHappinessNeedSourceType (table)
+  m_tbBlocks (table)
+  m_tbDLCInjectedState (table)
+  m_tbTrainLoadage (table)
+  m_tbConnections (table)
+  m_nCameraInBlockID = 1
+  userdata: 00000003A37743B8 = true
+  m_uso (table)
+  m_tbnLastCompetitionList (table)
+  m_UnLockDisaster (table)
+  m_tbPopulationMapConfig (table)
+  bIsGMPass = false
+  m_nSelectedBlockId = 1
+  super (table)
+  m_tbHapinessLevelCfg (table)
+  m_tbComputeHappinessLevelSourceType (table)
+  m_nSandBoxMoniCombinedBlockNum = 1
+  m_bUnLockQuintessence = true
+  m_uIgnoreMask = 51932
+  m_bFailedProtect (table)
+  m_Connection (table)
+  class (table)
+  m_tbCompleteChain (table)
+  m_nChallengingBlockId = 0
+  tbBlockDisasterCheckData (table)
+  m_nCollectingPriority = 0
+  m_nLastSelectedBlockID = 1
+  m_nLastHapinessLevelForAudio = 9
+  m_nMaxRadius = 79500
+  m_tbConsumeSourceType (table)
+  绑定方法: __gc, _EndNewDay, _LoadHappinessConfig, _NewDay, _onDLCInjected, _RegisterEvent, _syncUI, _UnregisterEvent, AddDisasterTriggerNumber, AddDisasterTriggerTime, AddRewardCardToCampOffice, bCameraInBlock, BuyBlock, CancelChallenge, CheckAdvisersEnough, CheckAllBlockPurchaseCondition, CheckAndSwitchHappinessAudio, CheckBlockStrategicConnect, CheckCanBuyBlock, CheckCanPurchaseBlock, CheckHaveEnoughResource, CheckIsInBound, CheckIsUnLockDisasterByDisasterType, CheckPreconditions, CreateBlocks, CreateBlocksContract, CreateCamp, CreateConnections, CreateOneBlock, CreateThyCamp, ctor, dtor, EndChallengeBlock, ForceUpdateSomeData, FrameTick, GeIsUnLockQuintessence, GetActualBlockID, GetAllActiveBlocks, GetAllBlockDisasterNum, GetAllBlockDisasterTime, GetAllBlocks, GetAllBlockSpecifyDisasterNum, GetAllBlockSpecifyDisasterTime, GetAllCombinedBlocks, GetAllConnections, GetAllOpenBlocks, GetAllOwnedBlocks, GetAllOwnedBlocksNoSpecial, GetAllPeaceBlock, GetBelongConnections, GetBlock, GetBlockByDetail, GetBlockDisasterNum, GetBlockDisasterTime, GetBlocksBelongCamp, GetBlockSpecifyDisasterNum, GetBlockSpecifyDisasterTime, GetBlockStateByID, GetBlockStatus, GetBlockStatusByID, GetCameraCurrentBlockID, GetCameraInBlockID, GetCampBlock, GetChallengingBlock, GetChallengingBlockID, GetClassName, GetCollectingPriority, GetCollectorKey, GetCombinedBlock, GetCombinedBlockNum, GetCombinedBlockNumber, GetCompleteChain, GetConnectionInst, GetConnectionPassDetails, GetConnectionPassPair, GetCurrentOpenBlocks, GetDLCInjected, GetFailedProtectStatus, GetFinalResult, GetHappinessCfgByLevel, GetIsCompleteSussess, GetIsInThisBlock, GetIsTestSussess, GetLastSelectedBlockID, GetLastSelectedBuildingGDP, GetOriginBlock, GetPuchaseBlockId, GetSandBoxMoniCombinedBlockNum, GetSelectedBlock, GetSelectedBlockID, GetSlotInfo, GetTrainLoadageData, GetUniqueCardMapByBlockID, GetUnlockedPeaceBlock, GetUpdateBlock, GiveRewardBuffToCampBlock, GiveRewardBuffToChallengeBlock, GiveRewardToCampOffice, GMFinishCurTarget, GMReChallengeBlock, HandEndChallengeBlock, HasSelectedBlock, Init, InitTrainTable, InitUnlockDisaster, isA, IsBlockActive, IsBlockLocked, IsBlockLockedWhenLeisure, IsBlockShow, IsChallengingBlock, IsCombinedAllChallengeBlock, LoadFromStorage, LocateToBlock, MoveCameraByBlockId, MoveCameraToBuildByGDP, new, OnCollectingSerializableObjects, OnTrainLoaded, OnUnserializingObject, PresentTick, PurchaseBlock, PurchaseBlockSuccess, SelectBlock, SelectBlockByMoving, SelectBlockNoMove, SelectWorldObjectByGDP, SetCameraInBlockID, SetCollectingPriority, SetCompleteChain, SetDisasterUnlockStatus, SetFailedProtectStatus, SetFinalResult, SetPreparationTime, SetPuchaseBlockId, SetSandBoxMoniCombinedBlockNum, StartChallengeBlock, StartPurchaseBlock, TestUnit, Tick, TickLeave, UnInit, UnLock, UnSelectAllBlockWorldObject, UnSelectWorldObjectByBlockID, UpdateFinishedPeaceBlock
+  绑定字段: __cname=LBlockMgr
+  class 方法: __gc, _EndNewDay, _LoadHappinessConfig, _NewDay, _onDLCInjected, _RegisterEvent, _syncUI, _UnregisterEvent, AddDisasterTriggerNumber, AddDisasterTriggerTime, AddRewardCardToCampOffice, bCameraInBlock, BuyBlock, CancelChallenge, CheckAdvisersEnough, CheckAllBlockPurchaseCondition, CheckAndSwitchHappinessAudio, CheckBlockStrategicConnect, CheckCanBuyBlock, CheckCanPurchaseBlock, CheckHaveEnoughResource, CheckIsInBound, CheckIsUnLockDisasterByDisasterType, CheckPreconditions, CreateBlocks, CreateBlocksContract, CreateCamp, CreateConnections, CreateOneBlock, CreateThyCamp, ctor, dtor, EndChallengeBlock, ForceUpdateSomeData, FrameTick, GeIsUnLockQuintessence, GetActualBlockID, GetAllActiveBlocks, GetAllBlockDisasterNum, GetAllBlockDisasterTime, GetAllBlocks, GetAllBlockSpecifyDisasterNum, GetAllBlockSpecifyDisasterTime, GetAllCombinedBlocks, GetAllConnections, GetAllOpenBlocks, GetAllOwnedBlocks, GetAllOwnedBlocksNoSpecial, GetAllPeaceBlock, GetBelongConnections, GetBlock, GetBlockByDetail, GetBlockDisasterNum, GetBlockDisasterTime, GetBlocksBelongCamp, GetBlockSpecifyDisasterNum, GetBlockSpecifyDisasterTime, GetBlockStateByID, GetBlockStatus, GetBlockStatusByID, GetCameraCurrentBlockID, GetCameraInBlockID, GetCampBlock, GetChallengingBlock, GetChallengingBlockID, GetClassName, GetCollectingPriority, GetCollectorKey, GetCombinedBlock, GetCombinedBlockNum, GetCombinedBlockNumber, GetCompleteChain, GetConnectionInst, GetConnectionPassDetails, GetConnectionPassPair, GetCurrentOpenBlocks, GetDLCInjected, GetFailedProtectStatus, GetFinalResult, GetHappinessCfgByLevel, GetIsCompleteSussess, GetIsInThisBlock, GetIsTestSussess, GetLastSelectedBlockID, GetLastSelectedBuildingGDP, GetOriginBlock, GetPuchaseBlockId, GetSandBoxMoniCombinedBlockNum, GetSelectedBlock, GetSelectedBlockID, GetSlotInfo, GetTrainLoadageData, GetUniqueCardMapByBlockID, GetUnlockedPeaceBlock, GetUpdateBlock, GiveRewardBuffToCampBlock, GiveRewardBuffToChallengeBlock, GiveRewardToCampOffice, GMFinishCurTarget, GMReChallengeBlock, HandEndChallengeBlock, HasSelectedBlock, Init, InitTrainTable, InitUnlockDisaster, isA, IsBlockActive, IsBlockLocked, IsBlockLockedWhenLeisure, IsBlockShow, IsChallengingBlock, IsCombinedAllChallengeBlock, LoadFromStorage, LocateToBlock, MoveCameraByBlockId, MoveCameraToBuildByGDP, new, OnCollectingSerializableObjects, OnTrainLoaded, OnUnserializingObject, PresentTick, PurchaseBlock, PurchaseBlockSuccess, SelectBlock, SelectBlockByMoving, SelectBlockNoMove, SelectWorldObjectByGDP, SetCameraInBlockID, SetCollectingPriority, SetCompleteChain, SetDisasterUnlockStatus, SetFailedProtectStatus, SetFinalResult, SetPreparationTime, SetPuchaseBlockId, SetSandBoxMoniCombinedBlockNum, StartChallengeBlock, StartPurchaseBlock, TestUnit, Tick, TickLeave, UnInit, UnLock, UnSelectAllBlockWorldObject, UnSelectWorldObjectByBlockID, UpdateFinishedPeaceBlock
+
+======================================================================
+[2026-09-15 00:52:18] 高级-地块
+======================================================================
+=== 地块对象探查 ===
+
+=== 全局变量搜索 ===
+  KG3D_TERRAIN_OPTION (type=table)
+  ImGuiPlotType (type=table)
+  g_blockMgr (type=table)
+  KG3D_LAND_SCAPE_OPTION (type=table)
+  g_blocksLogicCfg (type=table)
+  g_blockGuide (type=table)
+  KLLandscapeProxy (type=table)
+  g_KmscPlotPool (type=table)
+  g_BlockSerializationCollector (type=table)
+  g_blockEstimator (type=table)
+  g_blockEventDefine (type=table)
+  block_define (type=table)
+  g_BuildingRoadBlockTriggerStatus (type=table)
+  KG3D_LAND_SCAPE_NOD_LOD_PARAM (type=table)
+  g_BlockEventType (type=table)
+  KLLandscapeMaterialPool (type=table)
+
+=== g_blockMgr 导出 ===
+  type=table
+  m_tbResourceType2AttributeType (table)
+  m_tbBlockStatus (table)
+  m_nMinRadius = 3500
+  m_nRayCastDistance = 200000
+  m_tbHappinessNeedSourceType (table)
+  m_tbBlocks (table)
+  m_tbDLCInjectedState (table)
+  m_tbTrainLoadage (table)
+  m_tbConnections (table)
+  m_nCameraInBlockID = 1
+  userdata: 00000003A37743B8 = true
+  m_uso (table)
+  m_tbnLastCompetitionList (table)
+  m_UnLockDisaster (table)
+  m_tbPopulationMapConfig (table)
+  bIsGMPass = false
+  m_nSelectedBlockId = 1
+  super (table)
+  m_tbHapinessLevelCfg (table)
+  m_tbComputeHappinessLevelSourceType (table)
+  m_nSandBoxMoniCombinedBlockNum = 1
+  m_bUnLockQuintessence = true
+  m_uIgnoreMask = 51932
+  m_bFailedProtect (table)
+  m_Connection (table)
+  class (table)
+  m_tbCompleteChain (table)
+  m_nChallengingBlockId = 0
+  tbBlockDisasterCheckData (table)
+  m_nCollectingPriority = 0
+  m_nLastSelectedBlockID = 1
+  m_nLastHapinessLevelForAudio = 9
+  m_nMaxRadius = 79500
+  m_tbConsumeSourceType (table)
+  绑定方法: __gc, _EndNewDay, _LoadHappinessConfig, _NewDay, _onDLCInjected, _RegisterEvent, _syncUI, _UnregisterEvent, AddDisasterTriggerNumber, AddDisasterTriggerTime, AddRewardCardToCampOffice, bCameraInBlock, BuyBlock, CancelChallenge, CheckAdvisersEnough, CheckAllBlockPurchaseCondition, CheckAndSwitchHappinessAudio, CheckBlockStrategicConnect, CheckCanBuyBlock, CheckCanPurchaseBlock, CheckHaveEnoughResource, CheckIsInBound, CheckIsUnLockDisasterByDisasterType, CheckPreconditions, CreateBlocks, CreateBlocksContract, CreateCamp, CreateConnections, CreateOneBlock, CreateThyCamp, ctor, dtor, EndChallengeBlock, ForceUpdateSomeData, FrameTick, GeIsUnLockQuintessence, GetActualBlockID, GetAllActiveBlocks, GetAllBlockDisasterNum, GetAllBlockDisasterTime, GetAllBlocks, GetAllBlockSpecifyDisasterNum, GetAllBlockSpecifyDisasterTime, GetAllCombinedBlocks, GetAllConnections, GetAllOpenBlocks, GetAllOwnedBlocks, GetAllOwnedBlocksNoSpecial, GetAllPeaceBlock, GetBelongConnections, GetBlock, GetBlockByDetail, GetBlockDisasterNum, GetBlockDisasterTime, GetBlocksBelongCamp, GetBlockSpecifyDisasterNum, GetBlockSpecifyDisasterTime, GetBlockStateByID, GetBlockStatus, GetBlockStatusByID, GetCameraCurrentBlockID, GetCameraInBlockID, GetCampBlock, GetChallengingBlock, GetChallengingBlockID, GetClassName, GetCollectingPriority, GetCollectorKey, GetCombinedBlock, GetCombinedBlockNum, GetCombinedBlockNumber, GetCompleteChain, GetConnectionInst, GetConnectionPassDetails, GetConnectionPassPair, GetCurrentOpenBlocks, GetDLCInjected, GetFailedProtectStatus, GetFinalResult, GetHappinessCfgByLevel, GetIsCompleteSussess, GetIsInThisBlock, GetIsTestSussess, GetLastSelectedBlockID, GetLastSelectedBuildingGDP, GetOriginBlock, GetPuchaseBlockId, GetSandBoxMoniCombinedBlockNum, GetSelectedBlock, GetSelectedBlockID, GetSlotInfo, GetTrainLoadageData, GetUniqueCardMapByBlockID, GetUnlockedPeaceBlock, GetUpdateBlock, GiveRewardBuffToCampBlock, GiveRewardBuffToChallengeBlock, GiveRewardToCampOffice, GMFinishCurTarget, GMReChallengeBlock, HandEndChallengeBlock, HasSelectedBlock, Init, InitTrainTable, InitUnlockDisaster, isA, IsBlockActive, IsBlockLocked, IsBlockLockedWhenLeisure, IsBlockShow, IsChallengingBlock, IsCombinedAllChallengeBlock, LoadFromStorage, LocateToBlock, MoveCameraByBlockId, MoveCameraToBuildByGDP, new, OnCollectingSerializableObjects, OnTrainLoaded, OnUnserializingObject, PresentTick, PurchaseBlock, PurchaseBlockSuccess, SelectBlock, SelectBlockByMoving, SelectBlockNoMove, SelectWorldObjectByGDP, SetCameraInBlockID, SetCollectingPriority, SetCompleteChain, SetDisasterUnlockStatus, SetFailedProtectStatus, SetFinalResult, SetPreparationTime, SetPuchaseBlockId, SetSandBoxMoniCombinedBlockNum, StartChallengeBlock, StartPurchaseBlock, TestUnit, Tick, TickLeave, UnInit, UnLock, UnSelectAllBlockWorldObject, UnSelectWorldObjectByBlockID, UpdateFinishedPeaceBlock
+  绑定字段: __cname=LBlockMgr
+  class 方法: __gc, _EndNewDay, _LoadHappinessConfig, _NewDay, _onDLCInjected, _RegisterEvent, _syncUI, _UnregisterEvent, AddDisasterTriggerNumber, AddDisasterTriggerTime, AddRewardCardToCampOffice, bCameraInBlock, BuyBlock, CancelChallenge, CheckAdvisersEnough, CheckAllBlockPurchaseCondition, CheckAndSwitchHappinessAudio, CheckBlockStrategicConnect, CheckCanBuyBlock, CheckCanPurchaseBlock, CheckHaveEnoughResource, CheckIsInBound, CheckIsUnLockDisasterByDisasterType, CheckPreconditions, CreateBlocks, CreateBlocksContract, CreateCamp, CreateConnections, CreateOneBlock, CreateThyCamp, ctor, dtor, EndChallengeBlock, ForceUpdateSomeData, FrameTick, GeIsUnLockQuintessence, GetActualBlockID, GetAllActiveBlocks, GetAllBlockDisasterNum, GetAllBlockDisasterTime, GetAllBlocks, GetAllBlockSpecifyDisasterNum, GetAllBlockSpecifyDisasterTime, GetAllCombinedBlocks, GetAllConnections, GetAllOpenBlocks, GetAllOwnedBlocks, GetAllOwnedBlocksNoSpecial, GetAllPeaceBlock, GetBelongConnections, GetBlock, GetBlockByDetail, GetBlockDisasterNum, GetBlockDisasterTime, GetBlocksBelongCamp, GetBlockSpecifyDisasterNum, GetBlockSpecifyDisasterTime, GetBlockStateByID, GetBlockStatus, GetBlockStatusByID, GetCameraCurrentBlockID, GetCameraInBlockID, GetCampBlock, GetChallengingBlock, GetChallengingBlockID, GetClassName, GetCollectingPriority, GetCollectorKey, GetCombinedBlock, GetCombinedBlockNum, GetCombinedBlockNumber, GetCompleteChain, GetConnectionInst, GetConnectionPassDetails, GetConnectionPassPair, GetCurrentOpenBlocks, GetDLCInjected, GetFailedProtectStatus, GetFinalResult, GetHappinessCfgByLevel, GetIsCompleteSussess, GetIsInThisBlock, GetIsTestSussess, GetLastSelectedBlockID, GetLastSelectedBuildingGDP, GetOriginBlock, GetPuchaseBlockId, GetSandBoxMoniCombinedBlockNum, GetSelectedBlock, GetSelectedBlockID, GetSlotInfo, GetTrainLoadageData, GetUniqueCardMapByBlockID, GetUnlockedPeaceBlock, GetUpdateBlock, GiveRewardBuffToCampBlock, GiveRewardBuffToChallengeBlock, GiveRewardToCampOffice, GMFinishCurTarget, GMReChallengeBlock, HandEndChallengeBlock, HasSelectedBlock, Init, InitTrainTable, InitUnlockDisaster, isA, IsBlockActive, IsBlockLocked, IsBlockLockedWhenLeisure, IsBlockShow, IsChallengingBlock, IsCombinedAllChallengeBlock, LoadFromStorage, LocateToBlock, MoveCameraByBlockId, MoveCameraToBuildByGDP, new, OnCollectingSerializableObjects, OnTrainLoaded, OnUnserializingObject, PresentTick, PurchaseBlock, PurchaseBlockSuccess, SelectBlock, SelectBlockByMoving, SelectBlockNoMove, SelectWorldObjectByGDP, SetCameraInBlockID, SetCollectingPriority, SetCompleteChain, SetDisasterUnlockStatus, SetFailedProtectStatus, SetFinalResult, SetPreparationTime, SetPuchaseBlockId, SetSandBoxMoniCombinedBlockNum, StartChallengeBlock, StartPurchaseBlock, TestUnit, Tick, TickLeave, UnInit, UnLock, UnSelectAllBlockWorldObject, UnSelectWorldObjectByBlockID, UpdateFinishedPeaceBlock
+
+======================================================================
+[2026-09-15 00:52:19] 高级-地块
+======================================================================
+=== 地块对象探查 ===
+
+=== 全局变量搜索 ===
+  KG3D_TERRAIN_OPTION (type=table)
+  ImGuiPlotType (type=table)
+  g_blockMgr (type=table)
+  KG3D_LAND_SCAPE_OPTION (type=table)
+  g_blocksLogicCfg (type=table)
+  g_blockGuide (type=table)
+  KLLandscapeProxy (type=table)
+  g_KmscPlotPool (type=table)
+  g_BlockSerializationCollector (type=table)
+  g_blockEstimator (type=table)
+  g_blockEventDefine (type=table)
+  block_define (type=table)
+  g_BuildingRoadBlockTriggerStatus (type=table)
+  KG3D_LAND_SCAPE_NOD_LOD_PARAM (type=table)
+  g_BlockEventType (type=table)
+  KLLandscapeMaterialPool (type=table)
+
+=== g_blockMgr 导出 ===
+  type=table
+  m_tbResourceType2AttributeType (table)
+  m_tbBlockStatus (table)
+  m_nMinRadius = 3500
+  m_nRayCastDistance = 200000
+  m_tbHappinessNeedSourceType (table)
+  m_tbBlocks (table)
+  m_tbDLCInjectedState (table)
+  m_tbTrainLoadage (table)
+  m_tbConnections (table)
+  m_nCameraInBlockID = 1
+  userdata: 00000003A37743B8 = true
+  m_uso (table)
+  m_tbnLastCompetitionList (table)
+  m_UnLockDisaster (table)
+  m_tbPopulationMapConfig (table)
+  bIsGMPass = false
+  m_nSelectedBlockId = 1
+  super (table)
+  m_tbHapinessLevelCfg (table)
+  m_tbComputeHappinessLevelSourceType (table)
+  m_nSandBoxMoniCombinedBlockNum = 1
+  m_bUnLockQuintessence = true
+  m_uIgnoreMask = 51932
+  m_bFailedProtect (table)
+  m_Connection (table)
+  class (table)
+  m_tbCompleteChain (table)
+  m_nChallengingBlockId = 0
+  tbBlockDisasterCheckData (table)
+  m_nCollectingPriority = 0
+  m_nLastSelectedBlockID = 1
+  m_nLastHapinessLevelForAudio = 9
+  m_nMaxRadius = 79500
+  m_tbConsumeSourceType (table)
+  绑定方法: __gc, _EndNewDay, _LoadHappinessConfig, _NewDay, _onDLCInjected, _RegisterEvent, _syncUI, _UnregisterEvent, AddDisasterTriggerNumber, AddDisasterTriggerTime, AddRewardCardToCampOffice, bCameraInBlock, BuyBlock, CancelChallenge, CheckAdvisersEnough, CheckAllBlockPurchaseCondition, CheckAndSwitchHappinessAudio, CheckBlockStrategicConnect, CheckCanBuyBlock, CheckCanPurchaseBlock, CheckHaveEnoughResource, CheckIsInBound, CheckIsUnLockDisasterByDisasterType, CheckPreconditions, CreateBlocks, CreateBlocksContract, CreateCamp, CreateConnections, CreateOneBlock, CreateThyCamp, ctor, dtor, EndChallengeBlock, ForceUpdateSomeData, FrameTick, GeIsUnLockQuintessence, GetActualBlockID, GetAllActiveBlocks, GetAllBlockDisasterNum, GetAllBlockDisasterTime, GetAllBlocks, GetAllBlockSpecifyDisasterNum, GetAllBlockSpecifyDisasterTime, GetAllCombinedBlocks, GetAllConnections, GetAllOpenBlocks, GetAllOwnedBlocks, GetAllOwnedBlocksNoSpecial, GetAllPeaceBlock, GetBelongConnections, GetBlock, GetBlockByDetail, GetBlockDisasterNum, GetBlockDisasterTime, GetBlocksBelongCamp, GetBlockSpecifyDisasterNum, GetBlockSpecifyDisasterTime, GetBlockStateByID, GetBlockStatus, GetBlockStatusByID, GetCameraCurrentBlockID, GetCameraInBlockID, GetCampBlock, GetChallengingBlock, GetChallengingBlockID, GetClassName, GetCollectingPriority, GetCollectorKey, GetCombinedBlock, GetCombinedBlockNum, GetCombinedBlockNumber, GetCompleteChain, GetConnectionInst, GetConnectionPassDetails, GetConnectionPassPair, GetCurrentOpenBlocks, GetDLCInjected, GetFailedProtectStatus, GetFinalResult, GetHappinessCfgByLevel, GetIsCompleteSussess, GetIsInThisBlock, GetIsTestSussess, GetLastSelectedBlockID, GetLastSelectedBuildingGDP, GetOriginBlock, GetPuchaseBlockId, GetSandBoxMoniCombinedBlockNum, GetSelectedBlock, GetSelectedBlockID, GetSlotInfo, GetTrainLoadageData, GetUniqueCardMapByBlockID, GetUnlockedPeaceBlock, GetUpdateBlock, GiveRewardBuffToCampBlock, GiveRewardBuffToChallengeBlock, GiveRewardToCampOffice, GMFinishCurTarget, GMReChallengeBlock, HandEndChallengeBlock, HasSelectedBlock, Init, InitTrainTable, InitUnlockDisaster, isA, IsBlockActive, IsBlockLocked, IsBlockLockedWhenLeisure, IsBlockShow, IsChallengingBlock, IsCombinedAllChallengeBlock, LoadFromStorage, LocateToBlock, MoveCameraByBlockId, MoveCameraToBuildByGDP, new, OnCollectingSerializableObjects, OnTrainLoaded, OnUnserializingObject, PresentTick, PurchaseBlock, PurchaseBlockSuccess, SelectBlock, SelectBlockByMoving, SelectBlockNoMove, SelectWorldObjectByGDP, SetCameraInBlockID, SetCollectingPriority, SetCompleteChain, SetDisasterUnlockStatus, SetFailedProtectStatus, SetFinalResult, SetPreparationTime, SetPuchaseBlockId, SetSandBoxMoniCombinedBlockNum, StartChallengeBlock, StartPurchaseBlock, TestUnit, Tick, TickLeave, UnInit, UnLock, UnSelectAllBlockWorldObject, UnSelectWorldObjectByBlockID, UpdateFinishedPeaceBlock
+  绑定字段: __cname=LBlockMgr
+  class 方法: __gc, _EndNewDay, _LoadHappinessConfig, _NewDay, _onDLCInjected, _RegisterEvent, _syncUI, _UnregisterEvent, AddDisasterTriggerNumber, AddDisasterTriggerTime, AddRewardCardToCampOffice, bCameraInBlock, BuyBlock, CancelChallenge, CheckAdvisersEnough, CheckAllBlockPurchaseCondition, CheckAndSwitchHappinessAudio, CheckBlockStrategicConnect, CheckCanBuyBlock, CheckCanPurchaseBlock, CheckHaveEnoughResource, CheckIsInBound, CheckIsUnLockDisasterByDisasterType, CheckPreconditions, CreateBlocks, CreateBlocksContract, CreateCamp, CreateConnections, CreateOneBlock, CreateThyCamp, ctor, dtor, EndChallengeBlock, ForceUpdateSomeData, FrameTick, GeIsUnLockQuintessence, GetActualBlockID, GetAllActiveBlocks, GetAllBlockDisasterNum, GetAllBlockDisasterTime, GetAllBlocks, GetAllBlockSpecifyDisasterNum, GetAllBlockSpecifyDisasterTime, GetAllCombinedBlocks, GetAllConnections, GetAllOpenBlocks, GetAllOwnedBlocks, GetAllOwnedBlocksNoSpecial, GetAllPeaceBlock, GetBelongConnections, GetBlock, GetBlockByDetail, GetBlockDisasterNum, GetBlockDisasterTime, GetBlocksBelongCamp, GetBlockSpecifyDisasterNum, GetBlockSpecifyDisasterTime, GetBlockStateByID, GetBlockStatus, GetBlockStatusByID, GetCameraCurrentBlockID, GetCameraInBlockID, GetCampBlock, GetChallengingBlock, GetChallengingBlockID, GetClassName, GetCollectingPriority, GetCollectorKey, GetCombinedBlock, GetCombinedBlockNum, GetCombinedBlockNumber, GetCompleteChain, GetConnectionInst, GetConnectionPassDetails, GetConnectionPassPair, GetCurrentOpenBlocks, GetDLCInjected, GetFailedProtectStatus, GetFinalResult, GetHappinessCfgByLevel, GetIsCompleteSussess, GetIsInThisBlock, GetIsTestSussess, GetLastSelectedBlockID, GetLastSelectedBuildingGDP, GetOriginBlock, GetPuchaseBlockId, GetSandBoxMoniCombinedBlockNum, GetSelectedBlock, GetSelectedBlockID, GetSlotInfo, GetTrainLoadageData, GetUniqueCardMapByBlockID, GetUnlockedPeaceBlock, GetUpdateBlock, GiveRewardBuffToCampBlock, GiveRewardBuffToChallengeBlock, GiveRewardToCampOffice, GMFinishCurTarget, GMReChallengeBlock, HandEndChallengeBlock, HasSelectedBlock, Init, InitTrainTable, InitUnlockDisaster, isA, IsBlockActive, IsBlockLocked, IsBlockLockedWhenLeisure, IsBlockShow, IsChallengingBlock, IsCombinedAllChallengeBlock, LoadFromStorage, LocateToBlock, MoveCameraByBlockId, MoveCameraToBuildByGDP, new, OnCollectingSerializableObjects, OnTrainLoaded, OnUnserializingObject, PresentTick, PurchaseBlock, PurchaseBlockSuccess, SelectBlock, SelectBlockByMoving, SelectBlockNoMove, SelectWorldObjectByGDP, SetCameraInBlockID, SetCollectingPriority, SetCompleteChain, SetDisasterUnlockStatus, SetFailedProtectStatus, SetFinalResult, SetPreparationTime, SetPuchaseBlockId, SetSandBoxMoniCombinedBlockNum, StartChallengeBlock, StartPurchaseBlock, TestUnit, Tick, TickLeave, UnInit, UnLock, UnSelectAllBlockWorldObject, UnSelectWorldObjectByBlockID, UpdateFinishedPeaceBlock
+
+======================================================================
+[2026-09-15 00:52:20] 高级-地块
+======================================================================
+=== 地块对象探查 ===
+
+=== 全局变量搜索 ===
+  KG3D_TERRAIN_OPTION (type=table)
+  ImGuiPlotType (type=table)
+  g_blockMgr (type=table)
+  KG3D_LAND_SCAPE_OPTION (type=table)
+  g_blocksLogicCfg (type=table)
+  g_blockGuide (type=table)
+  KLLandscapeProxy (type=table)
+  g_KmscPlotPool (type=table)
+  g_BlockSerializationCollector (type=table)
+  g_blockEstimator (type=table)
+  g_blockEventDefine (type=table)
+  block_define (type=table)
+  g_BuildingRoadBlockTriggerStatus (type=table)
+  KG3D_LAND_SCAPE_NOD_LOD_PARAM (type=table)
+  g_BlockEventType (type=table)
+  KLLandscapeMaterialPool (type=table)
+
+=== g_blockMgr 导出 ===
+  type=table
+  m_tbResourceType2AttributeType (table)
+  m_tbBlockStatus (table)
+  m_nMinRadius = 3500
+  m_nRayCastDistance = 200000
+  m_tbHappinessNeedSourceType (table)
+  m_tbBlocks (table)
+  m_tbDLCInjectedState (table)
+  m_tbTrainLoadage (table)
+  m_tbConnections (table)
+  m_nCameraInBlockID = 1
+  userdata: 00000003A37743B8 = true
+  m_uso (table)
+  m_tbnLastCompetitionList (table)
+  m_UnLockDisaster (table)
+  m_tbPopulationMapConfig (table)
+  bIsGMPass = false
+  m_nSelectedBlockId = 1
+  super (table)
+  m_tbHapinessLevelCfg (table)
+  m_tbComputeHappinessLevelSourceType (table)
+  m_nSandBoxMoniCombinedBlockNum = 1
+  m_bUnLockQuintessence = true
+  m_uIgnoreMask = 51932
+  m_bFailedProtect (table)
+  m_Connection (table)
+  class (table)
+  m_tbCompleteChain (table)
+  m_nChallengingBlockId = 0
+  tbBlockDisasterCheckData (table)
+  m_nCollectingPriority = 0
+  m_nLastSelectedBlockID = 1
+  m_nLastHapinessLevelForAudio = 9
+  m_nMaxRadius = 79500
+  m_tbConsumeSourceType (table)
+  绑定方法: __gc, _EndNewDay, _LoadHappinessConfig, _NewDay, _onDLCInjected, _RegisterEvent, _syncUI, _UnregisterEvent, AddDisasterTriggerNumber, AddDisasterTriggerTime, AddRewardCardToCampOffice, bCameraInBlock, BuyBlock, CancelChallenge, CheckAdvisersEnough, CheckAllBlockPurchaseCondition, CheckAndSwitchHappinessAudio, CheckBlockStrategicConnect, CheckCanBuyBlock, CheckCanPurchaseBlock, CheckHaveEnoughResource, CheckIsInBound, CheckIsUnLockDisasterByDisasterType, CheckPreconditions, CreateBlocks, CreateBlocksContract, CreateCamp, CreateConnections, CreateOneBlock, CreateThyCamp, ctor, dtor, EndChallengeBlock, ForceUpdateSomeData, FrameTick, GeIsUnLockQuintessence, GetActualBlockID, GetAllActiveBlocks, GetAllBlockDisasterNum, GetAllBlockDisasterTime, GetAllBlocks, GetAllBlockSpecifyDisasterNum, GetAllBlockSpecifyDisasterTime, GetAllCombinedBlocks, GetAllConnections, GetAllOpenBlocks, GetAllOwnedBlocks, GetAllOwnedBlocksNoSpecial, GetAllPeaceBlock, GetBelongConnections, GetBlock, GetBlockByDetail, GetBlockDisasterNum, GetBlockDisasterTime, GetBlocksBelongCamp, GetBlockSpecifyDisasterNum, GetBlockSpecifyDisasterTime, GetBlockStateByID, GetBlockStatus, GetBlockStatusByID, GetCameraCurrentBlockID, GetCameraInBlockID, GetCampBlock, GetChallengingBlock, GetChallengingBlockID, GetClassName, GetCollectingPriority, GetCollectorKey, GetCombinedBlock, GetCombinedBlockNum, GetCombinedBlockNumber, GetCompleteChain, GetConnectionInst, GetConnectionPassDetails, GetConnectionPassPair, GetCurrentOpenBlocks, GetDLCInjected, GetFailedProtectStatus, GetFinalResult, GetHappinessCfgByLevel, GetIsCompleteSussess, GetIsInThisBlock, GetIsTestSussess, GetLastSelectedBlockID, GetLastSelectedBuildingGDP, GetOriginBlock, GetPuchaseBlockId, GetSandBoxMoniCombinedBlockNum, GetSelectedBlock, GetSelectedBlockID, GetSlotInfo, GetTrainLoadageData, GetUniqueCardMapByBlockID, GetUnlockedPeaceBlock, GetUpdateBlock, GiveRewardBuffToCampBlock, GiveRewardBuffToChallengeBlock, GiveRewardToCampOffice, GMFinishCurTarget, GMReChallengeBlock, HandEndChallengeBlock, HasSelectedBlock, Init, InitTrainTable, InitUnlockDisaster, isA, IsBlockActive, IsBlockLocked, IsBlockLockedWhenLeisure, IsBlockShow, IsChallengingBlock, IsCombinedAllChallengeBlock, LoadFromStorage, LocateToBlock, MoveCameraByBlockId, MoveCameraToBuildByGDP, new, OnCollectingSerializableObjects, OnTrainLoaded, OnUnserializingObject, PresentTick, PurchaseBlock, PurchaseBlockSuccess, SelectBlock, SelectBlockByMoving, SelectBlockNoMove, SelectWorldObjectByGDP, SetCameraInBlockID, SetCollectingPriority, SetCompleteChain, SetDisasterUnlockStatus, SetFailedProtectStatus, SetFinalResult, SetPreparationTime, SetPuchaseBlockId, SetSandBoxMoniCombinedBlockNum, StartChallengeBlock, StartPurchaseBlock, TestUnit, Tick, TickLeave, UnInit, UnLock, UnSelectAllBlockWorldObject, UnSelectWorldObjectByBlockID, UpdateFinishedPeaceBlock
+  绑定字段: __cname=LBlockMgr
+  class 方法: __gc, _EndNewDay, _LoadHappinessConfig, _NewDay, _onDLCInjected, _RegisterEvent, _syncUI, _UnregisterEvent, AddDisasterTriggerNumber, AddDisasterTriggerTime, AddRewardCardToCampOffice, bCameraInBlock, BuyBlock, CancelChallenge, CheckAdvisersEnough, CheckAllBlockPurchaseCondition, CheckAndSwitchHappinessAudio, CheckBlockStrategicConnect, CheckCanBuyBlock, CheckCanPurchaseBlock, CheckHaveEnoughResource, CheckIsInBound, CheckIsUnLockDisasterByDisasterType, CheckPreconditions, CreateBlocks, CreateBlocksContract, CreateCamp, CreateConnections, CreateOneBlock, CreateThyCamp, ctor, dtor, EndChallengeBlock, ForceUpdateSomeData, FrameTick, GeIsUnLockQuintessence, GetActualBlockID, GetAllActiveBlocks, GetAllBlockDisasterNum, GetAllBlockDisasterTime, GetAllBlocks, GetAllBlockSpecifyDisasterNum, GetAllBlockSpecifyDisasterTime, GetAllCombinedBlocks, GetAllConnections, GetAllOpenBlocks, GetAllOwnedBlocks, GetAllOwnedBlocksNoSpecial, GetAllPeaceBlock, GetBelongConnections, GetBlock, GetBlockByDetail, GetBlockDisasterNum, GetBlockDisasterTime, GetBlocksBelongCamp, GetBlockSpecifyDisasterNum, GetBlockSpecifyDisasterTime, GetBlockStateByID, GetBlockStatus, GetBlockStatusByID, GetCameraCurrentBlockID, GetCameraInBlockID, GetCampBlock, GetChallengingBlock, GetChallengingBlockID, GetClassName, GetCollectingPriority, GetCollectorKey, GetCombinedBlock, GetCombinedBlockNum, GetCombinedBlockNumber, GetCompleteChain, GetConnectionInst, GetConnectionPassDetails, GetConnectionPassPair, GetCurrentOpenBlocks, GetDLCInjected, GetFailedProtectStatus, GetFinalResult, GetHappinessCfgByLevel, GetIsCompleteSussess, GetIsInThisBlock, GetIsTestSussess, GetLastSelectedBlockID, GetLastSelectedBuildingGDP, GetOriginBlock, GetPuchaseBlockId, GetSandBoxMoniCombinedBlockNum, GetSelectedBlock, GetSelectedBlockID, GetSlotInfo, GetTrainLoadageData, GetUniqueCardMapByBlockID, GetUnlockedPeaceBlock, GetUpdateBlock, GiveRewardBuffToCampBlock, GiveRewardBuffToChallengeBlock, GiveRewardToCampOffice, GMFinishCurTarget, GMReChallengeBlock, HandEndChallengeBlock, HasSelectedBlock, Init, InitTrainTable, InitUnlockDisaster, isA, IsBlockActive, IsBlockLocked, IsBlockLockedWhenLeisure, IsBlockShow, IsChallengingBlock, IsCombinedAllChallengeBlock, LoadFromStorage, LocateToBlock, MoveCameraByBlockId, MoveCameraToBuildByGDP, new, OnCollectingSerializableObjects, OnTrainLoaded, OnUnserializingObject, PresentTick, PurchaseBlock, PurchaseBlockSuccess, SelectBlock, SelectBlockByMoving, SelectBlockNoMove, SelectWorldObjectByGDP, SetCameraInBlockID, SetCollectingPriority, SetCompleteChain, SetDisasterUnlockStatus, SetFailedProtectStatus, SetFinalResult, SetPreparationTime, SetPuchaseBlockId, SetSandBoxMoniCombinedBlockNum, StartChallengeBlock, StartPurchaseBlock, TestUnit, Tick, TickLeave, UnInit, UnLock, UnSelectAllBlockWorldObject, UnSelectWorldObjectByBlockID, UpdateFinishedPeaceBlock

@@ -1,0 +1,829 @@
+[00:00:57] [INFO] ============================================================
+[00:00:57] [INFO] woldvein Trainer v0.3.1 启动
+[00:00:57] [INFO] ============================================================
+[00:00:57] [INFO] 游戏路径已设置: D:\steam\steamapps\common\BalladsOfHongye_CN
+[00:00:58] [SUCCESS] 游戏监控已启动
+[00:00:58] [SUCCESS] 游戏启动，PID=16544
+[00:00:59] [INFO] 已注册 12 个全局热键
+[00:00:59] [WARNING] 警告：全局热键可能需要管理员权限才能正常工作，请以管理员身份运行修改器
+[00:00:59] [SUCCESS] 全局热键已启用 (12 个)
+[00:00:59] [SUCCESS] 全局热键已启用
+[00:01:00] [SUCCESS] DLL Hook就绪，Lua执行通道已连通
+[00:01:14] [ERROR] 执行异常 [get_core_stats args=()]: execute_lua_safe() got an unexpected keyword argument 'desc'
+Traceback (most recent call last):
+  File "D:\pingye_pack\woldvein_trainer\src\gui\async_helper.py", line 29, in worker
+    func(*args)
+    ~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\cheat_tools.py", line 674, in get_core_stats
+    return execute_lua_safe(lua, desc="获取核心数值状态")
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: execute_lua_safe() got an unexpected keyword argument 'desc'
+
+[00:05:02] [INFO] ============================================================
+[00:05:02] [INFO] woldvein Trainer v0.3.1 启动
+[00:05:02] [INFO] ============================================================
+[00:05:02] [INFO] 游戏路径已设置: D:\steam\steamapps\common\BalladsOfHongye_CN
+[00:05:03] [SUCCESS] 游戏监控已启动
+[00:05:03] [SUCCESS] 游戏启动，PID=16544
+[00:05:04] [INFO] 已注册 12 个全局热键
+[00:05:04] [WARNING] 警告：全局热键可能需要管理员权限才能正常工作，请以管理员身份运行修改器
+[00:05:04] [SUCCESS] 全局热键已启用 (12 个)
+[00:05:04] [SUCCESS] 全局热键已启用
+[00:05:06] [SUCCESS] DLL Hook就绪，Lua执行通道已连通
+[00:05:26] [ERROR] 执行异常 [<lambda> args=()]: execute_lua_safe() got an unexpected keyword argument 'desc'
+Traceback (most recent call last):
+  File "D:\pingye_pack\woldvein_trainer\src\gui\async_helper.py", line 29, in worker
+    func(*args)
+    ~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_cheat.py", line 235, in <lambda>
+    self._run_async(lambda: cheat_tools.set_boom_level(level))
+                            ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\cheat_tools.py", line 575, in set_boom_level
+    return execute_lua_safe(lua, desc=f"设置鸿业等级为{level}")
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: execute_lua_safe() got an unexpected keyword argument 'desc'
+
+[00:05:26] [ERROR] 执行异常 [<lambda> args=()]: execute_lua_safe() got an unexpected keyword argument 'desc'
+Traceback (most recent call last):
+  File "D:\pingye_pack\woldvein_trainer\src\gui\async_helper.py", line 29, in worker
+    func(*args)
+    ~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_cheat.py", line 240, in <lambda>
+    self._run_async(lambda: cheat_tools.set_happiness(score))
+                            ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\cheat_tools.py", line 594, in set_happiness
+    return execute_lua_safe(lua, desc=f"设置幸福度为{score}")
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: execute_lua_safe() got an unexpected keyword argument 'desc'
+
+[00:05:27] [ERROR] 执行异常 [<lambda> args=()]: execute_lua_safe() got an unexpected keyword argument 'desc'
+Traceback (most recent call last):
+  File "D:\pingye_pack\woldvein_trainer\src\gui\async_helper.py", line 29, in worker
+    func(*args)
+    ~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_cheat.py", line 245, in <lambda>
+    self._run_async(lambda: cheat_tools.set_creativity(value))
+                            ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\cheat_tools.py", line 613, in set_creativity
+    return execute_lua_safe(lua, desc=f"设置创造力为{value}")
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: execute_lua_safe() got an unexpected keyword argument 'desc'
+
+[00:05:27] [ERROR] 执行异常 [<lambda> args=()]: execute_lua_safe() got an unexpected keyword argument 'desc'
+Traceback (most recent call last):
+  File "D:\pingye_pack\woldvein_trainer\src\gui\async_helper.py", line 29, in worker
+    func(*args)
+    ~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_cheat.py", line 250, in <lambda>
+    self._run_async(lambda: cheat_tools.set_money(value))
+                            ~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\cheat_tools.py", line 632, in set_money
+    return execute_lua_safe(lua, desc=f"设置金钱为{value}")
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: execute_lua_safe() got an unexpected keyword argument 'desc'
+
+[00:05:29] [INFO] 调整市场价格 x0.5 ...
+[00:05:29] [SUCCESS] [成功] 市场价格已按 x0.5 调整（250 个价格条目）
+[00:05:29] [INFO] 调整市场价格 x2.0 ...
+[00:05:29] [SUCCESS] [成功] 市场价格已按 x2 调整（250 个价格条目）
+[00:05:30] [INFO] 增加知名度 100000 ...
+[00:05:30] [SUCCESS] [成功] 知名度 100000（0 -> 100000） 双存储: ChangeReputation=true ChangeReputationBase=true
+[00:05:31] [INFO] 增加知名度 10000 ...
+[00:05:31] [SUCCESS] [成功] 知名度 10000（100000 -> 110000） 双存储: ChangeReputation=true ChangeReputationBase=true
+[00:05:32] [INFO] 正在开启自动纳税（类级挂钩）...
+[00:05:32] [SUCCESS] [成功] 自动纳税已挂钩 LTaxManager『类』（读档重建实例仍生效；不弹面板）
+[00:05:37] [INFO] 正在解锁全地块...
+[00:05:37] [SUCCESS] [成功] 地块解锁（按游戏内部状态 SetState(COMBINED)）：新解锁 55，原已拥有 2，跳过 0
+[00:05:40] [ERROR] 执行异常 [<lambda> args=()]: 'TrainerApp' object has no attribute '_adv_add_npc'
+Traceback (most recent call last):
+  File "D:\pingye_pack\woldvein_trainer\src\gui\async_helper.py", line 29, in worker
+    func(*args)
+    ~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 194, in <lambda>
+    command=lambda: self._run_async(lambda: self._adv_add_npc("celebrity"))).pack(side=tk.LEFT, padx=4)
+                                            ^^^^^^^^^^^^^^^^^
+AttributeError: 'TrainerApp' object has no attribute '_adv_add_npc'
+
+[00:05:40] [ERROR] 执行异常 [<lambda> args=()]: 'TrainerApp' object has no attribute '_adv_add_npc'
+Traceback (most recent call last):
+  File "D:\pingye_pack\woldvein_trainer\src\gui\async_helper.py", line 29, in worker
+    func(*args)
+    ~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 196, in <lambda>
+    command=lambda: self._run_async(lambda: self._adv_add_npc("adviser"))).pack(side=tk.LEFT, padx=4)
+                                            ^^^^^^^^^^^^^^^^^
+AttributeError: 'TrainerApp' object has no attribute '_adv_add_npc'
+
+[00:05:44] [INFO] 设置时间速度为 0x ...
+[00:05:44] [SUCCESS] [成功] 游戏已暂停（LogicTickPause）
+[00:05:45] [INFO] 设置时间速度为 1x ...
+[00:05:45] [SUCCESS] [成功] 速度设为 1x（原始 2.5 -> 当前 2.5）
+[00:05:45] [INFO] 设置时间速度为 2x ...
+[00:05:45] [SUCCESS] [成功] 速度设为 2x（原始 2.5 -> 当前 1.25）
+[00:05:46] [INFO] 设置时间速度为 3x ...
+[00:05:46] [SUCCESS] [成功] 速度设为 3x（原始 2.5 -> 当前 0.83333333333333）
+[00:05:46] [INFO] 设置时间速度为 4x ...
+[00:05:46] [SUCCESS] [成功] 速度设为 4x（原始 2.5 -> 当前 0.625）
+[00:05:46] [INFO] 正在恢复时间速度...
+[00:05:46] [SUCCESS] [成功] 已恢复原速（0.625 -> 2.5）
+[00:05:47] [INFO] 跳过 30 天 ...
+[00:05:47] [SUCCESS] [成功] 跳过 30 天：2年1月1日 -> 2年2月1日
+[00:05:47] [INFO] 跳过 7 天 ...
+[00:05:47] [SUCCESS] [成功] 跳过 7 天：2年2月1日 -> 2年2月8日
+[00:05:48] [INFO] 正在恢复季节...
+[00:05:48] [SUCCESS] [成功] 季节已恢复原版（hook 已移除）
+[00:05:48] [INFO] 跳过 1 天 ...
+[00:05:48] [SUCCESS] [成功] 跳过 1 天：2年2月8日 -> 2年2月9日
+[00:05:49] [INFO] 设置季节为 冬 ...
+[00:05:49] [ERROR] 执行异常 [<lambda> args=()]: %d format: a real number is required, not str
+Traceback (most recent call last):
+  File "D:\pingye_pack\woldvein_trainer\src\gui\async_helper.py", line 29, in worker
+    func(*args)
+    ~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 245, in <lambda>
+    command=lambda s=season: self._run_async(lambda: self._adv_set_season(s))).pack(side=tk.LEFT, padx=2)
+                                                     ~~~~~~~~~~~~~~~~~~~~^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_advanced.py", line 336, in _adv_set_season
+    success, result = advanced_tools.set_season(season)
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\advanced_tools.py", line 875, in set_season
+    success, result = execute_lua_safe(LUA_TIME_SET_SEASON % season)
+                                       ~~~~~~~~~~~~~~~~~~~~^~~~~~~~
+TypeError: %d format: a real number is required, not str
+
+[00:05:49] [INFO] 设置季节为 秋 ...
+[00:05:49] [ERROR] 执行异常 [<lambda> args=()]: %d format: a real number is required, not str
+Traceback (most recent call last):
+  File "D:\pingye_pack\woldvein_trainer\src\gui\async_helper.py", line 29, in worker
+    func(*args)
+    ~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 245, in <lambda>
+    command=lambda s=season: self._run_async(lambda: self._adv_set_season(s))).pack(side=tk.LEFT, padx=2)
+                                                     ~~~~~~~~~~~~~~~~~~~~^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_advanced.py", line 336, in _adv_set_season
+    success, result = advanced_tools.set_season(season)
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\advanced_tools.py", line 875, in set_season
+    success, result = execute_lua_safe(LUA_TIME_SET_SEASON % season)
+                                       ~~~~~~~~~~~~~~~~~~~~^~~~~~~~
+TypeError: %d format: a real number is required, not str
+
+[00:05:50] [INFO] 设置季节为 夏 ...
+[00:05:50] [ERROR] 执行异常 [<lambda> args=()]: %d format: a real number is required, not str
+Traceback (most recent call last):
+  File "D:\pingye_pack\woldvein_trainer\src\gui\async_helper.py", line 29, in worker
+    func(*args)
+    ~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 245, in <lambda>
+    command=lambda s=season: self._run_async(lambda: self._adv_set_season(s))).pack(side=tk.LEFT, padx=2)
+                                                     ~~~~~~~~~~~~~~~~~~~~^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_advanced.py", line 336, in _adv_set_season
+    success, result = advanced_tools.set_season(season)
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\advanced_tools.py", line 875, in set_season
+    success, result = execute_lua_safe(LUA_TIME_SET_SEASON % season)
+                                       ~~~~~~~~~~~~~~~~~~~~^~~~~~~~
+TypeError: %d format: a real number is required, not str
+
+[00:05:51] [INFO] 设置季节为 春 ...
+[00:05:51] [ERROR] 执行异常 [<lambda> args=()]: %d format: a real number is required, not str
+Traceback (most recent call last):
+  File "D:\pingye_pack\woldvein_trainer\src\gui\async_helper.py", line 29, in worker
+    func(*args)
+    ~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 245, in <lambda>
+    command=lambda s=season: self._run_async(lambda: self._adv_set_season(s))).pack(side=tk.LEFT, padx=2)
+                                                     ~~~~~~~~~~~~~~~~~~~~^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_advanced.py", line 336, in _adv_set_season
+    success, result = advanced_tools.set_season(season)
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\advanced_tools.py", line 875, in set_season
+    success, result = execute_lua_safe(LUA_TIME_SET_SEASON % season)
+                                       ~~~~~~~~~~~~~~~~~~~~^~~~~~~~
+TypeError: %d format: a real number is required, not str
+
+[00:05:52] [ERROR] 执行异常 [<lambda> args=()]: execute_lua_safe() got an unexpected keyword argument 'desc'
+Traceback (most recent call last):
+  File "D:\pingye_pack\woldvein_trainer\src\gui\async_helper.py", line 29, in worker
+    func(*args)
+    ~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 258, in <lambda>
+    command=lambda: self._run_async(lambda: cheat_tools.fix_season(True))).pack(side=tk.LEFT, padx=4)
+                                            ~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\cheat_tools.py", line 290, in fix_season
+    return execute_lua_safe(lua, desc="固定季节" if enable else "取消固定季节")
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: execute_lua_safe() got an unexpected keyword argument 'desc'
+
+[00:05:52] [ERROR] 执行异常 [<lambda> args=()]: execute_lua_safe() got an unexpected keyword argument 'desc'
+Traceback (most recent call last):
+  File "D:\pingye_pack\woldvein_trainer\src\gui\async_helper.py", line 29, in worker
+    func(*args)
+    ~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 262, in <lambda>
+    command=lambda: self._run_async(lambda: cheat_tools.fix_weather(True))).pack(side=tk.LEFT, padx=4)
+                                            ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\cheat_tools.py", line 359, in fix_weather
+    return execute_lua_safe(lua, desc="固定天气" if enable else "取消固定天气")
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: execute_lua_safe() got an unexpected keyword argument 'desc'
+
+[00:05:53] [ERROR] 执行异常 [<lambda> args=()]: execute_lua_safe() got an unexpected keyword argument 'desc'
+Traceback (most recent call last):
+  File "D:\pingye_pack\woldvein_trainer\src\gui\async_helper.py", line 29, in worker
+    func(*args)
+    ~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 260, in <lambda>
+    command=lambda: self._run_async(lambda: cheat_tools.fix_season(False))).pack(side=tk.LEFT, padx=4)
+                                            ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\cheat_tools.py", line 290, in fix_season
+    return execute_lua_safe(lua, desc="固定季节" if enable else "取消固定季节")
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: execute_lua_safe() got an unexpected keyword argument 'desc'
+
+[00:05:53] [ERROR] 执行异常 [<lambda> args=()]: execute_lua_safe() got an unexpected keyword argument 'desc'
+Traceback (most recent call last):
+  File "D:\pingye_pack\woldvein_trainer\src\gui\async_helper.py", line 29, in worker
+    func(*args)
+    ~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 262, in <lambda>
+    command=lambda: self._run_async(lambda: cheat_tools.fix_weather(True))).pack(side=tk.LEFT, padx=4)
+                                            ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\cheat_tools.py", line 359, in fix_weather
+    return execute_lua_safe(lua, desc="固定天气" if enable else "取消固定天气")
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: execute_lua_safe() got an unexpected keyword argument 'desc'
+
+[00:05:53] [ERROR] 执行异常 [<lambda> args=()]: execute_lua_safe() got an unexpected keyword argument 'desc'
+Traceback (most recent call last):
+  File "D:\pingye_pack\woldvein_trainer\src\gui\async_helper.py", line 29, in worker
+    func(*args)
+    ~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 264, in <lambda>
+    command=lambda: self._run_async(lambda: cheat_tools.fix_weather(False))).pack(side=tk.LEFT, padx=4)
+                                            ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\cheat_tools.py", line 359, in fix_weather
+    return execute_lua_safe(lua, desc="固定天气" if enable else "取消固定天气")
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: execute_lua_safe() got an unexpected keyword argument 'desc'
+
+[00:05:54] [ERROR] 执行异常 [<lambda> args=()]: execute_lua_safe() got an unexpected keyword argument 'desc'
+Traceback (most recent call last):
+  File "D:\pingye_pack\woldvein_trainer\src\gui\async_helper.py", line 29, in worker
+    func(*args)
+    ~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 266, in <lambda>
+    command=lambda: self._run_async(lambda: cheat_tools.skip_time_events(True))).pack(side=tk.LEFT, padx=4)
+                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\cheat_tools.py", line 314, in skip_time_events
+    return execute_lua_safe(lua, desc="跳过时间事件" if enable else "恢复时间事件")
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: execute_lua_safe() got an unexpected keyword argument 'desc'
+
+[00:05:54] [ERROR] 执行异常 [<lambda> args=()]: execute_lua_safe() got an unexpected keyword argument 'desc'
+Traceback (most recent call last):
+  File "D:\pingye_pack\woldvein_trainer\src\gui\async_helper.py", line 29, in worker
+    func(*args)
+    ~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 268, in <lambda>
+    command=lambda: self._run_async(lambda: cheat_tools.skip_time_events(False))).pack(side=tk.LEFT, padx=4)
+                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\cheat_tools.py", line 314, in skip_time_events
+    return execute_lua_safe(lua, desc="跳过时间事件" if enable else "恢复时间事件")
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: execute_lua_safe() got an unexpected keyword argument 'desc'
+
+[00:06:02] [INFO] 正在解锁全部 Steam 成就...
+[00:06:04] [SUCCESS] [成功] 成就ID 98 个，推送平台 98 次，图鉴 81 个
+[00:10:42] [INFO] ============================================================
+[00:10:42] [INFO] woldvein Trainer v0.3.1 启动
+[00:10:42] [INFO] ============================================================
+[00:10:42] [INFO] 游戏路径已设置: D:\steam\steamapps\common\BalladsOfHongye_CN
+[00:10:43] [SUCCESS] 游戏监控已启动
+[00:10:43] [SUCCESS] 游戏启动，PID=16544
+[00:10:43] [INFO] 已注册 12 个全局热键
+[00:10:43] [WARNING] 警告：全局热键可能需要管理员权限才能正常工作，请以管理员身份运行修改器
+[00:10:43] [SUCCESS] 全局热键已启用 (12 个)
+[00:10:43] [SUCCESS] 全局热键已启用
+[00:10:45] [SUCCESS] DLL Hook就绪，Lua执行通道已连通
+[00:10:55] [INFO] 设置时间速度为 1x ...
+[00:10:55] [SUCCESS] [成功] 速度设为 1x（原始 2.5 -> 当前 2.5）
+[00:10:55] [INFO] 设置时间速度为 2x ...
+[00:10:55] [SUCCESS] [成功] 速度设为 2x（原始 2.5 -> 当前 1.25）
+[00:10:55] [INFO] 设置时间速度为 3x ...
+[00:10:55] [SUCCESS] [成功] 速度设为 3x（原始 2.5 -> 当前 0.83333333333333）
+[00:10:56] [INFO] 设置时间速度为 4x ...
+[00:10:56] [SUCCESS] [成功] 速度设为 4x（原始 2.5 -> 当前 0.625）
+[00:11:01] [INFO] 跳过 3 个月 ...
+[00:11:01] [SUCCESS] [成功] 跳过 3 个月(90天)：2年4月14日 -> 2年7月14日
+[00:11:02] [INFO] 跳过 1 个月 ...
+[00:11:02] [SUCCESS] [成功] 跳过 1 个月(30天)：2年7月14日 -> 2年8月14日
+[00:11:02] [INFO] 跳过 7 天 ...
+[00:11:02] [SUCCESS] [成功] 跳过 7 天：2年8月14日 -> 2年8月21日
+[00:11:02] [INFO] 跳过 1 天 ...
+[00:11:02] [SUCCESS] [成功] 跳过 1 天：2年8月21日 -> 2年8月22日
+[00:11:03] [INFO] 设置季节为 冬 ...
+[00:11:03] [SUCCESS] [成功] 季节已设为 4（日期同步=true，日期=2年10月22日）
+[00:11:03] [INFO] 设置季节为 秋 ...
+[00:11:03] [SUCCESS] [成功] 季节已设为 3（日期同步=true，日期=2年7月22日）
+[00:11:03] [INFO] 设置季节为 夏 ...
+[00:11:04] [SUCCESS] [成功] 季节已设为 2（日期同步=true，日期=2年4月22日）
+[00:11:04] [INFO] 设置季节为 春 ...
+[00:11:04] [SUCCESS] [成功] 季节已设为 1（日期同步=true，日期=2年1月23日）
+[00:11:04] [INFO] 正在逐级晋升城市品阶（含解锁流程）...
+[00:11:04] [SUCCESS] [成功] 城市品阶 1 → 2（逐级晋升，含解锁，共处理奖励 21 项）
+  Lv2 晋升完成（该级解锁项 21）
+[00:11:05] [INFO] 正在逐级晋升城市品阶（含解锁流程）...
+[00:11:06] [INFO] 正在直接改数据解锁全部任务 ...
+[00:11:06] [INFO] 正在完成全部任务 ...
+[00:11:07] [INFO] 正在激活全部任务 ...
+[00:11:09] [SUCCESS] [成功] 城市品阶 2 → 14（逐级晋升，含解锁，共处理奖励 201 项）
+  Lv3 晋升完成（该级解锁项 24）
+  Lv4 晋升完成（该级解锁项 21）
+  Lv5 晋升完成（该级解锁项 28）
+  Lv6 晋升完成（该级解锁项 34）
+  Lv7 晋升完成（该级解锁项 25）
+  Lv8 晋升完成（该级解锁项 20）
+  Lv9 晋升完成（该级解锁项 18）
+  Lv10 晋升完成（该级解锁项 14）
+  Lv11 晋升完成（该级解锁项 8）
+  Lv12 晋升完成（该级解锁项 6）
+  Lv13 晋升完成（该级解锁项 2）
+  Lv14 晋升完成（该级解锁项 1）
+[00:11:09] [INFO] 正在移除游戏内面板 ...
+[00:11:10] [INFO] 正在注入游戏内面板 ...
+[00:11:10] [SUCCESS] [成功] 已直接改数据解锁 55 个任务（原本已完成 0 个）；现在 未开始=0 进行中=55 已接=0 已完成=0
+[00:11:11] [SUCCESS] [成功] 已调用 FinishAllTask；现在 已完成=55 进行中=0 未开始=0
+[00:11:11] [SUCCESS] [成功] 已激活 55 个任务（失败 0）；现在 未开始=0 进行中=0
+[00:11:11] [SUCCESS] [成功] 游戏内面板已移除（GameDraw 已还原）
+[00:11:11] [INFO] 正在直接改数据完成全部任务 ...
+[00:11:11] [SUCCESS] [成功] 游戏内面板已移除（GameDraw 已还原）
+[00:11:11] [SUCCESS] [成功] 已直接改数据完成 0 个任务（跳过已完成 55；发奖成功 0 / 失败 0）；现在 已完成=55 进行中=0 未开始=0
+[00:11:51] [INFO] 正在注入游戏内面板 ...
+[00:11:51] [WARNING] [重试] 注入游戏内面板 第 1 次未拿到有效结果，重发请求 ...
+[00:11:51] [WARNING] [重试] 注入游戏内面板 第 2 次未拿到有效结果，重发请求 ...
+[00:11:52] [ERROR] {"prosperity_level":3,"boom_title":"<span class=\"M-ProsperityTips-FontColor-07\">平野孤鸿</span>","season":1,"water":511214.6575,"mineral":579320,"time_speed":1,"card_count":2277,"food":516337.15,"essence":0,"boom_level":14,"salt":48964,"population":180,"happiness":8,"wood":992667.8,"card_unlocked":2271,"cloth":1251367.4,"money":8728857,"wine":48964,"creative_mode":false}
+[00:13:04] [INFO] 一键全开执行完成
+[00:13:06] [INFO] 一键全开执行完成
+[00:13:07] [INFO] 一键全开执行完成
+[00:13:08] [INFO] 一键全开执行完成
+[00:13:08] [INFO] 一键全开执行完成
+[00:13:08] [INFO] 一键全开执行完成
+[00:13:28] [INFO] 正在开启自动纳税（类级挂钩）...
+[00:13:28] [SUCCESS] [成功] 自动纳税已挂钩 LTaxManager『类』（读档重建实例仍生效；不弹面板）
+[00:17:54] [WARNING] [竞态防护] 请求ID不匹配，跳过。期望:6f454766 实际:REQ_ID:660836d1 跳过次数:1
+[00:33:14] [INFO] ============================================================
+[00:33:14] [INFO] woldvein Trainer v0.3.1 启动
+[00:33:14] [INFO] ============================================================
+[00:33:14] [INFO] 游戏路径已设置: D:\steam\steamapps\common\BalladsOfHongye_CN
+[00:33:15] [SUCCESS] 游戏监控已启动
+[00:33:15] [SUCCESS] 游戏启动，PID=16544
+[00:33:15] [INFO] 已注册 12 个全局热键
+[00:33:15] [WARNING] 警告：全局热键可能需要管理员权限才能正常工作，请以管理员身份运行修改器
+[00:33:16] [SUCCESS] 全局热键已启用 (12 个)
+[00:33:16] [SUCCESS] 全局热键已启用
+[00:33:17] [SUCCESS] DLL Hook就绪，Lua执行通道已连通
+[00:44:52] [INFO] ============================================================
+[00:44:52] [INFO] woldvein Trainer v0.3.1 启动
+[00:44:52] [INFO] ============================================================
+[00:44:52] [INFO] 游戏路径已设置: D:\steam\steamapps\common\BalladsOfHongye_CN
+[00:44:53] [SUCCESS] 游戏监控已启动
+[00:44:53] [SUCCESS] 游戏启动，PID=16544
+[00:44:54] [INFO] 已注册 12 个全局热键
+[00:44:54] [WARNING] 警告：全局热键可能需要管理员权限才能正常工作，请以管理员身份运行修改器
+[00:44:54] [SUCCESS] 全局热键已启用 (12 个)
+[00:44:54] [SUCCESS] 全局热键已启用
+[00:44:55] [SUCCESS] DLL Hook就绪，Lua执行通道已连通
+[00:45:28] [INFO] 正在清除天灾 ...
+[00:45:28] [SUCCESS] [成功] 已关闭 0 处天灾（激活灾害共 0，失败 0）
+[00:45:29] [INFO] 正在清除人祸 ...
+[00:45:29] [SUCCESS] [成功] 已关闭 0 处人祸（激活灾害共 0，失败 0）
+[00:47:17] [INFO] 正在完成全部任务 ...
+[00:47:17] [SUCCESS] [成功] 已调用 FinishAllTask；现在 已完成=55 进行中=0 未开始=0
+[00:47:18] [INFO] 正在直接改数据解锁全部任务 ...
+[00:47:18] [SUCCESS] [成功] 已直接改数据解锁 0 个任务（原本已完成 55 个）；现在 未开始=0 进行中=0 已接=0 已完成=55
+[00:47:18] [INFO] 正在直接改数据完成全部任务 ...
+[00:47:19] [SUCCESS] [成功] 已直接改数据完成 0 个任务（跳过已完成 55；发奖成功 0 / 失败 0）；现在 已完成=55 进行中=0 未开始=0
+[00:52:05] [INFO] ============================================================
+[00:52:05] [INFO] woldvein Trainer v0.3.1 启动
+[00:52:05] [INFO] ============================================================
+[00:52:05] [INFO] 游戏路径已设置: D:\steam\steamapps\common\BalladsOfHongye_CN
+[00:52:06] [SUCCESS] 游戏监控已启动
+[00:52:06] [SUCCESS] 游戏启动，PID=16544
+[00:52:06] [INFO] 已注册 12 个全局热键
+[00:52:06] [WARNING] 警告：全局热键可能需要管理员权限才能正常工作，请以管理员身份运行修改器
+[00:52:06] [SUCCESS] 全局热键已启用 (12 个)
+[00:52:06] [SUCCESS] 全局热键已启用
+[00:52:08] [SUCCESS] DLL Hook就绪，Lua执行通道已连通
+[00:52:13] [INFO] 正在移除游戏内面板 ...
+[00:52:13] [SUCCESS] [成功] 游戏内面板已移除（GameDraw 已还原）
+[00:52:16] [INFO] 正在解锁全地块...
+[00:52:16] [SUCCESS] [成功] 地块解锁（按游戏内部状态 SetState(COMBINED)）：新解锁 0，原已拥有 57，跳过 0
+[00:52:24] [INFO] 一键全开执行完成
+[00:52:26] [INFO] 一键全开执行完成
+[00:52:26] [INFO] 一键全开执行完成
+[01:33:08] [WARNING] 游戏进程消失（运行了 41分2秒）
+[01:33:08] [WARNING] 检测到游戏崩溃: 2026-09-15 01:33:00 [tolua_lua_corebase_LOGE00:3709]-[ERROR] stack traceback:
+[01:33:09] [INFO] 正在启动游戏...
+[01:33:09] [INFO] 已请求启动游戏 (steam://run/2656540)
+[01:33:11] [INFO] 游戏进程已退出
+[01:33:11] [WARNING] Lua执行超时 (5.0s)
+[01:33:11] [WARNING] [状态刷新] 查询失败: success=False, result=-1
+[01:33:38] [SUCCESS] 游戏启动，PID=40964
+[08:27:46] [WARNING] 游戏进程消失（运行了 6时54分7秒）
+[08:27:46] [WARNING] 检测到游戏崩溃: 2026-09-15 08:27:43 [Core::Storage::RequestFileByPath:233]-[ERROR] KGLOG_PROCESS
+[08:27:48] [INFO] 游戏进程已退出
+[08:32:16] [INFO] ============================================================
+[08:32:16] [INFO] woldvein Trainer v0.3.1 启动
+[08:32:16] [INFO] ============================================================
+[08:32:17] [INFO] 游戏路径已设置: D:\steam\steamapps\common\BalladsOfHongye_CN
+[08:32:18] [INFO] 已注册 12 个全局热键
+[08:32:18] [WARNING] 警告：全局热键可能需要管理员权限才能正常工作，请以管理员身份运行修改器
+[08:32:18] [SUCCESS] 全局热键已启用 (12 个)
+[08:32:18] [SUCCESS] 全局热键已启用
+[08:33:56] [INFO] ============================================================
+[08:33:56] [INFO] woldvein Trainer v0.3.1 启动
+[08:33:56] [INFO] ============================================================
+[08:33:56] [INFO] 游戏路径已设置: D:\steam\steamapps\common\BalladsOfHongye_CN
+[08:33:58] [INFO] 已注册 12 个全局热键
+[08:33:58] [WARNING] 警告：全局热键可能需要管理员权限才能正常工作，请以管理员身份运行修改器
+[08:33:58] [SUCCESS] 全局热键已启用 (12 个)
+[08:33:58] [SUCCESS] 全局热键已启用
+[08:36:22] [INFO] ============================================================
+[08:36:22] [INFO] woldvein Trainer v0.3.1 启动
+[08:36:22] [INFO] ============================================================
+[08:36:22] [INFO] 游戏路径已设置: D:\steam\steamapps\common\BalladsOfHongye_CN
+[08:36:24] [INFO] 已注册 12 个全局热键
+[08:36:24] [WARNING] 警告：全局热键可能需要管理员权限才能正常工作，请以管理员身份运行修改器
+[08:36:24] [SUCCESS] 全局热键已启用 (12 个)
+[08:36:24] [SUCCESS] 全局热键已启用
+[08:37:01] [INFO] ============================================================
+[08:37:01] [INFO] woldvein Trainer v0.3.1 启动
+[08:37:01] [INFO] ============================================================
+[08:37:01] [INFO] 游戏路径已设置: D:\steam\steamapps\common\BalladsOfHongye_CN
+[08:37:03] [INFO] 已注册 12 个全局热键
+[08:37:03] [WARNING] 警告：全局热键可能需要管理员权限才能正常工作，请以管理员身份运行修改器
+[08:37:03] [SUCCESS] 全局热键已启用 (12 个)
+[08:37:03] [SUCCESS] 全局热键已启用
+[08:41:16] [INFO] ============================================================
+[08:41:16] [INFO] woldvein Trainer v0.3.1 启动
+[08:41:16] [INFO] ============================================================
+[08:41:16] [INFO] 游戏路径已设置: D:\steam\steamapps\common\BalladsOfHongye_CN
+[08:41:17] [INFO] 已注册 12 个全局热键
+[08:41:17] [WARNING] 警告：全局热键可能需要管理员权限才能正常工作，请以管理员身份运行修改器
+[08:41:17] [SUCCESS] 全局热键已启用 (12 个)
+[08:41:17] [SUCCESS] 全局热键已启用
+[08:43:10] [INFO] ============================================================
+[08:43:10] [INFO] woldvein Trainer v0.3.1 启动
+[08:43:10] [INFO] ============================================================
+[08:43:10] [INFO] 游戏路径已设置: D:\steam\steamapps\common\BalladsOfHongye_CN
+[08:43:11] [INFO] 已注册 12 个全局热键
+[08:43:11] [WARNING] 警告：全局热键可能需要管理员权限才能正常工作，请以管理员身份运行修改器
+[08:43:11] [SUCCESS] 全局热键已启用 (12 个)
+[08:43:11] [SUCCESS] 全局热键已启用
+[08:45:01] [INFO] ============================================================
+[08:45:01] [INFO] woldvein Trainer v0.3.1 启动
+[08:45:01] [INFO] ============================================================
+[08:45:01] [INFO] 游戏路径已设置: D:\steam\steamapps\common\BalladsOfHongye_CN
+[08:45:03] [INFO] 已注册 12 个全局热键
+[08:45:03] [WARNING] 警告：全局热键可能需要管理员权限才能正常工作，请以管理员身份运行修改器
+[08:45:03] [SUCCESS] 全局热键已启用 (12 个)
+[08:45:03] [SUCCESS] 全局热键已启用
+[08:45:45] [INFO] ============================================================
+[08:45:45] [INFO] woldvein Trainer v0.3.1 启动
+[08:45:45] [INFO] ============================================================
+[08:45:45] [INFO] 游戏路径已设置: D:\steam\steamapps\common\BalladsOfHongye_CN
+[08:45:47] [INFO] 已注册 12 个全局热键
+[08:45:47] [WARNING] 警告：全局热键可能需要管理员权限才能正常工作，请以管理员身份运行修改器
+[08:45:47] [SUCCESS] 全局热键已启用 (12 个)
+[08:45:47] [SUCCESS] 全局热键已启用
+[08:48:42] [INFO] ============================================================
+[08:48:42] [INFO] woldvein Trainer v0.3.1 启动
+[08:48:42] [INFO] ============================================================
+[08:48:42] [INFO] 游戏路径已设置: D:\steam\steamapps\common\BalladsOfHongye_CN
+[08:48:43] [INFO] 已注册 12 个全局热键
+[08:48:43] [WARNING] 警告：全局热键可能需要管理员权限才能正常工作，请以管理员身份运行修改器
+[08:48:43] [SUCCESS] 全局热键已启用 (12 个)
+[08:48:43] [SUCCESS] 全局热键已启用
+[08:48:53] [INFO] ============================================================
+[08:48:53] [INFO] woldvein Trainer v0.3.1 启动
+[08:48:53] [INFO] ============================================================
+[08:48:53] [INFO] 游戏路径已设置: D:\steam\steamapps\common\BalladsOfHongye_CN
+[08:48:55] [INFO] 已注册 12 个全局热键
+[08:48:55] [WARNING] 警告：全局热键可能需要管理员权限才能正常工作，请以管理员身份运行修改器
+[08:48:55] [SUCCESS] 全局热键已启用 (12 个)
+[08:48:55] [SUCCESS] 全局热键已启用
+[09:07:23] [INFO] ============================================================
+[09:07:23] [INFO] woldvein Trainer v0.3.1 启动
+[09:07:23] [INFO] ============================================================
+[09:07:23] [INFO] 游戏路径已设置: D:\steam\steamapps\common\BalladsOfHongye_CN
+[09:07:24] [INFO] 已注册 12 个全局热键
+[09:07:24] [WARNING] 警告：全局热键可能需要管理员权限才能正常工作，请以管理员身份运行修改器
+[09:07:25] [SUCCESS] 全局热键已启用 (12 个)
+[09:07:25] [SUCCESS] 全局热键已启用
+[09:14:14] [INFO] ============================================================
+[09:14:14] [INFO] woldvein Trainer v0.3.1 启动
+[09:14:14] [INFO] ============================================================
+[09:14:14] [INFO] 游戏路径已设置: D:\steam\steamapps\common\BalladsOfHongye_CN
+[09:14:15] [INFO] 已注册 12 个全局热键
+[09:14:15] [WARNING] 警告：全局热键可能需要管理员权限才能正常工作，请以管理员身份运行修改器
+[09:14:16] [SUCCESS] 全局热键已启用 (12 个)
+[09:14:16] [SUCCESS] 全局热键已启用
+[09:19:22] [INFO] ============================================================
+[09:19:22] [INFO] woldvein Trainer v0.3.1 启动
+[09:19:22] [INFO] ============================================================
+[09:19:22] [INFO] 游戏路径已设置: D:\steam\steamapps\common\BalladsOfHongye_CN
+[09:19:23] [INFO] 已注册 12 个全局热键
+[09:19:23] [WARNING] 警告：全局热键可能需要管理员权限才能正常工作，请以管理员身份运行修改器
+[09:19:23] [SUCCESS] 全局热键已启用 (12 个)
+[09:19:23] [SUCCESS] 全局热键已启用
+[09:19:32] [INFO] ============================================================
+[09:19:32] [INFO] woldvein Trainer v0.3.1 启动
+[09:19:32] [INFO] ============================================================
+[09:19:32] [INFO] 游戏路径已设置: D:\steam\steamapps\common\BalladsOfHongye_CN
+[09:19:33] [INFO] 已注册 12 个全局热键
+[09:19:33] [WARNING] 警告：全局热键可能需要管理员权限才能正常工作，请以管理员身份运行修改器
+[09:19:34] [SUCCESS] 全局热键已启用 (12 个)
+[09:19:34] [SUCCESS] 全局热键已启用
+[09:19:36] [INFO] 主题已切换为: light
+[09:25:07] [INFO] ============================================================
+[09:25:07] [INFO] woldvein Trainer v0.3.1 启动
+[09:25:07] [INFO] ============================================================
+[09:25:07] [INFO] 修改器 v0.3.4 已启动
+[09:25:12] [INFO] 正在启动游戏...
+[09:25:12] [INFO] 已请求启动游戏 (steam://run/2656540)
+[09:25:12] [SUCCESS] 已请求启动游戏 (steam://run/2656540)
+[09:28:26] [INFO] ============================================================
+[09:28:26] [INFO] woldvein Trainer v0.3.1 启动
+[09:28:26] [INFO] ============================================================
+[09:28:27] [INFO] 修改器 v0.3.4 已启动
+[09:32:14] [INFO] ============================================================
+[09:32:14] [INFO] woldvein Trainer v0.3.1 启动
+[09:32:14] [INFO] ============================================================
+[09:32:15] [INFO] 修改器 v0.3.6 已启动
+[09:34:48] [INFO] ============================================================
+[09:34:48] [INFO] woldvein Trainer v0.3.1 启动
+[09:34:48] [INFO] ============================================================
+[09:34:49] [INFO] 修改器 v0.3.6 已启动
+[09:34:56] [WARNING] DLL未注入，请先注入DLL
+[09:36:00] [INFO] ============================================================
+[09:36:00] [INFO] woldvein Trainer v0.3.1 启动
+[09:36:00] [INFO] ============================================================
+[09:36:00] [INFO] 修改器 v0.3.6 已启动
+[09:36:12] [WARNING] DLL未注入，请先注入DLL
+[09:36:18] [INFO] 正在检测游戏进程...
+[09:36:18] [SUCCESS] 检测到游戏进程: PID=43512
+[09:36:21] [INFO] 正在注入DLL到 PID=43512...
+[09:36:21] [INFO] 开始注入DLL: D:\pingye_pack\releases\woldvein_trainer\dist\woldvein_trainer.dll -> PID=43512
+[09:36:21] [SUCCESS] DLL注入成功: woldvein_trainer.dll
+[09:36:21] [SUCCESS] DLL注入成功
+[09:36:26] [INFO] 正在检测游戏进程...
+[09:36:26] [SUCCESS] 检测到游戏进程: PID=43512
+[09:37:33] [INFO] ============================================================
+[09:37:33] [INFO] woldvein Trainer v0.3.1 启动
+[09:37:33] [INFO] ============================================================
+[09:37:34] [INFO] 修改器 v0.3.6 已启动
+[09:37:40] [INFO] 正在检测游戏进程...
+[09:37:40] [SUCCESS] 检测到游戏进程: PID=43512
+[09:37:46] [INFO] 开始一键增加所有资源...
+[09:37:46] [INFO] 开始一键增加所有资源...
+[09:37:46] [ERROR] 金钱 增加失败（可能g_camp未就绪，请先进入游戏场景）
+[09:37:46] [ERROR] 金钱 增加失败（可能g_camp未就绪，请先进入游戏场景）
+[09:37:47] [ERROR] 矿产 增加失败（可能g_camp未就绪，请先进入游戏场景）
+[09:37:47] [ERROR] 矿产 增加失败（可能g_camp未就绪，请先进入游戏场景）
+[09:37:47] [ERROR] 木料 增加失败（可能g_camp未就绪，请先进入游戏场景）
+[09:37:47] [ERROR] 木料 增加失败（可能g_camp未就绪，请先进入游戏场景）
+[09:37:47] [ERROR] 衣物 增加失败（可能g_camp未就绪，请先进入游戏场景）
+[09:37:47] [ERROR] 衣物 增加失败（可能g_camp未就绪，请先进入游戏场景）
+[09:37:47] [ERROR] 食物 增加失败（可能g_camp未就绪，请先进入游戏场景）
+[09:37:47] [ERROR] 食物 增加失败（可能g_camp未就绪，请先进入游戏场景）
+[09:37:47] [ERROR] 水 增加失败（可能g_camp未就绪，请先进入游戏场景）
+[09:37:47] [ERROR] 水 增加失败（可能g_camp未就绪，请先进入游戏场景）
+[09:37:47] [ERROR] 盐 增加失败（可能g_camp未就绪，请先进入游戏场景）
+[09:37:47] [ERROR] 盐 增加失败（可能g_camp未就绪，请先进入游戏场景）
+[09:37:47] [ERROR] 酒 增加失败（可能g_camp未就绪，请先进入游戏场景）
+[09:37:47] [ERROR] 酒 增加失败（可能g_camp未就绪，请先进入游戏场景）
+[09:37:48] [ERROR] 精华 增加失败（可能g_camp未就绪，请先进入游戏场景）
+[09:37:48] [SUCCESS] 资源增加完成: 0/9 项成功
+[09:37:48] [ERROR] 精华 增加失败（可能g_camp未就绪，请先进入游戏场景）
+[09:37:48] [SUCCESS] 资源增加完成: 0/9 项成功
+[09:38:39] [INFO] ============================================================
+[09:38:39] [INFO] woldvein Trainer v0.3.1 启动
+[09:38:39] [INFO] ============================================================
+[09:38:39] [INFO] 修改器 v0.3.6 已启动
+[09:38:51] [INFO] 正在检测游戏进程...
+[09:38:51] [SUCCESS] 检测到游戏进程: PID=43512
+[09:52:16] [INFO] ============================================================
+[09:52:16] [INFO] woldvein Trainer v0.3.1 启动
+[09:52:16] [INFO] ============================================================
+[09:52:17] [INFO] 修改器 v0.3.6 已启动
+[09:57:09] [INFO] ============================================================
+[09:57:09] [INFO] woldvein Trainer v0.3.1 启动
+[09:57:09] [INFO] ============================================================
+[09:57:09] [INFO] 修改器 v0.3.6 已启动
+[09:57:40] [INFO] ============================================================
+[09:57:40] [INFO] woldvein Trainer v0.3.1 启动
+[09:57:40] [INFO] ============================================================
+[09:57:40] [INFO] 修改器 v0.3.6 已启动
+[10:00:55] [INFO] ============================================================
+[10:00:55] [INFO] woldvein Trainer v0.3.7 启动
+[10:00:55] [INFO] ============================================================
+[10:00:56] [INFO] 修改器 v0.3.7 已启动
+[11:45:24] [INFO] ============================================================
+[11:45:24] [INFO] woldvein Trainer v0.3.7 启动
+[11:45:24] [INFO] ============================================================
+[11:45:24] [INFO] 修改器 v0.3.7 已启动
+[11:45:27] [INFO] 正在启动游戏...
+[11:45:27] [INFO] 已请求启动游戏 (steam://run/2656540)
+[11:45:27] [SUCCESS] 已请求启动游戏 (steam://run/2656540)
+[11:47:04] [INFO] ============================================================
+[11:47:04] [INFO] woldvein Trainer v0.3.7 启动
+[11:47:04] [INFO] ============================================================
+[11:47:05] [INFO] 修改器 v0.3.7 已启动
+[11:47:07] [INFO] 正在检测游戏进程...
+[11:47:07] [SUCCESS] 检测到游戏进程: PID=34920
+[11:47:18] [INFO] 未检测到散文件MOD
+[11:47:20] [INFO] 未检测到散文件MOD
+[11:47:57] [INFO] 重新注册热键...
+[11:47:57] [SUCCESS] 热键重新注册完成
+[11:48:30] [INFO] 正在注入DLL到 PID=34920...
+[11:48:30] [INFO] 开始注入DLL: D:\pingye_pack\releases\woldvein_trainer\dist\woldvein_trainer.dll -> PID=34920
+[11:48:30] [SUCCESS] DLL注入成功: woldvein_trainer.dll
+[11:48:30] [SUCCESS] DLL注入成功
+[11:48:33] [INFO] 正在检测游戏进程...
+[11:48:33] [SUCCESS] 检测到游戏进程: PID=34920
+[11:48:50] [INFO] 正在检测游戏进程...
+[11:48:50] [SUCCESS] 检测到游戏进程: PID=34920
+[11:48:54] [INFO] 正在注入DLL到 PID=34920...
+[11:48:54] [SUCCESS] DLL注入成功
+[11:48:55] [INFO] 正在注入DLL到 PID=34920...
+[11:48:55] [SUCCESS] DLL注入成功
+[11:48:55] [INFO] 正在注入DLL到 PID=34920...
+[11:48:55] [SUCCESS] DLL注入成功
+[11:48:56] [INFO] 正在注入DLL到 PID=34920...
+[11:48:56] [SUCCESS] DLL注入成功
+[11:48:56] [INFO] 正在注入DLL到 PID=34920...
+[11:48:56] [SUCCESS] DLL注入成功
+[11:48:56] [INFO] 正在注入DLL到 PID=34920...
+[11:48:56] [SUCCESS] DLL注入成功
+[11:48:56] [INFO] 正在注入DLL到 PID=34920...
+[11:48:56] [SUCCESS] DLL注入成功
+[11:48:56] [INFO] 正在注入DLL到 PID=34920...
+[11:48:56] [SUCCESS] DLL注入成功
+[11:48:57] [INFO] 正在注入DLL到 PID=34920...
+[11:48:57] [SUCCESS] DLL注入成功
+[11:48:57] [INFO] 正在注入DLL到 PID=34920...
+[11:48:57] [SUCCESS] DLL注入成功
+[11:49:01] [INFO] 正在检测游戏进程...
+[11:49:01] [SUCCESS] 检测到游戏进程: PID=34920
+[11:49:04] [INFO] 开始一键增加所有资源...
+[11:49:04] [SUCCESS] 金钱 +1,000,000
+[11:49:04] [SUCCESS] 矿产 +1,000,000
+[11:49:04] [SUCCESS] 木料 +1,000,000
+[11:49:04] [SUCCESS] 衣物 +1,000,000
+[11:49:04] [SUCCESS] 食物 +1,000,000
+[11:49:04] [SUCCESS] 水 +1,000,000
+[11:49:04] [SUCCESS] 盐 +1,000,000
+[11:49:04] [SUCCESS] 酒 +1,000,000
+[11:49:04] [SUCCESS] 精华 +1,000,000
+[11:49:04] [SUCCESS] 资源增加完成: 9/9 项成功
+[11:56:19] [INFO] ============================================================
+[11:56:19] [INFO] woldvein Trainer v0.3.7 启动
+[11:56:19] [INFO] ============================================================
+[11:56:20] [INFO] 修改器 v0.3.7 已启动
+[11:57:17] [INFO] 设置时间速度为 4x ...
+[11:57:17] [SUCCESS] [成功] 速度设为 4x（原始 2.5 -> 当前 0.625）
+[11:57:23] [INFO] 正在恢复时间速度...
+[11:57:23] [SUCCESS] [成功] 已恢复原速（0.625 -> 2.5）
+[11:57:24] [INFO] 设置时间速度为 8x ...
+[11:57:24] [SUCCESS] [成功] 速度设为 8x（原始 2.5 -> 当前 0.3125）
+[11:57:28] [INFO] 正在恢复时间速度...
+[11:57:28] [SUCCESS] [成功] 已恢复原速（0.3125 -> 2.5）
+[11:57:30] [INFO] 设置季节为 冬 ...
+[11:57:32] [INFO] 设置季节为 冬 ...
+[11:57:33] [INFO] 设置季节为 秋 ...
+[11:57:33] [INFO] 设置季节为 秋 ...
+[11:57:34] [INFO] 设置季节为 夏 ...
+[11:57:35] [INFO] 设置季节为 春 ...
+[11:57:36] [INFO] 设置季节为 夏 ...
+[11:57:36] [INFO] 设置季节为 夏 ...
+[11:57:36] [INFO] 设置季节为 夏 ...
+[11:57:37] [INFO] 设置季节为 夏 ...
+[11:57:37] [INFO] 设置季节为 夏 ...
+[11:57:37] [INFO] 设置季节为 夏 ...
+[11:57:37] [INFO] 设置季节为 夏 ...
+[11:57:38] [INFO] 设置季节为 夏 ...
+[11:57:39] [INFO] 正在恢复季节...
+[11:57:39] [SUCCESS] [成功] 季节已恢复原版（hook 已移除）
+[11:57:40] [INFO] 跳过 1 天 ...
+[11:57:40] [SUCCESS] [成功] 跳过 1 天：2年4月19日 -> 2年4月20日
+[11:57:41] [INFO] 跳过 10 天 ...
+[11:57:41] [SUCCESS] [成功] 跳过 10 天：2年4月20日 -> 2年4月30日
+[11:57:42] [INFO] 跳过 1 个月 ...
+[11:57:42] [SUCCESS] [成功] 跳过 1 个月(30天)：2年4月30日 -> 2年5月30日
+[11:57:53] [INFO] 正在升级全部谋士...
+[11:57:53] [SUCCESS] [成功] 已升级 8 名谋士（等级/能力满，薪资=0，忠诚度满）
+找到谋士管理器: g_LOfficeManager
+找到 8 名谋士
+[11:57:54] [INFO] 正在对全部建筑执行满人口 ...
+[11:57:55] [SUCCESS] [成功] 已对 250 个建筑执行满人口（GM_FullAllPopulation）
+[11:58:01] [INFO] 正在升级所有建筑到顶 ...
+[11:58:01] [SUCCESS] [成功] 建筑升级到顶：成功 250，失败 0
+[11:58:04] [INFO] 正在提升城市品阶 +1 ...
+[11:58:04] [SUCCESS] [成功] 品阶提升 1 → 2（最高 14）
+[11:58:09] [INFO] 正在逐级晋升城市品阶（含解锁流程）...
+[11:58:11] [INFO] 正在完成所有城市品阶条件...
+[11:58:13] [SUCCESS] [成功] 城市品阶 2 → 14（逐级晋升，含解锁，共处理奖励 201 项）
+  Lv3 晋升完成（该级解锁项 24）
+  Lv4 晋升完成（该级解锁项 21）
+  Lv5 晋升完成（该级解锁项 28）
+  Lv6 晋升完成（该级解锁项 34）
+  Lv7 晋升完成（该级解锁项 25）
+  Lv8 晋升完成（该级解锁项 20）
+  Lv9 晋升完成（该级解锁项 18）
+  Lv10 晋升完成（该级解锁项 14）
+  Lv11 晋升完成（该级解锁项 8）
+  Lv12 晋升完成（该级解锁项 6）
+  Lv13 晋升完成（该级解锁项 2）
+  Lv14 晋升完成（该级解锁项 1）
+[11:58:13] [SUCCESS] [成功] 城市品阶 14 -> 14，已执行全等级奖励解锁（historyMax=14，max=14）：setBoom(14)，奖励解锁循环OK
+[16:09:02] [INFO] ============================================================
+[16:09:02] [INFO] woldvein Trainer v0.3.9 启动
+[16:09:02] [INFO] ============================================================
+[16:09:02] [INFO] 修改器 v0.3.9 已启动
+[16:09:12] [WARNING] DLL未注入，请先注入DLL
+[16:11:50] [INFO] ============================================================
+[16:11:50] [INFO] woldvein Trainer v0.3.9 启动
+[16:11:50] [INFO] ============================================================
+[16:11:51] [INFO] 修改器 v0.3.9 已启动
+[16:11:58] [INFO] 正在启动游戏...
+[16:11:58] [INFO] 已请求启动游戏 (steam://run/2656540)
+[16:11:58] [SUCCESS] 已请求启动游戏 (steam://run/2656540)
+[16:28:24] [INFO] 正在启动游戏...
+[16:28:24] [INFO] 已请求启动游戏 (steam://run/2656540)
+[16:28:24] [SUCCESS] 已请求启动游戏 (steam://run/2656540)
+[17:16:37] [INFO] 正在注入DLL到 PID=9360...
+[17:16:37] [INFO] 开始注入DLL: D:\pingye_pack\releases\woldvein_trainer\dist\woldvein_trainer.dll -> PID=9360
+[17:16:37] [SUCCESS] DLL注入成功: woldvein_trainer.dll
+[17:16:37] [SUCCESS] DLL注入成功
+[17:18:09] [INFO] ============================================================
+[17:18:09] [INFO] woldvein Trainer v0.3.9 启动
+[17:18:09] [INFO] ============================================================
+[17:18:10] [INFO] 修改器 v0.3.9 已启动
+[17:18:13] [INFO] 正在启动游戏...
+[17:18:13] [INFO] 已请求启动游戏 (steam://run/2656540)
+[17:18:13] [SUCCESS] 已请求启动游戏 (steam://run/2656540)
+[18:17:02] [INFO] ============================================================
+[18:17:02] [INFO] woldvein Trainer v0.3.9 启动
+[18:17:02] [INFO] ============================================================
+[18:17:03] [INFO] 修改器 v0.3.9 已启动
+[18:17:04] [INFO] 正在启动游戏...
+[18:17:04] [INFO] 已请求启动游戏 (steam://run/2656540)
+[18:17:04] [SUCCESS] 已请求启动游戏 (steam://run/2656540)
+[22:08:32] [INFO] ============================================================
+[22:08:32] [INFO] woldvein Trainer v0.3.9 启动
+[22:08:32] [INFO] ============================================================
+[22:08:33] [INFO] 修改器 v0.3.9 已启动
+[22:08:35] [INFO] 正在启动游戏...
+[22:08:35] [INFO] 已请求启动游戏 (steam://run/2656540)
+[22:08:35] [SUCCESS] 已请求启动游戏 (steam://run/2656540)
+[22:08:37] [INFO] 正在检测游戏进程...
+[22:08:37] [WARNING] 未检测到游戏进程
+[22:21:26] [INFO] 正在检测游戏进程...
+[22:21:26] [SUCCESS] 检测到游戏进程: PID=23148
+[22:30:37] [INFO] ============================================================
+[22:30:37] [INFO] woldvein Trainer v0.3.9 启动
+[22:30:37] [INFO] ============================================================
+[22:30:37] [INFO] 修改器 v0.3.9 已启动
+[22:30:40] [INFO] 正在检测游戏进程...
+[22:30:40] [WARNING] 未检测到游戏进程
+[22:30:42] [INFO] 正在启动游戏...
+[22:30:42] [INFO] 已请求启动游戏 (steam://run/2656540)
+[22:30:42] [SUCCESS] 已请求启动游戏 (steam://run/2656540)
+[22:30:56] [INFO] ============================================================
+[22:30:56] [INFO] woldvein Trainer v0.3.9 启动
+[22:30:56] [INFO] ============================================================
+[22:30:56] [INFO] 修改器 v0.3.9 已启动
+[22:33:51] [INFO] ============================================================
+[22:33:51] [INFO] woldvein Trainer v0.3.9 启动
+[22:33:51] [INFO] ============================================================
+[22:33:52] [INFO] 修改器 v0.3.9 已启动
+[22:56:43] [INFO] ============================================================
+[22:56:43] [INFO] woldvein Trainer v0.3.9 启动
+[22:56:43] [INFO] ============================================================
+[22:56:44] [INFO] 修改器 v0.3.9 已启动
+[22:56:45] [INFO] 正在注入DLL到 PID=5368...
+[22:56:45] [INFO] 开始注入DLL: D:\pingye_pack\releases\woldvein_trainer\dist\woldvein_trainer.dll -> PID=5368
+[22:56:45] [SUCCESS] DLL注入成功: woldvein_trainer.dll
+[22:56:45] [SUCCESS] DLL注入成功
+[22:57:05] [INFO] 已切换到深色主题
+[22:57:05] [INFO] 已切换到浅色主题
+[22:57:06] [INFO] 已切换到深色主题
+[22:57:17] [WARNING] 检测到散文件MOD: D:\steam\steamapps\common\BalladsOfHongye_CN\sim_common (1个文件)
+[22:57:18] [WARNING] 检测到散文件MOD: D:\steam\steamapps\common\BalladsOfHongye_CN\sim_common (1个文件)
+[22:57:20] [SUCCESS] 散文件MOD已卸载
+[22:57:20] [INFO] 未检测到散文件MOD
+[22:57:22] [INFO] 未检测到散文件MOD
+[22:57:23] [INFO] 未检测到散文件MOD
+[22:57:23] [INFO] 未检测到散文件MOD
+[22:57:24] [INFO] 未检测到散文件MOD

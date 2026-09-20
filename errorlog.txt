@@ -1,0 +1,755 @@
+Windows PowerShell
+Copyright (C) Microsoft Corporation. All rights reserved.
+
+PS C:\Users\19513> cd D:\pingye_pack\woldvein_trainer
+PS D:\pingye_pack\woldvein_trainer> python main.py
+[00:05:02] [INFO] ============================================================
+[00:05:02] [INFO] woldvein Trainer v0.3.1 启动
+[00:05:02] [INFO] ============================================================
+[00:05:02] [INFO] 游戏路径已设置: D:\steam\steamapps\common\BalladsOfHongye_CN
+[00:05:03] [SUCCESS] 游戏监控已启动
+[00:05:03] [SUCCESS] 游戏启动，PID=16544
+[00:05:04] [INFO] 已注册 12 个全局热键
+[00:05:04] [WARNING] 警告：全局热键可能需要管理员权限才能正常工作，请以管理员身份运行修改器
+[00:05:04] [SUCCESS] 全局热键已启用 (12 个)
+[00:05:04] [SUCCESS] 全局热键已启用
+[00:05:06] [SUCCESS] DLL Hook就绪，Lua执行通道已连通
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 355, in <lambda>
+    command=lambda: self._adv_with_cooldown(self._task_finish_btn, self._adv_task_finish, "完成全部任务")).pack(side=tk.LEFT, padx=4)
+                                                                   ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'TrainerApp' object has no attribute '_adv_task_finish'
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 352, in <lambda>
+    command=lambda: self._adv_with_cooldown(self._task_unlock_btn, self._adv_task_unlock, "激活全部任务")).pack(side=tk.LEFT, padx=4)
+                                                                   ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'TrainerApp' object has no attribute '_adv_task_unlock'. Did you mean: '_adv_task_probe'?
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 876, in callit
+    func(*args, **kw)
+    ~~~~^^^^^^^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_advanced.py", line 378, in <lambda>
+    self.root.after(0, lambda: self._adv_append_output(f"[任务探查]\n{result}"))
+                               ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_advanced.py", line 307, in _adv_append_output
+    self.adv_output_text.configure(state=tk.NORMAL)
+    ^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'TrainerApp' object has no attribute 'adv_output_text'
+[00:05:26] [ERROR] 执行异常 [<lambda> args=()]: execute_lua_safe() got an unexpected keyword argument 'desc'
+Traceback (most recent call last):
+  File "D:\pingye_pack\woldvein_trainer\src\gui\async_helper.py", line 29, in worker
+    func(*args)
+    ~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_cheat.py", line 235, in <lambda>
+    self._run_async(lambda: cheat_tools.set_boom_level(level))
+                            ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\cheat_tools.py", line 575, in set_boom_level
+    return execute_lua_safe(lua, desc=f"设置鸿业等级为{level}")
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: execute_lua_safe() got an unexpected keyword argument 'desc'
+
+[00:05:26] [ERROR] 执行异常 [<lambda> args=()]: execute_lua_safe() got an unexpected keyword argument 'desc'
+Traceback (most recent call last):
+  File "D:\pingye_pack\woldvein_trainer\src\gui\async_helper.py", line 29, in worker
+    func(*args)
+    ~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_cheat.py", line 240, in <lambda>
+    self._run_async(lambda: cheat_tools.set_happiness(score))
+                            ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\cheat_tools.py", line 594, in set_happiness
+    return execute_lua_safe(lua, desc=f"设置幸福度为{score}")
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: execute_lua_safe() got an unexpected keyword argument 'desc'
+
+[00:05:27] [ERROR] 执行异常 [<lambda> args=()]: execute_lua_safe() got an unexpected keyword argument 'desc'
+Traceback (most recent call last):
+  File "D:\pingye_pack\woldvein_trainer\src\gui\async_helper.py", line 29, in worker
+    func(*args)
+    ~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_cheat.py", line 245, in <lambda>
+    self._run_async(lambda: cheat_tools.set_creativity(value))
+                            ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\cheat_tools.py", line 613, in set_creativity
+    return execute_lua_safe(lua, desc=f"设置创造力为{value}")
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: execute_lua_safe() got an unexpected keyword argument 'desc'
+
+[00:05:27] [ERROR] 执行异常 [<lambda> args=()]: execute_lua_safe() got an unexpected keyword argument 'desc'
+Traceback (most recent call last):
+  File "D:\pingye_pack\woldvein_trainer\src\gui\async_helper.py", line 29, in worker
+    func(*args)
+    ~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_cheat.py", line 250, in <lambda>
+    self._run_async(lambda: cheat_tools.set_money(value))
+                            ~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\cheat_tools.py", line 632, in set_money
+    return execute_lua_safe(lua, desc=f"设置金钱为{value}")
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: execute_lua_safe() got an unexpected keyword argument 'desc'
+
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 84, in <lambda>
+    command=lambda: self._run_async(self._adv_recalc_resources)).pack(side=tk.LEFT, padx=4)
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'TrainerApp' object has no attribute '_adv_recalc_resources'
+[00:05:29] [INFO] 调整市场价格 x0.5 ...
+[00:05:29] [SUCCESS] [成功] 市场价格已按 x0.5 调整（250 个价格条目）
+[00:05:29] [INFO] 调整市场价格 x2.0 ...
+[00:05:29] [SUCCESS] [成功] 市场价格已按 x2 调整（250 个价格条目）
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 99, in <lambda>
+    command=lambda: self._world_with_cooldown(None, world_tools.restore_market_price, "还原价格")).pack(side=tk.LEFT, padx=4)
+                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'src.world_tools' has no attribute 'restore_market_price'
+[00:05:30] [INFO] 增加知名度 100000 ...
+[00:05:30] [SUCCESS] [成功] 知名度 100000（0 -> 100000） 双存储: ChangeReputation=true ChangeReputationBase=true
+[00:05:31] [INFO] 增加知名度 10000 ...
+[00:05:31] [SUCCESS] [成功] 知名度 10000（100000 -> 110000） 双存储: ChangeReputation=true ChangeReputationBase=true
+[00:05:32] [INFO] 正在开启自动纳税（类级挂钩）...
+[00:05:32] [SUCCESS] [成功] 自动纳税已挂钩 LTaxManager『类』（读档重建实例仍生效；不弹面板）
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 127, in <lambda>
+    command=lambda: self._run_async(world_tools.pay_tax_once)).pack(side=tk.LEFT, padx=4)
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'src.world_tools' has no attribute 'pay_tax_once'. Did you mean: 'pay_tax_now'?
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 136, in <lambda>
+    command=lambda: self._world_with_cooldown(self._chain_btn, world_tools.unlock_all_chain, "全产业链解锁")).pack(side=tk.LEFT, padx=4)
+                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'src.world_tools' has no attribute 'unlock_all_chain'
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 134, in <lambda>
+    command=lambda: self._world_probe(world_tools.probe_chain, "产业链探查")).pack(side=tk.LEFT, padx=4)
+                                      ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'src.world_tools' has no attribute 'probe_chain'
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 876, in callit
+    func(*args, **kw)
+    ~~~~^^^^^^^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_advanced.py", line 447, in <lambda>
+    self.root.after(0, lambda: self._adv_append_output(f"[建筑] {result}"))
+                               ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_advanced.py", line 307, in _adv_append_output
+    self.adv_output_text.configure(state=tk.NORMAL)
+    ^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'TrainerApp' object has no attribute 'adv_output_text'
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 154, in <lambda>
+    command=lambda: self._adv_with_cooldown(self._adv_upgrade_btn, self._adv_upgrade_all, "升级全部")).pack(side=tk.LEFT, padx=4)
+                                                                   ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'TrainerApp' object has no attribute '_adv_upgrade_all'. Did you mean: '_adv_upgrade_btn'?
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 157, in <lambda>
+    command=lambda: self._adv_with_cooldown(self._adv_finish_btn, self._adv_finish_all, "立即完成")).pack(side=tk.LEFT, padx=4)
+                                                                  ^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'TrainerApp' object has no attribute '_adv_finish_all'. Did you mean: '_adv_finish_btn'?
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 876, in callit
+    func(*args, **kw)
+    ~~~~^^^^^^^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_advanced.py", line 452, in <lambda>
+    self.root.after(0, lambda: self._adv_append_output(f"[人口] {result}"))
+                               ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_advanced.py", line 307, in _adv_append_output
+    self.adv_output_text.configure(state=tk.NORMAL)
+    ^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'TrainerApp' object has no attribute 'adv_output_text'
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 172, in <lambda>
+    command=lambda: self._world_with_cooldown(self._bld_pop_btn, world_tools.fill_all_building_population, "全部满人口")).pack(side=tk.LEFT, padx=4)
+                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'src.world_tools' has no attribute 'fill_all_building_population'
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 169, in <lambda>
+    command=lambda: self._world_with_cooldown(self._bld_top_btn, world_tools.upgrade_all_buildings_to_max, "升级到顶")).pack(side=tk.LEFT, padx=4)
+                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'src.world_tools' has no attribute 'upgrade_all_buildings_to_max'
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 167, in <lambda>
+    command=lambda: self._run_async(self._bld_list)).pack(side=tk.LEFT, padx=4)
+                                    ^^^^^^^^^^^^^^
+AttributeError: 'TrainerApp' object has no attribute '_bld_list'
+[00:05:37] [INFO] 正在解锁全地块...
+[00:05:37] [SUCCESS] [成功] 地块解锁（按游戏内部状态 SetState(COMBINED)）：新解锁 55，原已拥有 2，跳过 0
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 183, in <lambda>
+    command=lambda: self._run_async(self._adv_plot_probe)).pack(side=tk.LEFT, padx=4)
+                                    ^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'TrainerApp' object has no attribute '_adv_plot_probe'. Did you mean: '_adv_task_probe'?
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 876, in callit
+    func(*args, **kw)
+    ~~~~^^^^^^^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_advanced.py", line 407, in <lambda>
+    self.root.after(0, lambda: self._adv_append_output(f"[NPC] {result}"))
+                               ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_advanced.py", line 307, in _adv_append_output
+    self.adv_output_text.configure(state=tk.NORMAL)
+    ^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'TrainerApp' object has no attribute 'adv_output_text'
+[00:05:40] [ERROR] 执行异常 [<lambda> args=()]: 'TrainerApp' object has no attribute '_adv_add_npc'
+Traceback (most recent call last):
+  File "D:\pingye_pack\woldvein_trainer\src\gui\async_helper.py", line 29, in worker
+    func(*args)
+    ~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 194, in <lambda>
+    command=lambda: self._run_async(lambda: self._adv_add_npc("celebrity"))).pack(side=tk.LEFT, padx=4)
+                                            ^^^^^^^^^^^^^^^^^
+AttributeError: 'TrainerApp' object has no attribute '_adv_add_npc'
+
+[00:05:40] [ERROR] 执行异常 [<lambda> args=()]: 'TrainerApp' object has no attribute '_adv_add_npc'
+Traceback (most recent call last):
+  File "D:\pingye_pack\woldvein_trainer\src\gui\async_helper.py", line 29, in worker
+    func(*args)
+    ~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 196, in <lambda>
+    command=lambda: self._run_async(lambda: self._adv_add_npc("adviser"))).pack(side=tk.LEFT, padx=4)
+                                            ^^^^^^^^^^^^^^^^^
+AttributeError: 'TrainerApp' object has no attribute '_adv_add_npc'
+
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 198, in <lambda>
+    command=lambda: self._run_async(self._adv_remove_all_npcs)).pack(side=tk.LEFT, padx=4)
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'TrainerApp' object has no attribute '_adv_remove_all_npcs'
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 210, in <lambda>
+    command=lambda: self._run_async(self._adv_advisor_probe)).pack(side=tk.LEFT, padx=4)
+                                    ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'TrainerApp' object has no attribute '_adv_advisor_probe'. Did you mean: '_adv_task_probe'?
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 207, in <lambda>
+    command=lambda: self._world_with_cooldown(self._advisor_btn, advanced_tools.upgrade_all_advisors, "谋士升满级")).pack(side=tk.LEFT, padx=4)
+                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'src.advanced_tools' has no attribute 'upgrade_all_advisors'. Did you mean: 'max_all_advisors'?
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 876, in callit
+    func(*args, **kw)
+    ~~~~^^^^^^^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_advanced.py", line 326, in <lambda>
+    self.root.after(0, lambda: self._adv_append_output(f"[时间] {result}"))
+                               ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_advanced.py", line 307, in _adv_append_output
+    self.adv_output_text.configure(state=tk.NORMAL)
+    ^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'TrainerApp' object has no attribute 'adv_output_text'
+[00:05:44] [INFO] 设置时间速度为 0x ...
+[00:05:44] [SUCCESS] [成功] 游戏已暂停（LogicTickPause）
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 876, in callit
+    func(*args, **kw)
+    ~~~~^^^^^^^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_advanced.py", line 332, in <lambda>
+    self.root.after(0, lambda: self._adv_append_output(f"[时间速度] {result}"))
+                               ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_advanced.py", line 307, in _adv_append_output
+    self.adv_output_text.configure(state=tk.NORMAL)
+    ^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'TrainerApp' object has no attribute 'adv_output_text'
+[00:05:45] [INFO] 设置时间速度为 1x ...
+[00:05:45] [SUCCESS] [成功] 速度设为 1x（原始 2.5 -> 当前 2.5）
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 876, in callit
+    func(*args, **kw)
+    ~~~~^^^^^^^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_advanced.py", line 332, in <lambda>
+    self.root.after(0, lambda: self._adv_append_output(f"[时间速度] {result}"))
+                               ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_advanced.py", line 307, in _adv_append_output
+    self.adv_output_text.configure(state=tk.NORMAL)
+    ^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'TrainerApp' object has no attribute 'adv_output_text'
+[00:05:45] [INFO] 设置时间速度为 2x ...
+[00:05:45] [SUCCESS] [成功] 速度设为 2x（原始 2.5 -> 当前 1.25）
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 876, in callit
+    func(*args, **kw)
+    ~~~~^^^^^^^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_advanced.py", line 332, in <lambda>
+    self.root.after(0, lambda: self._adv_append_output(f"[时间速度] {result}"))
+                               ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_advanced.py", line 307, in _adv_append_output
+    self.adv_output_text.configure(state=tk.NORMAL)
+    ^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'TrainerApp' object has no attribute 'adv_output_text'
+[00:05:46] [INFO] 设置时间速度为 3x ...
+[00:05:46] [SUCCESS] [成功] 速度设为 3x（原始 2.5 -> 当前 0.83333333333333）
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 876, in callit
+    func(*args, **kw)
+    ~~~~^^^^^^^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_advanced.py", line 332, in <lambda>
+    self.root.after(0, lambda: self._adv_append_output(f"[时间速度] {result}"))
+                               ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_advanced.py", line 307, in _adv_append_output
+    self.adv_output_text.configure(state=tk.NORMAL)
+    ^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'TrainerApp' object has no attribute 'adv_output_text'
+[00:05:46] [INFO] 设置时间速度为 4x ...
+[00:05:46] [SUCCESS] [成功] 速度设为 4x（原始 2.5 -> 当前 0.625）
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 876, in callit
+    func(*args, **kw)
+    ~~~~^^^^^^^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_advanced.py", line 332, in <lambda>
+    self.root.after(0, lambda: self._adv_append_output(f"[时间速度] {result}"))
+                               ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_advanced.py", line 307, in _adv_append_output
+    self.adv_output_text.configure(state=tk.NORMAL)
+    ^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'TrainerApp' object has no attribute 'adv_output_text'
+[00:05:46] [INFO] 正在恢复时间速度...
+[00:05:46] [SUCCESS] [成功] 已恢复原速（0.625 -> 2.5）
+[00:05:47] [INFO] 跳过 30 天 ...
+[00:05:47] [SUCCESS] [成功] 跳过 30 天：2年1月1日 -> 2年2月1日
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 876, in callit
+    func(*args, **kw)
+    ~~~~^^^^^^^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_advanced.py", line 342, in <lambda>
+    self.root.after(0, lambda: self._adv_append_output(f"[跳过天数] {result}"))
+                               ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_advanced.py", line 307, in _adv_append_output
+    self.adv_output_text.configure(state=tk.NORMAL)
+    ^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'TrainerApp' object has no attribute 'adv_output_text'
+[00:05:47] [INFO] 跳过 7 天 ...
+[00:05:47] [SUCCESS] [成功] 跳过 7 天：2年2月1日 -> 2年2月8日
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 876, in callit
+    func(*args, **kw)
+    ~~~~^^^^^^^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_advanced.py", line 342, in <lambda>
+    self.root.after(0, lambda: self._adv_append_output(f"[跳过天数] {result}"))
+                               ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_advanced.py", line 307, in _adv_append_output
+    self.adv_output_text.configure(state=tk.NORMAL)
+    ^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'TrainerApp' object has no attribute 'adv_output_text'
+[00:05:48] [INFO] 正在恢复季节...
+[00:05:48] [SUCCESS] [成功] 季节已恢复原版（hook 已移除）
+[00:05:48] [INFO] 跳过 1 天 ...
+[00:05:48] [SUCCESS] [成功] 跳过 1 天：2年2月8日 -> 2年2月9日
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 876, in callit
+    func(*args, **kw)
+    ~~~~^^^^^^^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_advanced.py", line 342, in <lambda>
+    self.root.after(0, lambda: self._adv_append_output(f"[跳过天数] {result}"))
+                               ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_advanced.py", line 307, in _adv_append_output
+    self.adv_output_text.configure(state=tk.NORMAL)
+    ^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'TrainerApp' object has no attribute 'adv_output_text'
+[00:05:49] [INFO] 设置季节为 冬 ...
+[00:05:49] [ERROR] 执行异常 [<lambda> args=()]: %d format: a real number is required, not str
+Traceback (most recent call last):
+  File "D:\pingye_pack\woldvein_trainer\src\gui\async_helper.py", line 29, in worker
+    func(*args)
+    ~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 245, in <lambda>
+    command=lambda s=season: self._run_async(lambda: self._adv_set_season(s))).pack(side=tk.LEFT, padx=2)
+                                                     ~~~~~~~~~~~~~~~~~~~~^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_advanced.py", line 336, in _adv_set_season
+    success, result = advanced_tools.set_season(season)
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\advanced_tools.py", line 875, in set_season
+    success, result = execute_lua_safe(LUA_TIME_SET_SEASON % season)
+                                       ~~~~~~~~~~~~~~~~~~~~^~~~~~~~
+TypeError: %d format: a real number is required, not str
+
+[00:05:49] [INFO] 设置季节为 秋 ...
+[00:05:49] [ERROR] 执行异常 [<lambda> args=()]: %d format: a real number is required, not str
+Traceback (most recent call last):
+  File "D:\pingye_pack\woldvein_trainer\src\gui\async_helper.py", line 29, in worker
+    func(*args)
+    ~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 245, in <lambda>
+    command=lambda s=season: self._run_async(lambda: self._adv_set_season(s))).pack(side=tk.LEFT, padx=2)
+                                                     ~~~~~~~~~~~~~~~~~~~~^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_advanced.py", line 336, in _adv_set_season
+    success, result = advanced_tools.set_season(season)
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\advanced_tools.py", line 875, in set_season
+    success, result = execute_lua_safe(LUA_TIME_SET_SEASON % season)
+                                       ~~~~~~~~~~~~~~~~~~~~^~~~~~~~
+TypeError: %d format: a real number is required, not str
+
+[00:05:50] [INFO] 设置季节为 夏 ...
+[00:05:50] [ERROR] 执行异常 [<lambda> args=()]: %d format: a real number is required, not str
+Traceback (most recent call last):
+  File "D:\pingye_pack\woldvein_trainer\src\gui\async_helper.py", line 29, in worker
+    func(*args)
+    ~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 245, in <lambda>
+    command=lambda s=season: self._run_async(lambda: self._adv_set_season(s))).pack(side=tk.LEFT, padx=2)
+                                                     ~~~~~~~~~~~~~~~~~~~~^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_advanced.py", line 336, in _adv_set_season
+    success, result = advanced_tools.set_season(season)
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\advanced_tools.py", line 875, in set_season
+    success, result = execute_lua_safe(LUA_TIME_SET_SEASON % season)
+                                       ~~~~~~~~~~~~~~~~~~~~^~~~~~~~
+TypeError: %d format: a real number is required, not str
+
+[00:05:51] [INFO] 设置季节为 春 ...
+[00:05:51] [ERROR] 执行异常 [<lambda> args=()]: %d format: a real number is required, not str
+Traceback (most recent call last):
+  File "D:\pingye_pack\woldvein_trainer\src\gui\async_helper.py", line 29, in worker
+    func(*args)
+    ~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 245, in <lambda>
+    command=lambda s=season: self._run_async(lambda: self._adv_set_season(s))).pack(side=tk.LEFT, padx=2)
+                                                     ~~~~~~~~~~~~~~~~~~~~^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_advanced.py", line 336, in _adv_set_season
+    success, result = advanced_tools.set_season(season)
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\advanced_tools.py", line 875, in set_season
+    success, result = execute_lua_safe(LUA_TIME_SET_SEASON % season)
+                                       ~~~~~~~~~~~~~~~~~~~~^~~~~~~~
+TypeError: %d format: a real number is required, not str
+
+[00:05:52] [ERROR] 执行异常 [<lambda> args=()]: execute_lua_safe() got an unexpected keyword argument 'desc'
+Traceback (most recent call last):
+  File "D:\pingye_pack\woldvein_trainer\src\gui\async_helper.py", line 29, in worker
+    func(*args)
+    ~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 258, in <lambda>
+    command=lambda: self._run_async(lambda: cheat_tools.fix_season(True))).pack(side=tk.LEFT, padx=4)
+                                            ~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\cheat_tools.py", line 290, in fix_season
+    return execute_lua_safe(lua, desc="固定季节" if enable else "取消固定季节")
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: execute_lua_safe() got an unexpected keyword argument 'desc'
+
+[00:05:52] [ERROR] 执行异常 [<lambda> args=()]: execute_lua_safe() got an unexpected keyword argument 'desc'
+Traceback (most recent call last):
+  File "D:\pingye_pack\woldvein_trainer\src\gui\async_helper.py", line 29, in worker
+    func(*args)
+    ~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 262, in <lambda>
+    command=lambda: self._run_async(lambda: cheat_tools.fix_weather(True))).pack(side=tk.LEFT, padx=4)
+                                            ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\cheat_tools.py", line 359, in fix_weather
+    return execute_lua_safe(lua, desc="固定天气" if enable else "取消固定天气")
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: execute_lua_safe() got an unexpected keyword argument 'desc'
+
+[00:05:53] [ERROR] 执行异常 [<lambda> args=()]: execute_lua_safe() got an unexpected keyword argument 'desc'
+Traceback (most recent call last):
+  File "D:\pingye_pack\woldvein_trainer\src\gui\async_helper.py", line 29, in worker
+    func(*args)
+    ~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 260, in <lambda>
+    command=lambda: self._run_async(lambda: cheat_tools.fix_season(False))).pack(side=tk.LEFT, padx=4)
+                                            ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\cheat_tools.py", line 290, in fix_season
+    return execute_lua_safe(lua, desc="固定季节" if enable else "取消固定季节")
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: execute_lua_safe() got an unexpected keyword argument 'desc'
+
+[00:05:53] [ERROR] 执行异常 [<lambda> args=()]: execute_lua_safe() got an unexpected keyword argument 'desc'
+Traceback (most recent call last):
+  File "D:\pingye_pack\woldvein_trainer\src\gui\async_helper.py", line 29, in worker
+    func(*args)
+    ~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 262, in <lambda>
+    command=lambda: self._run_async(lambda: cheat_tools.fix_weather(True))).pack(side=tk.LEFT, padx=4)
+                                            ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\cheat_tools.py", line 359, in fix_weather
+    return execute_lua_safe(lua, desc="固定天气" if enable else "取消固定天气")
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: execute_lua_safe() got an unexpected keyword argument 'desc'
+
+[00:05:53] [ERROR] 执行异常 [<lambda> args=()]: execute_lua_safe() got an unexpected keyword argument 'desc'
+Traceback (most recent call last):
+  File "D:\pingye_pack\woldvein_trainer\src\gui\async_helper.py", line 29, in worker
+    func(*args)
+    ~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 264, in <lambda>
+    command=lambda: self._run_async(lambda: cheat_tools.fix_weather(False))).pack(side=tk.LEFT, padx=4)
+                                            ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\cheat_tools.py", line 359, in fix_weather
+    return execute_lua_safe(lua, desc="固定天气" if enable else "取消固定天气")
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: execute_lua_safe() got an unexpected keyword argument 'desc'
+
+[00:05:54] [ERROR] 执行异常 [<lambda> args=()]: execute_lua_safe() got an unexpected keyword argument 'desc'
+Traceback (most recent call last):
+  File "D:\pingye_pack\woldvein_trainer\src\gui\async_helper.py", line 29, in worker
+    func(*args)
+    ~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 266, in <lambda>
+    command=lambda: self._run_async(lambda: cheat_tools.skip_time_events(True))).pack(side=tk.LEFT, padx=4)
+                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\cheat_tools.py", line 314, in skip_time_events
+    return execute_lua_safe(lua, desc="跳过时间事件" if enable else "恢复时间事件")
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: execute_lua_safe() got an unexpected keyword argument 'desc'
+
+[00:05:54] [ERROR] 执行异常 [<lambda> args=()]: execute_lua_safe() got an unexpected keyword argument 'desc'
+Traceback (most recent call last):
+  File "D:\pingye_pack\woldvein_trainer\src\gui\async_helper.py", line 29, in worker
+    func(*args)
+    ~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 268, in <lambda>
+    command=lambda: self._run_async(lambda: cheat_tools.skip_time_events(False))).pack(side=tk.LEFT, padx=4)
+                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\cheat_tools.py", line 314, in skip_time_events
+    return execute_lua_safe(lua, desc="跳过时间事件" if enable else "恢复时间事件")
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: execute_lua_safe() got an unexpected keyword argument 'desc'
+
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 280, in <lambda>
+    command=lambda: self._world_with_cooldown(self._man_btn, world_tools.clear_man_made_disasters, "零人祸")).pack(side=tk.LEFT, padx=4)
+                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'src.world_tools' has no attribute 'clear_man_made_disasters'. Did you mean: 'clear_manmade_disaster'?
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 277, in <lambda>
+    command=lambda: self._world_with_cooldown(self._nat_btn, world_tools.clear_natural_disasters, "零天灾")).pack(side=tk.LEFT, padx=4)
+                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'src.world_tools' has no attribute 'clear_natural_disasters'. Did you mean: 'clear_natural_disaster'?
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 296, in <lambda>
+    command=lambda: self._world_with_cooldown(self._refugee_btn, world_tools.clear_unaccepted_refugees, "清零流民")).pack(side=tk.LEFT, padx=4)
+                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'src.world_tools' has no attribute 'clear_unaccepted_refugees'
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 324, in <lambda>
+    command=lambda: self._run_async(self._adv_ach_probe)).pack(side=tk.LEFT, padx=4)
+                                    ^^^^^^^^^^^^^^^^^^^
+AttributeError: 'TrainerApp' object has no attribute '_adv_ach_probe'. Did you mean: '_adv_task_probe'?
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 322, in <lambda>
+    command=lambda: self._run_async(self._adv_ach_challenge)).pack(side=tk.LEFT, padx=4)
+                                    ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'TrainerApp' object has no attribute '_adv_ach_challenge'
+[00:06:02] [INFO] 正在解锁全部 Steam 成就...
+[00:06:04] [SUCCESS] [成功] 成就ID 98 个，推送平台 98 次，图鉴 81 个
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 341, in <lambda>
+    command=lambda: self._run_async(self._adv_boom_diag)).pack(side=tk.LEFT, padx=4)
+                                    ^^^^^^^^^^^^^^^^^^^
+AttributeError: 'TrainerApp' object has no attribute '_adv_boom_diag'. Did you mean: '_adv_boom_diagnose'?
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 339, in <lambda>
+    command=lambda: self._run_async(self._adv_get_boom)).pack(side=tk.LEFT, padx=4)
+                                    ^^^^^^^^^^^^^^^^^^
+AttributeError: 'TrainerApp' object has no attribute '_adv_get_boom'. Did you mean: '_adv_get_time'?
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 336, in <lambda>
+    command=lambda: self._adv_with_cooldown(self._boom_max_btn, self._adv_boom_max, "晋升到顶级")).pack(side=tk.LEFT, padx=4)
+                                                                ^^^^^^^^^^^^^^^^^^
+AttributeError: 'TrainerApp' object has no attribute '_adv_boom_max'
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 333, in <lambda>
+    command=lambda: self._adv_with_cooldown(self._boom_up_btn, self._adv_boom_up, "逐级晋升")).pack(side=tk.LEFT, padx=4)
+                                                               ^^^^^^^^^^^^^^^^^
+AttributeError: 'TrainerApp' object has no attribute '_adv_boom_up'
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 395, in <lambda>
+    command=lambda: self._run_async(self._adv_sim_resume)).pack(side=tk.LEFT, padx=4)
+                                    ^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'TrainerApp' object has no attribute '_adv_sim_resume'
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 393, in <lambda>
+    command=lambda: self._run_async(self._adv_sim_pause)).pack(side=tk.LEFT, padx=4)
+                                    ^^^^^^^^^^^^^^^^^^^
+AttributeError: 'TrainerApp' object has no attribute '_adv_sim_pause'. Did you mean: '_adv_skip_days'?
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 391, in <lambda>
+    command=lambda: self._run_async(self._adv_sim_status)).pack(side=tk.LEFT, padx=4)
+                                    ^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'TrainerApp' object has no attribute '_adv_sim_status'. Did you mean: '_adv_simworld_status'?
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 404, in <lambda>
+    command=lambda: self._run_async(self._adv_ingame_on)).pack(side=tk.LEFT, padx=4)
+                                    ^^^^^^^^^^^^^^^^^^^
+AttributeError: 'TrainerApp' object has no attribute '_adv_ingame_on'
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 406, in <lambda>
+    command=lambda: self._run_async(self._adv_ingame_off)).pack(side=tk.LEFT, padx=4)
+                                    ^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'TrainerApp' object has no attribute '_adv_ingame_off'
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\19513\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "D:\pingye_pack\woldvein_trainer\src\gui\tab_all_tools.py", line 408, in <lambda>
+    command=lambda: self._run_async(self._adv_ingame_status)).pack(side=tk.LEFT, padx=4)
+                                    ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'TrainerApp' object has no attribute '_adv_ingame_status'. Did you mean: '_adv_ingame_panel_status'?
