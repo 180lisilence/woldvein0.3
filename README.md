@@ -1,10 +1,10 @@
-﻿# 平野孤鸿 全能修改器 woldvein Trainer v0.3.1
+﻿# 平野孤鸿 全能修改器 woldvein Trainer v0.4.3
 
 > 📌 **版本沿革**：本版本承接自 **[woldvein Trainer v0.2](https://github.com/180lisilence/woldvein0.2)**（已归档，仅供查阅历史）
 
 > 专为西山居城建经营游戏《平野孤鸿》(BalladsOfHongye, Steam AppID 2656540) 开发的游戏修改工具。
 >
-> 纯内存操作 · DLL 注入 · Lua 执行引擎 · 左侧导航 + 6 个页面 · 12 个全局热键 · 深/浅主题 GUI
+> 纯内存操作 · DLL 注入 · Lua 执行引擎 · 微信三栏布局（左侧导航+中间列表+右侧面板） · 12 个全局热键 · 深/浅主题 GUI
 
 ---
 
@@ -54,7 +54,7 @@
 
 | 层级 | 技术 | 说明 |
 |------|------|------|
-| GUI 层 | Python 3 + tkinter + ttk | 深/浅主题，6 个页面 |
+| GUI 层 | Python 3 + tkinter | 微信三栏布局，深/浅主题 |
 | 注入层 | Python ctypes + Win32 API | OpenProcess / VirtualAllocEx / CreateRemoteThread |
 | Hook 层 | C (MinGW-w64) + Inline-Hook | 14 字节绝对跳转框架 + 自研指令长度解码器 |
 | 执行层 | Lua 5.1 (Lua5X64.dll) | 在游戏主线程 lua_pcall hook 中执行 |
@@ -64,7 +64,7 @@
 
 ## 功能大全
 
-修改器共 **6 个页面**（左侧导航切换，内容超出可滚动），覆盖从基础资源修改到高级游戏控制的完整功能矩阵。
+修改器采用**微信三栏布局**（左侧导航 + 中间功能列表 + 右侧操作面板），覆盖从基础资源修改到高级游戏控制的完整功能矩阵。
 
 ### 1. 资源修改
 
@@ -283,12 +283,12 @@
 
 ### 方式一：EXE 版（推荐普通用户）
 
-1. **下载**：获取 `woldvein_trainer_v0.3.1.exe` 和 `woldvein_trainer.dll`，放在同一目录
+1. **下载**：获取 `woldvein_trainer_v0.4.3_setup.exe` 安装包，运行安装
 2. **启动游戏**：通过 Steam 启动《平野孤鸿》
-3. **启动修改器**：右键 `woldvein_trainer_v0.3.1.exe` → 以管理员身份运行（热键需要）
+3. **启动修改器**：右键修改器快捷方式 → 以管理员身份运行（热键需要）
 4. **注入 DLL**：修改器检测到游戏进程后，点击「注入 DLL」按钮
 5. **进入游戏**：加载存档，进入游戏场景
-6. **开始使用**：切换各标签页使用功能
+6. **开始使用**：在三栏界面中选择功能使用
 
 ### 方式二：源码运行（推荐开发者）
 
@@ -615,7 +615,7 @@ woldvein_trainer/
 │
 ├── dist/                    # 发布版目录
 │   ├── woldvein_trainer.dll         # 注入 DLL（编译好的二进制）
-│   └── woldvein_trainer_v0.3.1.exe    # 打包版主程序（PyInstaller onedir）
+│   └── woldvein_trainer_v0.4.3.exe    # 打包版主程序（PyInstaller）
 │
 ├── dist_beta/               # BAT 测试版目录（源码 + BAT，用于快速测试）
 │   ├── woldvein_trainer.dll         # DLL（同 dist/）
@@ -764,7 +764,7 @@ D:\TOOL\mingw64\mingw64\bin\gcc.exe -shared -O2 -Wall -m64 -o dist\woldvein_trai
 pip install pyinstaller
 
 # 完整打包命令（与 AGENTS.md 一致，包含 DLL、依赖、隐藏导入）
-pyinstaller --onedir --windowed --name "woldvein_trainer_v0.3.1" `
+pyinstaller --onedir --windowed --name "woldvein_trainer_v0.4.3" `
   --add-data "dist\woldvein_trainer.dll;dist" `
   --add-data "docs;docs" `
   --collect-all keyboard --collect-all pystray --collect-all PIL `
@@ -787,8 +787,8 @@ pyinstaller --onedir --windowed --name "woldvein_trainer_v0.3.1" `
 
 ```
 dist/
-└── woldvein_trainer_v0.3.1/            # onedir 输出目录
-    ├── woldvein_trainer_v0.3.1.exe     # 主程序
+└── woldvein_trainer_v0.4.3/            # onedir 输出目录
+    ├── woldvein_trainer_v0.4.3.exe     # 主程序
     ├── _internal/                     # 运行时依赖（PyInstaller 自动生成）
     └── woldvein_trainer.dll          # DLL（外置于 EXE 同目录）
 ```
@@ -959,7 +959,66 @@ DLL 注入技术可能被部分杀毒软件误报为威胁。这是**正常现�
 
 ## 版本历史
 
-### v0.3.1 (2026-09-14) — 当前版本
+### v0.4.3 (2026-09-24) — 当前版本
+
+- 新增：Inno Setup 安装包（中英双语、桌面快捷方式、卸载清理用户数据）
+- 优化：版本号统一从 `src/constants.py::APP_VERSION` 读取，消除多处版本不一致
+- 优化：项目结构梳理，源码与构建产物分离
+- 修复：代码审查发现的多项问题（主题切换 TclError、孤立空 group、热键映射等）
+
+### v0.4.2 (2026-09-22)
+
+- 重构：按关注点分离原则重组目录（app/runtime/domain/input/gui/utils 分包）
+- 修复：统一版本号到 constants.py，消除 0.3.9/0.4.2 多处不一致
+- 修复：build spec 问题（upx=False、删除 config.json 打包、补全 hiddenimports）
+- 修复：trainer_ui_tk.py 主题切换时旧定时器访问已销毁控件的 TclError
+- 修复：孤立空 LabelFrame、硬编码游戏路径等
+- 新增：bat 启动器（chcp 65001 中文支持）
+
+### v0.4.1 (2026-09-20)
+
+- 新增：监控面板（内存涨跌实时监控）
+- 新增：存档管理（备份/恢复/打开存档文件夹）
+- 优化：设置页窗口大小自定义
+- 修复：监控页切换后不稳定、定时器叠加问题
+
+### v0.4.0 (2026-09-19)
+
+- UI 重做：微信三栏布局（左侧导航 + 中间功能列表 + 右侧操作面板）
+- 新增：游戏概览页（进程检测 + DLL 注入 + 快速操作）
+- 新增：创造模式 9 个子选项（原 4 项扩展）
+- 优化：全局文字左对齐
+- 修复：资源编辑功能接入 GUI（此前整块死代码）
+
+### v0.3.9 (2026-09-18)
+
+- 修复：DLL 编译环境切换为 VS 2022 BuildTools（mingw 启动失败）
+- 修复：通信路径统一策略
+- 优化：配置文件不写 C 盘，统一程序目录
+
+### v0.3.8 (2026-09-17)
+
+- 新增：Hook 健康检查与自动回滚
+- 新增：诊断包导出（日志/配置/进程信息/DLL 版本）
+- 优化：崩溃记录最后执行的 Lua 命令
+
+### v0.3.7 (2026-09-15)
+
+- 新增：搜索框跨分类实时搜索功能（中间功能列表顶部）
+- 优化：启动方式统一为 main.py 入口（单实例保护 + 异常捕获）
+- 优化：全局文字左对齐（所有页面）
+- 修复：桌面快捷方式指向正确的启动脚本
+- 文档：全面更新 README.md（微信三栏布局说明 + 技术栈更新）
+
+### v0.3.6 (2026-09-15)
+
+- UI 重做：完全抛弃旧版 tab 标签页布局，改为微信电脑客户端三栏结构
+- 左侧导航栏（70px，浅灰 #f7f7f7）：图标按钮，选中微信绿 #07C160 高亮
+- 中间功能列表：按分类分组，支持搜索过滤
+- 右侧操作面板：动态加载对应功能的操作界面
+- 底部日志区：可折叠
+
+### v0.3.1 (2026-09-14)
 
 - 新增：自动纳税（世界系统页）、时间流速实测（高级工具页）
 - 修复：`m_nDayStamp` 累计语义、探查去 cjson 纯文本、`g_TimeDefine`、人口口径、NPC 列表多来源
@@ -1042,4 +1101,4 @@ DLL 注入技术可能被部分杀毒软件误报为威胁。这是**正常现�
 
 ---
 
-*README 版本：v0.3.1 详细版 | 更新日期：2026-09-14*
+*README 版本：v0.4.3 | 更新日期：2026-09-24*
