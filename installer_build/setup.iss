@@ -5,7 +5,7 @@
 #define MyAppName "woldvein Trainer"
 #define MyAppNameZh "平野孤鸿全能修改器"
 #ifndef MyAppVersion
-#define MyAppVersion "0.4.3"
+#define MyAppVersion "0.4.5"
 #endif
 #define MyAppPublisher "woldvein"
 #define MyAppURL "https://github.com/180lisilence/woldvein0.3-0.4"
