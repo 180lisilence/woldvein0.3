@@ -1,7 +1,7 @@
 ﻿#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-平野孤鸿 全能修改器 v0.3.8
+平野孤鸿 全能修改器 v0.4.3
 主程序入口
 
 功能说明：
@@ -28,8 +28,11 @@ def _ensure_single_instance():
         return True
     try:
         import ctypes
+        from src.constants import APP_VERSION
         kernel32 = ctypes.windll.kernel32
-        _SINGLE_INSTANCE_HANDLE = kernel32.CreateMutexW(None, False, "woldvein_trainer_mutex_v036")
+        _SINGLE_INSTANCE_HANDLE = kernel32.CreateMutexW(
+            None, False, f"woldvein_trainer_mutex_v{APP_VERSION.replace('.', '')}"
+        )
         if kernel32.GetLastError() == 183:
             ctypes.windll.user32.MessageBoxW(
                 None,

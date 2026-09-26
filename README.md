@@ -283,7 +283,7 @@
 
 ### 方式一：EXE 版（推荐普通用户）
 
-1. **下载**：获取 `woldvein_trainer_v0.4.3_setup.exe` 安装包，运行安装
+1. **下载**：获取 `woldvein_trainer_v<版本>_setup.exe` 安装包，运行安装
 2. **启动游戏**：通过 Steam 启动《平野孤鸿》
 3. **启动修改器**：右键修改器快捷方式 → 以管理员身份运行（热键需要）
 4. **注入 DLL**：修改器检测到游戏进程后，点击「注入 DLL」按钮
@@ -615,7 +615,7 @@ woldvein_trainer/
 │
 ├── dist/                    # 发布版目录
 │   ├── woldvein_trainer.dll         # 注入 DLL（编译好的二进制）
-│   └── woldvein_trainer_v0.4.3.exe    # 打包版主程序（PyInstaller）
+│   └── woldvein_trainer.exe           # 打包版主程序（PyInstaller）
 │
 ├── dist_beta/               # BAT 测试版目录（源码 + BAT，用于快速测试）
 │   ├── woldvein_trainer.dll         # DLL（同 dist/）
@@ -757,14 +757,30 @@ D:\TOOL\mingw64\mingw64\bin\gcc.exe -shared -O2 -Wall -m64 -o dist\woldvein_trai
 
 ## 打包 EXE 指南
 
-### 使用 PyInstaller 打包
+### 一键打包（推荐，无硬编码）
+
+版本号唯一源为 `src/constants.py::APP_VERSION`，打包脚本自动读取；所有路径基于项目根目录自动推导，发新版只需改 `APP_VERSION` 一处。
+
+```bash
+python build_release.py                  # 全流程：PyInstaller EXE + Inno Setup 安装包
+python build_release.py --no-installer   # 只打 PyInstaller EXE
+python build_release.py --no-exe         # 只用已有 EXE 制作安装包
+```
+
+产物：
+- `dist_final/woldvein_trainer.exe`（PyInstaller 单文件 EXE）
+- `woldvein_trainer_v<版本>_setup.exe`（Inno Setup 安装包，位于项目根目录）
+
+说明：Inno Setup（ISCC.exe）位置自动探测，可通过环境变量 `INNO_SETUP_PATH` 指定；安装脚本版本号由构建脚本以 `/DMyAppVersion=` 传入。
+
+### 使用 PyInstaller 手动打包（可选）
 
 ```bash
 # 安装 PyInstaller
 pip install pyinstaller
 
 # 完整打包命令（与 AGENTS.md 一致，包含 DLL、依赖、隐藏导入）
-pyinstaller --onedir --windowed --name "woldvein_trainer_v0.4.3" `
+pyinstaller --onefile --windowed --name "woldvein_trainer" `
   --add-data "dist\woldvein_trainer.dll;dist" `
   --add-data "docs;docs" `
   --collect-all keyboard --collect-all pystray --collect-all PIL `
@@ -776,7 +792,7 @@ pyinstaller --onedir --windowed --name "woldvein_trainer_v0.4.3" `
 
 | 参数 | 说明 |
 |------|------|
-| `--onedir` | 打包为目录模式（生成文件夹，非单文件） |
+| `--onefile` | 打包为单文件模式（单个 EXE，内含运行时依赖与 DLL） |
 | `--windowed` | 不显示控制台窗口（GUI 程序用） |
 | `--name` | 输出文件名 |
 | `--add-data "src;dst"` | 打包附加文件到 EXE 内的 dst 目录 |
@@ -786,18 +802,15 @@ pyinstaller --onedir --windowed --name "woldvein_trainer_v0.4.3" `
 ### 打包后目录结构
 
 ```
-dist/
-└── woldvein_trainer_v0.4.3/            # onedir 输出目录
-    ├── woldvein_trainer_v0.4.3.exe     # 主程序
-    ├── _internal/                     # 运行时依赖（PyInstaller 自动生成）
-    └── woldvein_trainer.dll          # DLL（外置于 EXE 同目录）
+dist_final/
+└── woldvein_trainer.exe            # PyInstaller 单文件 EXE（内含运行时依赖与 DLL）
 ```
 
 ### 注意事项
 
 1. **DLL 优先外置**：DLL 既可打包进 EXE（通过 `--add-data`），也可外置在 EXE 同目录。优先外置，便于单独更新 DLL
 2. **杀毒误报**：打包后的 EXE 可能被杀毒软件误报，属正常现象
-3. **目录模式**：onedir 产物为文件夹（EXE + _internal），启动无需解压，比 onefile 快
+3. **单文件模式**：一键打包采用 onefile，产物为单个 EXE（内含运行时依赖与 DLL），便于分发；如需 onedir 目录模式可自行调整 spec
 4. **`_MEIPASS` 问题**：通信文件路径已改用 `%LOCALAPPDATA%`，不受 `_MEIPASS` 变化影响
 
 ---

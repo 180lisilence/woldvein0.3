@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-平野孤鸿修改器 - tkinter 微信三栏布局版 v0.3.6
+平野孤鸿修改器 - tkinter 微信三栏布局版 v0.4.3
 集成完整业务逻辑
 
 运行：python trainer_ui_tk.py
@@ -35,12 +35,13 @@ from src.logger import (
     init_log, set_log_callback, log, log_info, log_success,
     log_warning, log_error, get_log_path, clear_log_file
 )
-from src.resource_defs import RESOURCES
+from src.resource_defs import RESOURCES, get_id_to_field
+from src.game_status import get_status_provider
 from src import advanced_tools
 from src import world_tools
 from src import cheat_tools
 from src.hotkey_defs import HOTKEY_DEFS, get_default_hotkeys, get_hotkey_names
-from src.constants import DEFAULT_GAME_PATH, SIM_COMMON_REL
+from src.constants import APP_VERSION, DEFAULT_GAME_PATH, SIM_COMMON_REL, RESOURCE_ADD_AMOUNT, FAME_ADD_AMOUNT
 
 # ============================================================
 # 配色（微信风格）
@@ -80,7 +81,7 @@ def toggle_theme():
     return _current_theme
 FONT = "微软雅黑"
 DLL_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dist", "woldvein_trainer.dll")
-VERSION = "v0.4.2"
+VERSION = f"v{APP_VERSION}"  # 版本号唯一源：src/constants.py::APP_VERSION
 
 
 # ============================================================
@@ -226,7 +227,7 @@ class TrainerApp:
         self.sidebar = tk.Frame(parent, bg=COLORS["bg_sidebar"], width=90)
         self.sidebar.pack(side=tk.LEFT, fill=tk.Y)
         self.sidebar.pack_propagate(False)
-        for i, (icon, name) in enumerate([("🏠","主页"),("✨","创造"),("🔧","工具"),("💾","存档"),("📊","监控")]):
+        for i, (icon, name) in enumerate([("🏠","主页"),("✨","创造"),("🔧","工具"),("💾","存档"),("📊","监控"),("📦","内部")]):
             btn = tk.Button(self.sidebar, text=name, font=(FONT, 11), bg=COLORS["bg_sidebar"],
                           fg=COLORS["fg_sidebar"], bd=0, relief=tk.FLAT, cursor="hand2",
                           activebackground=COLORS["bg_sidebar_sel"], activeforeground=COLORS["fg_sidebar_sel"],
@@ -244,7 +245,7 @@ class TrainerApp:
         settings_btn = tk.Button(self.sidebar, text="设置", font=(FONT, 11), bg=COLORS["bg_sidebar"],
                                fg=COLORS["fg_sidebar"], bd=0, relief=tk.FLAT, cursor="hand2",
                                activebackground=COLORS["bg_sidebar_sel"], activeforeground=COLORS["fg_sidebar_sel"],
-                               command=lambda: self._switch_nav(5))
+                               command=lambda: self._switch_nav(6))
         settings_btn.pack(fill=tk.X, pady=4, padx=8)
         self.nav_buttons.append(settings_btn)
 
@@ -295,7 +296,8 @@ class TrainerApp:
             3: [("","存档列表","查看存档",False),("","存档备份","备份存档",False),
                 ("","存档恢复","恢复备份",False),("","清理备份","清理旧备份",False)],
             4: [("","进程监控","内存/CPU/状态",False)],
-            5: [("","热键设置","全局热键",False),("","日志管理","日志路径",False),
+            5: [("","资源修改","0.3.1 首页改资源面板（复刻）",False)],
+            6: [("","热键设置","全局热键",False),("","日志管理","日志路径",False),
                 ("","MOD管理","散文件MOD",False),("","关于","版本信息",False)],
         }
 
@@ -339,7 +341,7 @@ class TrainerApp:
         for i, (nav_idx, func_idx, icon, name, desc, dot) in enumerate(all_results):
             if nav_idx != current_nav:
                 current_nav = nav_idx
-                nav_names = ["主页", "创造", "工具", "存档", "监控", "设置"]
+                nav_names = ["主页", "创造", "工具", "存档", "监控", "内部", "设置"]
                 tk.Label(self.list_inner, text=f"── {nav_names[nav_idx]} ──",
                         font=(FONT, 9), bg=COLORS["bg_card"], fg=COLORS["fg_muted"],
                         anchor="w").pack(fill=tk.X, padx=12, pady=(8, 2))
@@ -483,7 +485,8 @@ class TrainerApp:
         elif nav == 2: self._build_tools(func)
         elif nav == 3: self._build_save(func)
         elif nav == 4: self._build_monitor()
-        elif nav == 5: self._build_settings(func)
+        elif nav == 5: self._build_internal(func)
+        elif nav == 6: self._build_settings(func)
         self._bind_mousewheel(self.content_inner, self.content_canvas)
         self._bind_mousewheel(self.content_inner, self.content_canvas)
 
@@ -641,6 +644,10 @@ class TrainerApp:
             if inject_dll(self.game_pid, DLL_PATH):
                 log_success("DLL注入成功")
                 self.dll_injected = True
+                try:
+                    get_status_provider().set_dll_ready(True)
+                except Exception:
+                    pass
             else:
                 log_error("DLL注入失败")
         except Exception as e:
@@ -689,6 +696,142 @@ class TrainerApp:
         if not self._check_dll(): return
         if messagebox.askyesno("确认", "确定要将所有资源归零吗？"):
             self._run_async(zero_all_resources)
+
+    # ===== 内部页：0.3.1 首页改资源面板复刻 =====
+    def _build_internal(self, func):
+        """内部页 - 复刻自 0.3.1 的首页改资源面板（资源表格+实时数值+特殊属性）"""
+        desc = tk.Label(self.content_inner, text="点击按钮增加对应资源（默认+100万），需先进入游戏场景并注入DLL",
+                        font=(FONT, 11), bg=COLORS["bg"], fg=COLORS["warning"], anchor="w", justify=tk.LEFT)
+        desc.pack(fill=tk.X, padx=20, pady=(14, 8))
+
+        # 快捷操作
+        g = self._group("⚡ 快捷操作")
+        bf = tk.Frame(g, bg=COLORS["bg_card"])
+        bf.pack(fill=tk.X, padx=16, pady=12)
+        self._btn(bf, "🌟 满天赋", "primary",
+                  lambda: self._run_async(advanced_tools.max_all_talents) if self._check_dll() else None).pack(side=tk.LEFT, padx=5)
+        self._btn(bf, "↩ 资源归零", "danger", self._on_zero_res).pack(side=tk.LEFT, padx=5)
+        self._btn(bf, "一键全部资源 +100万", "primary",
+                  lambda: self._run_async(add_all_resources) if self._check_dll() else None).pack(side=tk.LEFT, padx=5)
+
+        # 当前时间流速
+        g2 = self._group("⏱ 当前时间流速")
+        speed_f = tk.Frame(g2, bg=COLORS["bg_card"])
+        speed_f.pack(fill=tk.X, padx=16, pady=10)
+        self.res_speed_label = tk.Label(speed_f, text="1x", font=(FONT, 14, "bold"),
+                                        bg=COLORS["bg_card"], fg=COLORS["success"])
+        self.res_speed_label.pack(side=tk.LEFT)
+        tk.Label(speed_f, text="（暂停时显示 0x）", font=(FONT, 10),
+                 bg=COLORS["bg_card"], fg=COLORS["fg_muted"]).pack(side=tk.LEFT, padx=10)
+
+        # 资源表格
+        g3 = self._group("💰 资源修改")
+        header = tk.Frame(g3, bg=COLORS["bg_card"])
+        header.pack(fill=tk.X, padx=16, pady=(10, 4))
+        for htext, hw, hanchor in [("资源", 10, tk.W), ("当前数量", 18, tk.E), ("修改数值", 12, tk.W), ("操作", 22, tk.W)]:
+            tk.Label(header, text=htext, font=(FONT, 11, "bold"), bg=COLORS["bg_card"],
+                     fg=COLORS["accent"], width=hw, anchor=hanchor).pack(side=tk.LEFT, padx=(4, 6))
+        tk.Frame(g3, bg=COLORS["border"], height=1).pack(fill=tk.X, padx=16)
+
+        self.resource_value_labels = {}
+        self.internal_res_entries = {}
+        for i, res in enumerate(RESOURCES):
+            self._internal_res_row(g3, res, i)
+
+        # 特殊属性
+        g4 = self._group("✨ 特殊属性")
+        bf4 = tk.Frame(g4, bg=COLORS["bg_card"])
+        bf4.pack(fill=tk.X, padx=16, pady=12)
+        self._btn(bf4, "😊 幸福度最大", "normal",
+                  lambda: self._run_async(max_happiness) if self._check_dll() else None).pack(side=tk.LEFT, padx=5)
+        self._btn(bf4, "⭐ 知名度 +1万", "normal",
+                  lambda: self._run_async(add_fame, FAME_ADD_AMOUNT) if self._check_dll() else None).pack(side=tk.LEFT, padx=5)
+        self._btn(bf4, "↩ 恢复幸福度", "normal",
+                  lambda: self._run_async(restore_happiness) if self._check_dll() else None).pack(side=tk.LEFT, padx=5)
+
+        # 订阅游戏状态实时刷新（0.3.1 同款 GameStatusProvider）
+        try:
+            self._internal_status_provider = get_status_provider()
+            self._internal_status_provider.set_dll_ready(bool(self.dll_injected))
+            self._internal_status_provider.subscribe("internal_resource", self._on_internal_status_update)
+        except Exception as e:
+            log_warning(f"内部页状态订阅失败: {e}")
+
+    def _internal_res_row(self, parent, res, idx):
+        """资源行：图标+名称 | 当前值 | 自定义数量输入 | +100万 / 增加"""
+        bg = COLORS["bg_hover"] if idx % 2 == 1 else COLORS["bg_card"]
+        row = tk.Frame(parent, bg=bg)
+        row.pack(fill=tk.X, padx=16, pady=1)
+        tk.Label(row, text=f"  {res['icon']} {res['name']}", bg=bg, fg=COLORS["fg"],
+                 font=(FONT, 12), width=10, anchor=tk.W).pack(side=tk.LEFT, padx=(4, 0), pady=4)
+        value_label = tk.Label(row, text="——", bg=bg, fg=COLORS["success"],
+                               font=("Consolas", 12, "bold"), width=18, anchor=tk.E)
+        value_label.pack(side=tk.LEFT, padx=(8, 0), pady=4)
+        self.resource_value_labels[res["id"]] = value_label
+        var = tk.StringVar(value=str(RESOURCE_ADD_AMOUNT))
+        entry = tk.Entry(row, textvariable=var, width=10, justify=tk.CENTER, font=("Consolas", 11),
+                         bd=1, relief=tk.SOLID, bg=COLORS["bg"], fg=COLORS["fg"], insertbackground=COLORS["fg"])
+        entry.pack(side=tk.LEFT, padx=(12, 4), pady=4)
+        self.internal_res_entries[res["id"]] = (entry, var)
+        self._btn(row, "+100万", "primary",
+                  lambda rid=res["id"]: self._add_res_internal(rid, RESOURCE_ADD_AMOUNT)).pack(side=tk.LEFT, padx=2)
+        self._btn(row, "增加", "normal",
+                  lambda rid=res["id"], v=var: self._add_res_internal(rid, v.get())).pack(side=tk.LEFT, padx=2)
+
+    def _add_res_internal(self, rid, amount):
+        if not self._check_dll():
+            return
+        try:
+            amount = int(amount) if not isinstance(amount, int) else amount
+        except Exception:
+            amount = RESOURCE_ADD_AMOUNT
+        self._run_async(add_resource, rid, amount)
+
+    def _on_internal_status_update(self, status, success):
+        """GameStatusProvider 回调（后台线程）→ 切主线程更新 UI"""
+        try:
+            if self.content_inner.winfo_exists():
+                self.root.after(0, lambda: self._update_internal_display(status, success))
+        except Exception:
+            pass
+
+    def _update_internal_display(self, status, success):
+        """主线程更新资源当前值 / 时间流速"""
+        try:
+            if hasattr(self, "res_speed_label") and self.res_speed_label.winfo_exists():
+                speed = status.get("speed_mult", 1) if status else getattr(self, "_current_time_speed", 1)
+                speed_map = {0: "0x（暂停）", 1: "1x", 2: "2x", 3: "3x", 4: "4x"}
+                text = speed_map.get(speed, f"{speed}x")
+                fg = COLORS["error"] if speed == 0 else COLORS["success"]
+                self.res_speed_label.config(text=text, fg=fg)
+        except Exception:
+            pass
+
+        labels = getattr(self, "resource_value_labels", None)
+        if not labels:
+            return
+        if success and status:
+            id_to_field = get_id_to_field()
+            for res_id, label in list(labels.items()):
+                try:
+                    if not label.winfo_exists():
+                        continue
+                    field = id_to_field.get(res_id)
+                    if field and field in status:
+                        val = status[field]
+                        text = f"{val:,.0f}" if isinstance(val, (int, float)) and val >= 10000 else str(val)
+                        label.config(text=text, fg=COLORS["success"])
+                    else:
+                        label.config(text="——", fg=COLORS["accent"])
+                except Exception:
+                    pass
+        else:
+            for label in list(labels.values()):
+                try:
+                    if label.winfo_exists():
+                        label.config(text="未进入场景", fg=COLORS["error"])
+                except Exception:
+                    pass
 
     # ===== 创造模式页 =====
     def _build_creative(self):

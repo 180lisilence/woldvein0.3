@@ -1,9 +1,12 @@
-; woldvein Trainer v0.4.3 Installer Script for Inno Setup 6
-; 生成 woldvein_trainer_v0.4.3_setup.exe 安装包
+; woldvein Trainer Installer Script for Inno Setup 6
+; 生成 woldvein_trainer_v<版本>_setup.exe 安装包
+; 版本号默认取下方 MyAppVersion；构建脚本可用 /DMyAppVersion=<版本> 覆盖（单一版本源 src/constants.py）
 
 #define MyAppName "woldvein Trainer"
 #define MyAppNameZh "平野孤鸿全能修改器"
+#ifndef MyAppVersion
 #define MyAppVersion "0.4.3"
+#endif
 #define MyAppPublisher "woldvein"
 #define MyAppURL "https://github.com/180lisilence/woldvein0.3-0.4"
 #define MyAppExeName "woldvein_trainer.exe"
@@ -18,25 +21,25 @@ AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
 AppVersion={#MyAppVersion}
-VersionInfoVersion=0.4.3.0
+VersionInfoVersion={#MyAppVersion}.0
 VersionInfoCompany=woldvein
 VersionInfoDescription=woldvein Trainer Installer
 VersionInfoProductName=woldvein Trainer
-VersionInfoProductVersion=0.4.3.0
+VersionInfoProductVersion={#MyAppVersion}.0
 
 DefaultDirName={autopf}\woldvein_trainer
 DisableDirPage=no
 DefaultGroupName=woldvein Trainer
 
 OutputDir=..\
-OutputBaseFilename=woldvein_trainer_v0.4.3_setup
+OutputBaseFilename=woldvein_trainer_v{#MyAppVersion}_setup
 Compression=lzma2/ultra64
 SolidCompression=yes
 WizardStyle=modern
 
 SetupIconFile={#MyAppIcon}
 UninstallDisplayIcon={app}\{#MyAppIcon}
-UninstallDisplayName=woldvein Trainer v0.4.3
+UninstallDisplayName={#MyAppName} {#MyAppVersion}
 
 PrivilegesRequired=admin
 ArchitecturesInstallIn64BitMode=x64compatible

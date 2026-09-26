@@ -4,9 +4,12 @@ import sys
 
 block_cipher = None
 
+# SPECPATH 由 PyInstaller 注入：本 spec 文件所在目录（即项目根），勿硬编码绝对路径
+PROJECT_DIR = os.path.abspath(SPECPATH) if 'SPECPATH' in globals() else os.path.dirname(os.path.abspath(__file__))
+
 a = Analysis(
     ['main.py'],
-    pathex=[r'D:\pingye_pack\releases\woldvein_trainer'],
+    pathex=[PROJECT_DIR],
     binaries=[],
     datas=[
         ('dist/woldvein_trainer.dll', 'dist'),
